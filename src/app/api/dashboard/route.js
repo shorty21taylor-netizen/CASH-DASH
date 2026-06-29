@@ -1,50 +1,110 @@
 import { NextResponse } from 'next/server';
 import { initStore, getCache } from '../../../lib/store.js';
 
-export async function GET() {
+export async function GET(request) {
   await initStore();
-  const { commissions, policies } = getCache();
+  const { searchParams } = new URL(request.url);
+  const range = searchParams.get('range') || 'mtd';
+  const cache = getCache();
+  const { commissions, policies, expenses, income_other, accounts } = cache;
 
-  const totalRevenue = commissions
-    .filter((c) => c.status === 'paid')
-    .reduce((sum, c) => sum + (c.amount * c.rate), 0);
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth();
+  const rangeStart = range === 'ytd'
+    ? `${year}-01-01`
+    : `${year}-${String(month + 1).padStart(2, '0')}-01`;
 
-  const pendingRevenue = commissions
-    .filter((c) => c.status === 'pending' || c.status === 'approved')
-    .reduce((sum, c) => sum + (c.amount * c.rate), 0);
+  function inRange(dateStr) {
+    if (!dateStr) return false;
+    return dateStr >= rangeStart;
+  }
+
+  const paidComm = commissions.filter((c) => c.status === 'paid' && inRange(c.date));
+  const commRevenue = paidComm.reduce((s, c) => s + (c.amount * c.rate), 0);
 
   const byStream = {
-    htA: commissions.filter((c) => c.stream === 'htA' && c.status === 'paid').reduce((s, c) => s + (c.amount * c.rate), 0),
-    htB: commissions.filter((c) => c.stream === 'htB' && c.status === 'paid').reduce((s, c) => s + (c.amount * c.rate), 0),
-    life: commissions.filter((c) => c.stream === 'life' && c.status === 'paid').reduce((s, c) => s + (c.amount * c.rate), 0),
+    htA: paidComm.filter((c) => c.stream === 'htA').reduce((s, c) => s + (c.amount * c.rate), 0),
+    htB: paidComm.filter((c) => c.stream === 'htB').reduce((s, c) => s + (c.amount * c.rate), 0),
+    life: paidComm.filter((c) => c.stream === 'life').reduce((s, c) => s + (c.amount * c.rate), 0),
   };
 
   const renewalIncome = policies
     .filter((p) => p.status === 'active')
-    .reduce((sum, p) => sum + (p.premium * p.renewal_rate), 0);
+    .reduce((s, p) => s + (p.premium * p.renewal_rate), 0);
 
-  const monthlyData = buildMonthlyData(commissions);
+  const otherIncome = income_other
+    .filter((i) => inRange(i.date))
+    .reduce((s, i) => s + i.amount, 0);
+
+  const totalRevenue = commRevenue + otherIncome;
+
+  const rangeExpenses = expenses.filter((e) => {
+    if (e.recurring && e.frequency === 'monthly') return true;
+    if (e.recurring && e.frequency === 'yearly') return range === 'ytd';
+    return inRange(e.date);
+  });
+  const totalExpenses = rangeExpenses.reduce((s, e) => {
+    if (e.recurring && e.frequency === 'monthly') {
+      const months = range === 'ytd' ? month + 1 : 1;
+      return s + (e.amount * months);
+    }
+    return s + e.amount;
+  }, 0);
+
+  const bizExpenses = rangeExpenses.filter((e) => e.category === 'business')
+    .reduce((s, e) => s + e.amount, 0);
+  const personalExpenses = rangeExpenses.filter((e) => e.category === 'personal')
+    .reduce((s, e) => s + e.amount, 0);
+
+  const netPnl = totalRevenue - totalExpenses;
+
+  const realAccounts = accounts.filter((a) => a.id !== 'app-settings');
+  const netWorth = realAccounts.reduce((s, a) => {
+    return s + (a.type === 'debt' ? -a.balance : a.balance);
+  }, 0);
+
+  const pendingComm = commissions
+    .filter((c) => c.status !== 'paid')
+    .reduce((s, c) => s + (c.amount * c.rate), 0);
+
+  const monthlyData = buildMonthlyData(commissions, expenses);
 
   return NextResponse.json({
+    range,
     totalRevenue,
-    pendingRevenue,
+    totalExpenses,
+    netPnl,
     byStream,
     renewalIncome,
+    otherIncome,
+    pendingComm,
+    bizExpenses,
+    personalExpenses,
+    netWorth,
     monthlyData,
     totalCommissions: commissions.length,
     activePolicies: policies.filter((p) => p.status === 'active').length,
   });
 }
 
-function buildMonthlyData(commissions) {
+function buildMonthlyData(commissions, expenses) {
   const months = {};
   commissions.forEach((c) => {
     if (!c.date) return;
-    const month = c.date.substring(0, 7);
-    if (!months[month]) months[month] = { month, htA: 0, htB: 0, life: 0 };
+    const m = c.date.substring(0, 7);
+    if (!months[m]) months[m] = { month: m, htA: 0, htB: 0, life: 0, revenue: 0, expenses: 0 };
     if (c.status === 'paid') {
-      months[month][c.stream] += c.amount * c.rate;
+      const earned = c.amount * c.rate;
+      months[m][c.stream] += earned;
+      months[m].revenue += earned;
     }
+  });
+  expenses.forEach((e) => {
+    if (!e.date) return;
+    const m = e.date.substring(0, 7);
+    if (!months[m]) months[m] = { month: m, htA: 0, htB: 0, life: 0, revenue: 0, expenses: 0 };
+    months[m].expenses += e.amount;
   });
   return Object.values(months).sort((a, b) => a.month.localeCompare(b.month)).slice(-6);
 }

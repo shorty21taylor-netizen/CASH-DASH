@@ -3,15 +3,93 @@
 @tailwind utilities;
 
 :root {
-  --summit-primary: #5c7cfa;
-  --summit-bg: #020617;
+  --crm-bg: #0a0a0a;
+  --crm-surface: #141414;
+  --crm-surface2: #1a1a1a;
+  --crm-border: #262626;
+  --crm-text: #fafafa;
+  --crm-text-muted: #a3a3a3;
+  --crm-accent: #dc2626;
+  --crm-accent2: #f97316;
+  --crm-positive: #22c55e;
+  --crm-negative: #ef4444;
+  --crm-glass: rgba(255, 255, 255, 0.03);
+  --crm-glass-border: rgba(255, 255, 255, 0.08);
 }
 
 body {
-  background-color: var(--summit-bg);
-  color: #f8fafc;
+  background-color: var(--crm-bg);
+  color: var(--crm-text);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+.glass-card {
+  background: var(--crm-glass);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--crm-glass-border);
+  border-radius: 16px;
+}
+
+.glass-card-solid {
+  background: var(--crm-surface);
+  border: 1px solid var(--crm-border);
+  border-radius: 16px;
+}
+
+.pnl-hero-positive {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.12), rgba(34, 197, 94, 0.03));
+  border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+.pnl-hero-negative {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.12), rgba(239, 68, 68, 0.03));
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.pnl-gradient-text {
+  background: linear-gradient(135deg, #dc2626, #f97316);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.metric-number {
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.metric-number-xl {
+  font-size: 3.5rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.03em;
 }
 
 input[type="date"]::-webkit-calendar-picker-indicator {
   filter: invert(0.7);
+}
+
+input, select, textarea {
+  outline: none;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: var(--crm-accent) !important;
+  box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.15);
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 3px;
 }

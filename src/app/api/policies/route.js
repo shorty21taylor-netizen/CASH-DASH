@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { v4 as uuid } from 'uuid';
-import { initStore, getCache, savePolicy, deletePolicy } from '../../../lib/store.js';
+import { initStore, getCache, saveRecord, deleteRecord } from '../../../lib/store.js';
 
 export async function GET() {
   await initStore();
@@ -10,23 +10,21 @@ export async function GET() {
 export async function POST(request) {
   await initStore();
   const body = await request.json();
-
   if (body._action === 'delete') {
-    await deletePolicy(body.id);
+    await deleteRecord('policies', body.id);
     return NextResponse.json({ success: true });
   }
-
-  const policy = {
+  const record = {
     id: body.id || uuid(),
     client_name: body.client_name,
-    premium: body.premium,
-    commission_rate: body.commission_rate,
-    first_year_amount: body.first_year_amount,
-    renewal_rate: body.renewal_rate,
-    renewal_schedule: body.renewal_schedule,
+    premium: parseFloat(body.premium) || 0,
+    commission_rate: parseFloat(body.commission_rate) || 0,
+    first_year_amount: parseFloat(body.first_year_amount) || 0,
+    renewal_rate: parseFloat(body.renewal_rate) || 0,
+    renewal_months: body.renewal_months || [],
     status: body.status || 'active',
+    sold_date: body.sold_date || new Date().toISOString().split('T')[0],
   };
-
-  await savePolicy(policy);
-  return NextResponse.json({ policy });
+  await saveRecord('policies', record);
+  return NextResponse.json({ policy: record });
 }

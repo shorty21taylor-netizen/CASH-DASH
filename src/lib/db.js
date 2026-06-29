@@ -1,4 +1,5 @@
 import pg from 'pg';
+import { TABLES } from './constants.js';
 
 const { Pool } = pg;
 
@@ -20,35 +21,22 @@ function getPool() {
 export async function query(text, params) {
   const client = await getPool().connect();
   try {
-    const result = await client.query(text, params);
-    return result;
+    return await client.query(text, params);
   } finally {
     client.release();
   }
 }
 
 export async function initDB() {
-  await query(`
-    CREATE TABLE IF NOT EXISTS commissions (
-      id TEXT PRIMARY KEY,
-      data JSONB NOT NULL,
-      created_at TIMESTAMP DEFAULT NOW()
-    )
-  `);
-  await query(`
-    CREATE TABLE IF NOT EXISTS policies (
-      id TEXT PRIMARY KEY,
-      data JSONB NOT NULL,
-      created_at TIMESTAMP DEFAULT NOW()
-    )
-  `);
-  await query(`
-    CREATE TABLE IF NOT EXISTS life_os (
-      id TEXT PRIMARY KEY,
-      data JSONB NOT NULL,
-      created_at TIMESTAMP DEFAULT NOW()
-    )
-  `);
+  for (const table of TABLES) {
+    await query(`
+      CREATE TABLE IF NOT EXISTS ${table} (
+        id TEXT PRIMARY KEY,
+        data JSONB NOT NULL,
+        created_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+  }
 }
 
 export async function getAll(table) {
@@ -83,9 +71,4 @@ export async function softDelete(table, id) {
   data.deleted_at = new Date().toISOString();
   await upsert(table, id, data);
   return data;
-}
-
-export async function getFiltered(table, filterFn) {
-  const all = await getAll(table);
-  return all.filter(filterFn);
 }

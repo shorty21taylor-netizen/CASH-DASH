@@ -14,7 +14,43 @@ CREATE TABLE IF NOT EXISTS policies (
   created_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE TABLE IF NOT EXISTS life_os (
+CREATE TABLE IF NOT EXISTS expenses (
+  id TEXT PRIMARY KEY,
+  data JSONB NOT NULL,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS income_other (
+  id TEXT PRIMARY KEY,
+  data JSONB NOT NULL,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS accounts (
+  id TEXT PRIMARY KEY,
+  data JSONB NOT NULL,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS goals (
+  id TEXT PRIMARY KEY,
+  data JSONB NOT NULL,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS habits (
+  id TEXT PRIMARY KEY,
+  data JSONB NOT NULL,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS health_logs (
+  id TEXT PRIMARY KEY,
+  data JSONB NOT NULL,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS time_logs (
   id TEXT PRIMARY KEY,
   data JSONB NOT NULL,
   created_at TIMESTAMP DEFAULT NOW()
@@ -25,4 +61,5 @@ CREATE INDEX IF NOT EXISTS idx_commissions_stream ON commissions ((data->>'strea
 CREATE INDEX IF NOT EXISTS idx_commissions_status ON commissions ((data->>'status'));
 CREATE INDEX IF NOT EXISTS idx_commissions_deleted ON commissions ((data->>'deleted_at'));
 CREATE INDEX IF NOT EXISTS idx_policies_status ON policies ((data->>'status'));
-CREATE INDEX IF NOT EXISTS idx_life_os_type ON life_os ((data->>'type'));
+CREATE INDEX IF NOT EXISTS idx_expenses_category ON expenses ((data->>'category'));
+CREATE INDEX IF NOT EXISTS idx_goals_category ON goals ((data->>'category'));
