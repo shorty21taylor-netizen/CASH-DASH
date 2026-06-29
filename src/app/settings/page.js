@@ -174,6 +174,43 @@ export default function SettingsPage() {
             )}
           </Section>
 
+          <Section title="Monthly Retainers" subtitle="Recurring monthly retainer income for high-ticket offers">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between p-4 rounded-xl" style={{ background: 'var(--crm-surface2)' }}>
+                <div className="flex items-center gap-3">
+                  <Toggle checked={settings.retainers?.htA?.enabled} onChange={(v) => update('retainers.htA.enabled', v)} />
+                  <div>
+                    <span className="text-[14px] font-medium">I2I Offer</span>
+                    <p className="text-[12px]" style={{ color: 'var(--crm-text-muted)' }}>Monthly retainer added to I2I stream revenue</p>
+                  </div>
+                </div>
+                {settings.retainers?.htA?.enabled && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-[13px]" style={{ color: 'var(--crm-text-muted)' }}>$/mo</span>
+                    <input type="number" step="0.01" value={settings.retainers?.htA?.amount || ''} onChange={(e) => update('retainers.htA.amount', parseFloat(e.target.value) || 0)}
+                      className="input-field w-32 text-right" placeholder="0.00" />
+                  </div>
+                )}
+              </div>
+              <div className="flex items-center justify-between p-4 rounded-xl" style={{ background: 'var(--crm-surface2)' }}>
+                <div className="flex items-center gap-3">
+                  <Toggle checked={settings.retainers?.htB?.enabled} onChange={(v) => update('retainers.htB.enabled', v)} />
+                  <div>
+                    <span className="text-[14px] font-medium">BNB Offer</span>
+                    <p className="text-[12px]" style={{ color: 'var(--crm-text-muted)' }}>Monthly retainer added to BNB stream revenue</p>
+                  </div>
+                </div>
+                {settings.retainers?.htB?.enabled && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-[13px]" style={{ color: 'var(--crm-text-muted)' }}>$/mo</span>
+                    <input type="number" step="0.01" value={settings.retainers?.htB?.amount || ''} onChange={(e) => update('retainers.htB.amount', parseFloat(e.target.value) || 0)}
+                      className="input-field w-32 text-right" placeholder="0.00" />
+                  </div>
+                )}
+              </div>
+            </div>
+          </Section>
+
           <Section title="Additional Fixed Income" subtitle="Retainers, side contracts, recurring payments outside of commissions">
             <div className="space-y-3">
               {(settings.fixed_income || []).map((inc, i) => (

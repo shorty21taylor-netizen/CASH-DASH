@@ -8,12 +8,16 @@ export async function GET(request) {
   const cache = getCache();
   const { commissions, policies, expenses, income_other, accounts, market_profits } = cache;
 
+  const stored = accounts.find((a) => a.id === 'app-settings');
+  const retainers = stored?.retainers || {};
+
   const now = new Date();
   const year = now.getFullYear();
   const month = now.getMonth();
   const rangeStart = range === 'ytd'
     ? `${year}-01-01`
     : `${year}-${String(month + 1).padStart(2, '0')}-01`;
+  const retainerMonths = range === 'ytd' ? month + 1 : 1;
 
   function inRange(dateStr) {
     if (!dateStr) return false;
@@ -23,9 +27,13 @@ export async function GET(request) {
   const paidComm = commissions.filter((c) => c.status === 'paid' && inRange(c.date));
   const commRevenue = paidComm.reduce((s, c) => s + (c.amount * c.rate), 0);
 
+  const htARetainer = retainers.htA?.enabled ? (retainers.htA.amount || 0) * retainerMonths : 0;
+  const htBRetainer = retainers.htB?.enabled ? (retainers.htB.amount || 0) * retainerMonths : 0;
+  const retainerTotal = htARetainer + htBRetainer;
+
   const byStream = {
-    htA: paidComm.filter((c) => c.stream === 'htA').reduce((s, c) => s + (c.amount * c.rate), 0),
-    htB: paidComm.filter((c) => c.stream === 'htB').reduce((s, c) => s + (c.amount * c.rate), 0),
+    htA: paidComm.filter((c) => c.stream === 'htA').reduce((s, c) => s + (c.amount * c.rate), 0) + htARetainer,
+    htB: paidComm.filter((c) => c.stream === 'htB').reduce((s, c) => s + (c.amount * c.rate), 0) + htBRetainer,
     life: paidComm.filter((c) => c.stream === 'life').reduce((s, c) => s + (c.amount * c.rate), 0),
     summit: paidComm.filter((c) => c.stream === 'summit').reduce((s, c) => s + (c.amount * c.rate), 0),
   };
@@ -42,7 +50,7 @@ export async function GET(request) {
     .filter((p) => inRange(p.date))
     .reduce((s, p) => s + p.amount, 0);
 
-  const totalRevenue = commRevenue + otherIncome + marketProfits;
+  const totalRevenue = commRevenue + retainerTotal + otherIncome + marketProfits;
 
   const rangeExpenses = expenses.filter((e) => {
     if (e.recurring && e.frequency === 'monthly') return true;
@@ -83,6 +91,7 @@ export async function GET(request) {
     netPnl,
     byStream,
     renewalIncome,
+    retainerIncome: retainerTotal,
     otherIncome,
     marketProfits,
     pendingComm,

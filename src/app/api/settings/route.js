@@ -12,6 +12,11 @@ const DEFAULT_SETTINGS = {
     frequency: 'bi-weekly',
     start_date: '',
   },
+  // Monthly retainers for high-ticket offers
+  retainers: {
+    htA: { enabled: false, amount: 0 },
+    htB: { enabled: false, amount: 0 },
+  },
   // Additional fixed income sources
   fixed_income: [],
   // Override rates (per-deal overrides allowed)
