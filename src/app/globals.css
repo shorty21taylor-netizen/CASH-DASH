@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 :root {
-  --crm-bg: #0a0c0a;
+  --crm-bg: #000000;
   --crm-surface: #121512;
   --crm-surface2: #161916;
   --crm-surface3: #1a1d1a;

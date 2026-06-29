@@ -15,7 +15,7 @@ module.exports = {
           glow: '#22c55e',
         },
         panel: {
-          bg: '#0a0c0a',
+          bg: '#000000',
           surface: '#121512',
           elevated: '#161916',
         },
