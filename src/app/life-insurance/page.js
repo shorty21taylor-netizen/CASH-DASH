@@ -64,77 +64,77 @@ export default function LifeInsurancePage() {
   const totalRenewals = active.reduce((s, p) => s + ((p.premium || 0) * (p.renewal_rate || 0)), 0);
 
   return (
-    <div className="space-y-5 max-w-7xl">
+    <div className="space-y-5">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-mono text-[14px] uppercase tracking-[0.12em] font-semibold">LIFE INSURANCE</h1>
-          <p className="font-mono text-[11px] mt-0.5" style={{ color: 'var(--crm-text-muted)' }}>Policy management & renewal projections</p>
+          <h1 className="text-lg font-semibold">Life Insurance</h1>
+          <p className="text-[13px] mt-0.5" style={{ color: 'var(--crm-text-muted)' }}>Policy management & renewal projections</p>
         </div>
-        <button onClick={() => { setForm(getBlank()); setEditing(null); setShowForm(true); }} className="px-4 py-2 rounded font-mono text-[11px] uppercase tracking-[0.1em]" style={{ background: '#1E90FF', color: '#fff' }}>
-          + NEW POLICY
+        <button onClick={() => { setForm(getBlank()); setEditing(null); setShowForm(true); }} className="px-4 py-2 rounded-xl text-[13px] font-medium" style={{ background: 'var(--crm-accent)', color: '#0a0c0a' }}>
+          + New policy
         </button>
       </div>
 
       <div className="grid grid-cols-4 gap-3">
-        <MetricCard title="Active Policies" value={active.length} />
-        <MetricCard title="Total Premium" value={totalPremium} />
-        <MetricCard title="First Year Comm" value={totalFirstYear} positive={true} />
-        <MetricCard title="Annual Renewals" value={totalRenewals} positive={true} />
+        <MetricCard title="Active policies" value={active.length} />
+        <MetricCard title="Total premium" value={totalPremium} />
+        <MetricCard title="First year comm" value={totalFirstYear} positive={true} />
+        <MetricCard title="Annual renewals" value={totalRenewals} positive={true} />
       </div>
 
       {showForm && (
         <form onSubmit={handleSubmit} className="glass-card-solid p-5 space-y-4">
-          <h2 className="font-mono text-[12px] uppercase tracking-[0.1em] font-semibold">{editing ? 'EDIT' : 'NEW'} POLICY</h2>
+          <h2 className="text-sm font-semibold">{editing ? 'Edit' : 'New'} Policy</h2>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block font-mono text-[10px] uppercase tracking-[0.12em] mb-1" style={{ color: 'var(--crm-text-muted)' }}>Client Name</label>
+              <label className="block text-[13px] mb-1" style={{ color: 'var(--crm-text-secondary)' }}>Client name</label>
               <input name="client_name" value={form.client_name} onChange={handleChange} required className="input-field" />
             </div>
             <div>
-              <label className="block font-mono text-[10px] uppercase tracking-[0.12em] mb-1" style={{ color: 'var(--crm-text-muted)' }}>Sold Date</label>
+              <label className="block text-[13px] mb-1" style={{ color: 'var(--crm-text-secondary)' }}>Sold date</label>
               <input name="sold_date" type="date" value={form.sold_date} onChange={handleChange} className="input-field" />
             </div>
           </div>
           <div className="grid grid-cols-4 gap-4">
             <div>
-              <label className="block font-mono text-[10px] uppercase tracking-[0.12em] mb-1" style={{ color: 'var(--crm-text-muted)' }}>Annual Premium ($)</label>
+              <label className="block text-[13px] mb-1" style={{ color: 'var(--crm-text-secondary)' }}>Annual premium ($)</label>
               <input name="premium" type="number" step="0.01" value={form.premium} onChange={handleChange} required className="input-field" />
             </div>
             <div>
-              <label className="block font-mono text-[10px] uppercase tracking-[0.12em] mb-1" style={{ color: 'var(--crm-text-muted)' }}>Commission Rate</label>
+              <label className="block text-[13px] mb-1" style={{ color: 'var(--crm-text-secondary)' }}>Commission rate</label>
               <input name="commission_rate" type="number" step="0.01" value={form.commission_rate} onChange={handleChange} className="input-field" />
             </div>
             <div>
-              <label className="block font-mono text-[10px] uppercase tracking-[0.12em] mb-1" style={{ color: 'var(--crm-text-muted)' }}>First Year ($)</label>
+              <label className="block text-[13px] mb-1" style={{ color: 'var(--crm-text-secondary)' }}>First year ($)</label>
               <input name="first_year_amount" type="number" step="0.01" value={form.first_year_amount} onChange={handleChange} className="input-field" />
             </div>
             <div>
-              <label className="block font-mono text-[10px] uppercase tracking-[0.12em] mb-1" style={{ color: 'var(--crm-text-muted)' }}>Renewal Rate</label>
+              <label className="block text-[13px] mb-1" style={{ color: 'var(--crm-text-secondary)' }}>Renewal rate</label>
               <input name="renewal_rate" type="number" step="0.01" value={form.renewal_rate} onChange={handleChange} className="input-field" />
             </div>
           </div>
           <div>
-            <label className="block font-mono text-[10px] uppercase tracking-[0.12em] mb-2" style={{ color: 'var(--crm-text-muted)' }}>Renewal Months</label>
+            <label className="block text-[13px] mb-2" style={{ color: 'var(--crm-text-secondary)' }}>Renewal months</label>
             <div className="flex gap-2 flex-wrap">
               {MONTHS.map((m, i) => (
                 <button key={i} type="button" onClick={() => toggleMonth(i)}
-                  className="px-3 py-1 rounded font-mono text-[10px] uppercase transition-colors"
+                  className="px-3 py-1 rounded-lg text-[12px] transition-colors"
                   style={{
-                    background: (form.renewal_months || []).includes(i) ? '#1E90FF' : 'var(--crm-surface2)',
-                    color: (form.renewal_months || []).includes(i) ? '#fff' : 'var(--crm-text-muted)',
+                    background: (form.renewal_months || []).includes(i) ? 'var(--crm-accent)' : 'var(--crm-surface2)',
+                    color: (form.renewal_months || []).includes(i) ? '#0a0c0a' : 'var(--crm-text-muted)',
                   }}>{m}</button>
               ))}
             </div>
           </div>
           <div>
-            <label className="block font-mono text-[10px] uppercase tracking-[0.12em] mb-1" style={{ color: 'var(--crm-text-muted)' }}>Status</label>
+            <label className="block text-[13px] mb-1" style={{ color: 'var(--crm-text-secondary)' }}>Status</label>
             <select name="status" value={form.status} onChange={handleChange} className="input-field" style={{ width: 'auto' }}>
               {Object.values(POLICY_STATUSES).map((s) => <option key={s.key} value={s.key}>{s.label}</option>)}
             </select>
           </div>
           <div className="flex gap-2">
-            <button type="submit" className="px-4 py-2 rounded font-mono text-[11px] uppercase" style={{ background: '#1E90FF', color: '#fff' }}>{editing ? 'Update' : 'Add'}</button>
-            <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 rounded font-mono text-[11px] uppercase" style={{ background: 'var(--crm-surface2)', color: 'var(--crm-text-secondary)' }}>Cancel</button>
+            <button type="submit" className="px-4 py-2 rounded-xl text-[13px] font-medium" style={{ background: 'var(--crm-accent)', color: '#0a0c0a' }}>{editing ? 'Update' : 'Add'}</button>
+            <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 rounded-xl text-[13px]" style={{ background: 'var(--crm-surface2)', color: 'var(--crm-text-secondary)' }}>Cancel</button>
           </div>
         </form>
       )}
@@ -143,40 +143,40 @@ export default function LifeInsurancePage() {
         <table className="w-full">
           <thead>
             <tr className="border-b" style={{ borderColor: 'var(--crm-border)' }}>
-              <th className="text-left px-4 py-3 font-mono text-[10px] uppercase tracking-[0.12em] font-normal" style={{ color: 'var(--crm-text-muted)' }}>Client</th>
-              <th className="text-right px-4 py-3 font-mono text-[10px] uppercase tracking-[0.12em] font-normal" style={{ color: 'var(--crm-text-muted)' }}>Premium</th>
-              <th className="text-right px-4 py-3 font-mono text-[10px] uppercase tracking-[0.12em] font-normal" style={{ color: 'var(--crm-text-muted)' }}>Rate</th>
-              <th className="text-right px-4 py-3 font-mono text-[10px] uppercase tracking-[0.12em] font-normal" style={{ color: 'var(--crm-text-muted)' }}>First Year</th>
-              <th className="text-right px-4 py-3 font-mono text-[10px] uppercase tracking-[0.12em] font-normal" style={{ color: 'var(--crm-text-muted)' }}>Renewal</th>
-              <th className="text-left px-4 py-3 font-mono text-[10px] uppercase tracking-[0.12em] font-normal" style={{ color: 'var(--crm-text-muted)' }}>Months</th>
-              <th className="text-left px-4 py-3 font-mono text-[10px] uppercase tracking-[0.12em] font-normal" style={{ color: 'var(--crm-text-muted)' }}>Status</th>
-              <th className="text-right px-4 py-3 font-mono text-[10px] uppercase tracking-[0.12em] font-normal" style={{ color: 'var(--crm-text-muted)' }}>Actions</th>
+              <th className="text-left px-4 py-3 text-[13px] font-normal" style={{ color: 'var(--crm-text-secondary)' }}>Client</th>
+              <th className="text-right px-4 py-3 text-[13px] font-normal" style={{ color: 'var(--crm-text-secondary)' }}>Premium</th>
+              <th className="text-right px-4 py-3 text-[13px] font-normal" style={{ color: 'var(--crm-text-secondary)' }}>Rate</th>
+              <th className="text-right px-4 py-3 text-[13px] font-normal" style={{ color: 'var(--crm-text-secondary)' }}>First year</th>
+              <th className="text-right px-4 py-3 text-[13px] font-normal" style={{ color: 'var(--crm-text-secondary)' }}>Renewal</th>
+              <th className="text-left px-4 py-3 text-[13px] font-normal" style={{ color: 'var(--crm-text-secondary)' }}>Months</th>
+              <th className="text-left px-4 py-3 text-[13px] font-normal" style={{ color: 'var(--crm-text-secondary)' }}>Status</th>
+              <th className="text-right px-4 py-3 text-[13px] font-normal" style={{ color: 'var(--crm-text-secondary)' }}>Actions</th>
             </tr>
           </thead>
           <tbody>
             {policies.map((p) => (
               <tr key={p.id} className="border-b hover:bg-white/[0.02]" style={{ borderColor: 'var(--crm-border)' }}>
                 <td className="px-4 py-3 text-sm font-medium">{p.client_name}</td>
-                <td className="px-4 py-3 text-right font-mono text-[13px]">${(p.premium || 0).toLocaleString()}/yr</td>
-                <td className="px-4 py-3 text-right font-mono text-[13px]">{((p.commission_rate || 0) * 100).toFixed(0)}%</td>
-                <td className="px-4 py-3 text-right font-mono text-[13px]" style={{ color: '#1E90FF' }}>${(p.first_year_amount || 0).toLocaleString()}</td>
-                <td className="px-4 py-3 text-right font-mono text-[13px]">{((p.renewal_rate || 0) * 100).toFixed(1)}%</td>
-                <td className="px-4 py-3 font-mono text-[11px]" style={{ color: 'var(--crm-text-muted)' }}>{(p.renewal_months || []).map((m) => MONTHS[m]).join(', ') || '—'}</td>
+                <td className="px-4 py-3 text-right text-[13px]">${(p.premium || 0).toLocaleString()}/yr</td>
+                <td className="px-4 py-3 text-right text-[13px]">{((p.commission_rate || 0) * 100).toFixed(0)}%</td>
+                <td className="px-4 py-3 text-right text-[13px]" style={{ color: 'var(--crm-accent)' }}>${(p.first_year_amount || 0).toLocaleString()}</td>
+                <td className="px-4 py-3 text-right text-[13px]">{((p.renewal_rate || 0) * 100).toFixed(1)}%</td>
+                <td className="px-4 py-3 text-[12px]" style={{ color: 'var(--crm-text-muted)' }}>{(p.renewal_months || []).map((m) => MONTHS[m]).join(', ') || '—'}</td>
                 <td className="px-4 py-3">
-                  <span className="font-mono text-[10px] uppercase px-2 py-0.5 rounded" style={{
-                    background: p.status === 'active' ? 'rgba(34,197,94,0.1)' : p.status === 'pending' ? 'rgba(255,255,255,0.05)' : 'rgba(239,68,68,0.1)',
-                    color: p.status === 'active' ? '#22c55e' : p.status === 'pending' ? 'var(--crm-text-secondary)' : '#ef4444',
+                  <span className="text-[12px] px-2 py-0.5 rounded-lg" style={{
+                    background: p.status === 'active' ? 'rgba(74,222,128,0.1)' : p.status === 'pending' ? 'rgba(255,255,255,0.05)' : 'rgba(239,68,68,0.1)',
+                    color: p.status === 'active' ? 'var(--crm-accent)' : p.status === 'pending' ? 'var(--crm-text-secondary)' : '#ef4444',
                   }}>{POLICY_STATUSES[p.status]?.label}</span>
                 </td>
                 <td className="px-4 py-3 text-right">
-                  <button onClick={() => { setForm({ ...p }); setEditing(p.id); setShowForm(true); }} className="font-mono text-[10px] uppercase mr-3" style={{ color: 'var(--crm-text-muted)' }}>Edit</button>
-                  <button onClick={() => handleDelete(p.id)} className="font-mono text-[10px] uppercase" style={{ color: 'var(--crm-negative)' }}>Del</button>
+                  <button onClick={() => { setForm({ ...p }); setEditing(p.id); setShowForm(true); }} className="text-[12px] mr-3" style={{ color: 'var(--crm-text-muted)' }}>Edit</button>
+                  <button onClick={() => handleDelete(p.id)} className="text-[12px]" style={{ color: 'var(--crm-negative)' }}>Del</button>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
-        {policies.length === 0 && <EmptyState icon="—" message="No policies yet" />}
+        {policies.length === 0 && <EmptyState message="No policies yet" />}
       </div>
     </div>
   );

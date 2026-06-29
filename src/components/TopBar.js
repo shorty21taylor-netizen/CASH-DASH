@@ -1,40 +1,49 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
+
+const PAGE_LABELS = {
+  '/': 'Dashboard',
+  '/commissions': 'Commissions',
+  '/life-insurance': 'Life Insurance',
+  '/market': 'Market Profits',
+  '/pnl': 'P&L Statement',
+  '/networth': 'Net Worth',
+  '/goals': 'Goals',
+  '/habits': 'Habits',
+  '/health': 'Health Log',
+  '/time': 'Time Log',
+  '/settings': 'Settings',
+};
 
 export default function TopBar() {
-  const [data, setData] = useState(null);
-
-  useEffect(() => {
-    fetch('/api/dashboard?range=mtd').then((r) => r.json()).then(setData);
-  }, []);
-
-  const stats = [
-    { label: 'TOTAL EARNED', value: data?.commRevenue },
-    { label: 'MTD NET', value: data?.netPnl },
-    { label: 'PIPELINE', value: data?.pendingComm },
-    { label: 'NET WORTH', value: data?.netWorth },
-  ];
+  const pathname = usePathname();
+  const pageLabel = PAGE_LABELS[pathname] || 'Dashboard';
 
   return (
-    <div className="flex items-center justify-between px-6 h-11 border-b flex-shrink-0" style={{ background: 'var(--crm-surface)', borderColor: 'var(--crm-border)' }}>
-      <div className="flex items-center gap-3">
-        <img src="/summit-logo.png" alt="" className="w-5 h-5 opacity-50 grayscale" onError={(e) => { e.target.style.display = 'none'; }} />
-        <span className="font-mono text-[11px] uppercase tracking-[0.15em]" style={{ color: 'var(--crm-text-muted)' }}>SWR</span>
-      </div>
-      <div className="flex items-center gap-8">
-        {stats.map((s) => (
-          <div key={s.label} className="flex items-center gap-3">
-            <span className="font-mono text-[10px] uppercase tracking-[0.12em]" style={{ color: 'var(--crm-text-muted)' }}>{s.label}</span>
-            <span className="font-mono text-[13px] tabular-nums" style={{ color: 'var(--crm-text)' }}>
-              {s.value != null ? `$${s.value.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}` : '—'}
-            </span>
-          </div>
-        ))}
-      </div>
+    <div className="flex items-center justify-between px-6 lg:px-8 h-14 border-b flex-shrink-0" style={{ background: 'var(--crm-bg)', borderColor: 'var(--crm-border)' }}>
       <div className="flex items-center gap-2">
-        <div className="w-6 h-6 rounded-full flex items-center justify-center font-mono text-[10px]" style={{ background: 'var(--crm-surface2)', color: 'var(--crm-text-secondary)' }}>S</div>
-        <span className="font-mono text-[11px]" style={{ color: 'var(--crm-text-secondary)' }}>SHORTY</span>
+        <span className="text-sm" style={{ color: 'var(--crm-text-muted)' }}>Shorty War Room</span>
+        <span style={{ color: 'var(--crm-text-muted)' }}>/</span>
+        <span className="text-sm font-medium" style={{ color: 'var(--crm-text)' }}>{pageLabel}</span>
+      </div>
+      <div className="flex items-center gap-4">
+        <div className="relative">
+          <input
+            type="text"
+            placeholder="Search your report..."
+            className="input-field pl-9 pr-4 py-1.5 text-sm"
+            style={{ width: '220px', borderRadius: '20px', background: 'var(--crm-surface)', fontSize: '13px' }}
+          />
+          <svg className="absolute left-3 top-1/2 -translate-y-1/2" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--crm-text-muted)" strokeWidth="2" strokeLinecap="round">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+        </div>
+        <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold"
+          style={{ background: 'rgba(74, 222, 128, 0.12)', color: 'var(--crm-accent)' }}>
+          S
+        </div>
       </div>
     </div>
   );

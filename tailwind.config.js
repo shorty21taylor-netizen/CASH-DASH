@@ -7,21 +7,22 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        mono: ['JetBrains Mono', 'Space Mono', 'monospace'],
+        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
       },
       colors: {
-        hv: {
-          blue: '#1E90FF',
-          'blue-dark': '#1a7ae6',
+        accent: {
+          green: '#4ade80',
+          glow: '#22c55e',
         },
         panel: {
-          bg: '#0e0e10',
-          surface: '#16161a',
-          elevated: '#1c1c20',
+          bg: '#0a0c0a',
+          surface: '#121512',
+          elevated: '#161916',
         },
       },
       borderRadius: {
-        panel: '4px',
+        card: '16px',
+        xl: '12px',
       },
     },
   },

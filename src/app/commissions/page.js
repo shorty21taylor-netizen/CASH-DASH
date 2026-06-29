@@ -65,65 +65,65 @@ export default function CommissionsPage() {
   }
 
   return (
-    <div className="space-y-5 max-w-7xl">
+    <div className="space-y-5">
       <div className="flex items-center justify-between">
-        <h1 className="font-mono text-[14px] uppercase tracking-[0.12em] font-semibold">COMMISSIONS</h1>
-        <button onClick={openNew} className="px-4 py-2 rounded font-mono text-[11px] uppercase tracking-[0.1em] transition-colors" style={{ background: '#1E90FF', color: '#fff' }}>
-          + NEW
+        <h1 className="text-lg font-semibold">Commissions</h1>
+        <button onClick={openNew} className="px-4 py-2 rounded-xl text-[13px] font-medium transition-colors" style={{ background: 'var(--crm-accent)', color: '#0a0c0a' }}>
+          + New
         </button>
       </div>
 
       <div className="flex gap-3">
         <select value={filterStream} onChange={(e) => setFilterStream(e.target.value)} className="input-field" style={{ width: 'auto' }}>
-          <option value="">All Streams</option>
+          <option value="">All streams</option>
           {Object.values(STREAMS).map((s) => <option key={s.key} value={s.key}>{s.label}</option>)}
         </select>
         <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="input-field" style={{ width: 'auto' }}>
-          <option value="">All Statuses</option>
+          <option value="">All statuses</option>
           {Object.values(STATUSES).map((s) => <option key={s.key} value={s.key}>{s.label}</option>)}
         </select>
       </div>
 
       {showForm && (
         <form onSubmit={handleSubmit} className="glass-card-solid p-5 space-y-4">
-          <h2 className="font-mono text-[12px] uppercase tracking-[0.1em] font-semibold">{editing ? 'EDIT' : 'NEW'} COMMISSION</h2>
+          <h2 className="text-sm font-semibold">{editing ? 'Edit' : 'New'} Commission</h2>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block font-mono text-[10px] uppercase tracking-[0.12em] mb-1" style={{ color: 'var(--crm-text-muted)' }}>Stream</label>
+              <label className="block text-[13px] mb-1" style={{ color: 'var(--crm-text-secondary)' }}>Stream</label>
               <select name="stream" value={form.stream} onChange={handleChange} className="input-field">
                 {Object.values(STREAMS).map((s) => <option key={s.key} value={s.key}>{s.label}</option>)}
               </select>
             </div>
             <div>
-              <label className="block font-mono text-[10px] uppercase tracking-[0.12em] mb-1" style={{ color: 'var(--crm-text-muted)' }}>Status</label>
+              <label className="block text-[13px] mb-1" style={{ color: 'var(--crm-text-secondary)' }}>Status</label>
               <select name="status" value={form.status} onChange={handleChange} className="input-field">
                 {Object.values(STATUSES).map((s) => <option key={s.key} value={s.key}>{s.label}</option>)}
               </select>
             </div>
           </div>
           <div>
-            <label className="block font-mono text-[10px] uppercase tracking-[0.12em] mb-1" style={{ color: 'var(--crm-text-muted)' }}>Client Name</label>
+            <label className="block text-[13px] mb-1" style={{ color: 'var(--crm-text-secondary)' }}>Client name</label>
             <input name="client_name" value={form.client_name} onChange={handleChange} required className="input-field" />
           </div>
           <div className="grid grid-cols-3 gap-4">
             <div>
-              <label className="block font-mono text-[10px] uppercase tracking-[0.12em] mb-1" style={{ color: 'var(--crm-text-muted)' }}>Amount ($)</label>
+              <label className="block text-[13px] mb-1" style={{ color: 'var(--crm-text-secondary)' }}>Amount ($)</label>
               <input name="amount" type="number" step="0.01" value={form.amount} onChange={handleChange} required className="input-field" />
             </div>
             <div>
-              <label className="block font-mono text-[10px] uppercase tracking-[0.12em] mb-1" style={{ color: 'var(--crm-text-muted)' }}>Rate</label>
+              <label className="block text-[13px] mb-1" style={{ color: 'var(--crm-text-secondary)' }}>Rate</label>
               <input name="rate" type="number" step="0.01" value={form.rate} onChange={handleChange} className="input-field" />
             </div>
             <div>
-              <label className="block font-mono text-[10px] uppercase tracking-[0.12em] mb-1" style={{ color: 'var(--crm-text-muted)' }}>Date</label>
+              <label className="block text-[13px] mb-1" style={{ color: 'var(--crm-text-secondary)' }}>Date</label>
               <input name="date" type="date" value={form.date} onChange={handleChange} className="input-field" />
             </div>
           </div>
           <div className="flex gap-2">
-            <button type="submit" className="px-4 py-2 rounded font-mono text-[11px] uppercase tracking-[0.1em]" style={{ background: '#1E90FF', color: '#fff' }}>
+            <button type="submit" className="px-4 py-2 rounded-xl text-[13px] font-medium" style={{ background: 'var(--crm-accent)', color: '#0a0c0a' }}>
               {editing ? 'Update' : 'Add'}
             </button>
-            <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 rounded font-mono text-[11px] uppercase" style={{ background: 'var(--crm-surface2)', color: 'var(--crm-text-secondary)' }}>Cancel</button>
+            <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 rounded-xl text-[13px]" style={{ background: 'var(--crm-surface2)', color: 'var(--crm-text-secondary)' }}>Cancel</button>
           </div>
         </form>
       )}
@@ -132,13 +132,13 @@ export default function CommissionsPage() {
         <table className="w-full">
           <thead>
             <tr className="border-b" style={{ borderColor: 'var(--crm-border)' }}>
-              <th className="text-left px-4 py-3 font-mono text-[10px] uppercase tracking-[0.12em] font-normal" style={{ color: 'var(--crm-text-muted)' }}>Client</th>
-              <th className="text-left px-4 py-3 font-mono text-[10px] uppercase tracking-[0.12em] font-normal" style={{ color: 'var(--crm-text-muted)' }}>Stream</th>
-              <th className="text-right px-4 py-3 font-mono text-[10px] uppercase tracking-[0.12em] font-normal" style={{ color: 'var(--crm-text-muted)' }}>Amount</th>
-              <th className="text-right px-4 py-3 font-mono text-[10px] uppercase tracking-[0.12em] font-normal" style={{ color: 'var(--crm-text-muted)' }}>Commission</th>
-              <th className="text-left px-4 py-3 font-mono text-[10px] uppercase tracking-[0.12em] font-normal" style={{ color: 'var(--crm-text-muted)' }}>Status</th>
-              <th className="text-left px-4 py-3 font-mono text-[10px] uppercase tracking-[0.12em] font-normal" style={{ color: 'var(--crm-text-muted)' }}>Date</th>
-              <th className="text-right px-4 py-3 font-mono text-[10px] uppercase tracking-[0.12em] font-normal" style={{ color: 'var(--crm-text-muted)' }}>Actions</th>
+              <th className="text-left px-4 py-3 text-[13px] font-normal" style={{ color: 'var(--crm-text-secondary)' }}>Client</th>
+              <th className="text-left px-4 py-3 text-[13px] font-normal" style={{ color: 'var(--crm-text-secondary)' }}>Stream</th>
+              <th className="text-right px-4 py-3 text-[13px] font-normal" style={{ color: 'var(--crm-text-secondary)' }}>Amount</th>
+              <th className="text-right px-4 py-3 text-[13px] font-normal" style={{ color: 'var(--crm-text-secondary)' }}>Commission</th>
+              <th className="text-left px-4 py-3 text-[13px] font-normal" style={{ color: 'var(--crm-text-secondary)' }}>Status</th>
+              <th className="text-left px-4 py-3 text-[13px] font-normal" style={{ color: 'var(--crm-text-secondary)' }}>Date</th>
+              <th className="text-right px-4 py-3 text-[13px] font-normal" style={{ color: 'var(--crm-text-secondary)' }}>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -146,28 +146,28 @@ export default function CommissionsPage() {
               <tr key={c.id} className="border-b transition-colors hover:bg-white/[0.02]" style={{ borderColor: 'var(--crm-border)' }}>
                 <td className="px-4 py-3 text-sm font-medium">{c.client_name}</td>
                 <td className="px-4 py-3">
-                  <span className="font-mono text-[11px] uppercase" style={{ color: '#1E90FF' }}>{STREAMS[c.stream]?.label}</span>
+                  <span className="text-[13px]" style={{ color: 'var(--crm-accent)' }}>{STREAMS[c.stream]?.label}</span>
                 </td>
-                <td className="px-4 py-3 text-right font-mono text-[13px]">${(c.amount || 0).toLocaleString()}</td>
-                <td className="px-4 py-3 text-right font-mono text-[13px]" style={{ color: '#1E90FF' }}>${((c.amount || 0) * (c.rate || 0)).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+                <td className="px-4 py-3 text-right text-[13px]">${(c.amount || 0).toLocaleString()}</td>
+                <td className="px-4 py-3 text-right text-[13px]" style={{ color: 'var(--crm-accent)' }}>${((c.amount || 0) * (c.rate || 0)).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
                 <td className="px-4 py-3">
-                  <span className="font-mono text-[10px] uppercase tracking-[0.08em] px-2 py-0.5 rounded" style={{
-                    background: c.status === 'paid' ? 'rgba(34,197,94,0.1)' : c.status === 'approved' ? 'rgba(30,144,255,0.1)' : 'rgba(255,255,255,0.05)',
-                    color: c.status === 'paid' ? '#22c55e' : c.status === 'approved' ? '#1E90FF' : 'var(--crm-text-secondary)',
+                  <span className="text-[12px] px-2 py-0.5 rounded-lg" style={{
+                    background: c.status === 'paid' ? 'rgba(74,222,128,0.1)' : c.status === 'approved' ? 'rgba(74,222,128,0.06)' : 'rgba(255,255,255,0.05)',
+                    color: c.status === 'paid' ? 'var(--crm-accent)' : c.status === 'approved' ? 'var(--crm-accent)' : 'var(--crm-text-secondary)',
                   }}>
                     {STATUSES[c.status]?.label}
                   </span>
                 </td>
-                <td className="px-4 py-3 font-mono text-[12px]" style={{ color: 'var(--crm-text-muted)' }}>{c.date}</td>
+                <td className="px-4 py-3 text-[13px]" style={{ color: 'var(--crm-text-muted)' }}>{c.date}</td>
                 <td className="px-4 py-3 text-right">
-                  <button onClick={() => openEdit(c)} className="font-mono text-[10px] uppercase mr-3 transition-colors" style={{ color: 'var(--crm-text-muted)' }}>Edit</button>
-                  <button onClick={() => handleDelete(c.id)} className="font-mono text-[10px] uppercase transition-colors" style={{ color: 'var(--crm-negative)' }}>Del</button>
+                  <button onClick={() => openEdit(c)} className="text-[12px] mr-3 transition-colors" style={{ color: 'var(--crm-text-muted)' }}>Edit</button>
+                  <button onClick={() => handleDelete(c.id)} className="text-[12px] transition-colors" style={{ color: 'var(--crm-negative)' }}>Del</button>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
-        {commissions.length === 0 && <EmptyState icon="—" message="No commissions yet" />}
+        {commissions.length === 0 && <EmptyState message="No commissions yet" />}
       </div>
     </div>
   );

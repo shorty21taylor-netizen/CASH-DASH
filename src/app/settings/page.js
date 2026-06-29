@@ -118,30 +118,31 @@ export default function SettingsPage() {
     setRepForm({ ...repForm, streams });
   }
 
-  if (!settings) return <div className="font-mono text-[12px] uppercase p-8" style={{ color: 'var(--crm-text-muted)' }}>Loading settings...</div>;
+  if (!settings) return <div className="text-sm p-8" style={{ color: 'var(--crm-text-muted)' }}>Loading settings...</div>;
 
   return (
-    <div className="space-y-5 max-w-5xl">
+    <div className="space-y-5">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-mono text-[14px] uppercase tracking-[0.12em] font-semibold">SETTINGS</h1>
-          <p className="font-mono text-[11px] mt-0.5" style={{ color: 'var(--crm-text-muted)' }}>Configure your command center</p>
+          <h1 className="text-lg font-semibold">Settings</h1>
+          <p className="text-[13px] mt-0.5" style={{ color: 'var(--crm-text-muted)' }}>Configure your command center</p>
         </div>
         <div className="flex items-center gap-3">
-          {saved && <span className="font-mono text-[11px] uppercase" style={{ color: 'var(--crm-positive)' }}>Saved!</span>}
-          <button onClick={handleSave} className="px-6 py-2 rounded font-mono text-[11px] uppercase tracking-[0.1em]" style={{ background: '#1E90FF', color: '#fff' }}>
+          {saved && <span className="text-[13px]" style={{ color: 'var(--crm-positive)' }}>Saved!</span>}
+          <button onClick={handleSave} className="px-6 py-2 rounded-xl text-[13px] font-medium" style={{ background: 'var(--crm-accent)', color: '#0a0c0a' }}>
             Save All Settings
           </button>
         </div>
       </div>
 
-      <div className="flex gap-px rounded overflow-x-auto" style={{ background: 'var(--crm-surface)', border: '1px solid var(--crm-border)' }}>
+      <div className="flex gap-px rounded-xl overflow-x-auto" style={{ background: 'var(--crm-surface)', border: '1px solid var(--crm-border)' }}>
         {TABS.map((t) => (
           <button key={t.key} onClick={() => setTab(t.key)}
-            className="px-4 py-2 font-mono text-[11px] uppercase tracking-[0.08em] whitespace-nowrap transition-colors"
+            className="px-4 py-2 text-[13px] whitespace-nowrap transition-colors"
             style={{
-              background: tab === t.key ? '#1E90FF' : 'transparent',
-              color: tab === t.key ? '#fff' : 'var(--crm-text-muted)',
+              background: tab === t.key ? 'var(--crm-accent)' : 'transparent',
+              color: tab === t.key ? '#0a0c0a' : 'var(--crm-text-muted)',
+              fontWeight: tab === t.key ? 600 : 400,
             }}>
             {t.label}
           </button>
@@ -153,20 +154,20 @@ export default function SettingsPage() {
           <Section title="Base Pay / Salary">
             <div className="flex items-center gap-3 mb-4">
               <Toggle checked={settings.base_pay?.enabled} onChange={(v) => update('base_pay.enabled', v)} />
-              <span className="font-mono text-[11px]" style={{ color: 'var(--crm-text-secondary)' }}>I receive a base pay / salary</span>
+              <span className="text-[13px]" style={{ color: 'var(--crm-text-secondary)' }}>I receive a base pay / salary</span>
             </div>
             {settings.base_pay?.enabled && (
               <div className="grid grid-cols-3 gap-4">
-                <Field label="Base Pay Amount ($)">
+                <Field label="Base pay amount ($)">
                   <input type="number" step="0.01" value={settings.base_pay?.amount || ''} onChange={(e) => update('base_pay.amount', parseFloat(e.target.value) || 0)}
                     className="input-field" placeholder="0.00" />
                 </Field>
-                <Field label="Pay Frequency">
+                <Field label="Pay frequency">
                   <select value={settings.base_pay?.frequency || 'bi-weekly'} onChange={(e) => update('base_pay.frequency', e.target.value)} className="input-field">
                     {PAY_FREQUENCIES.map((f) => <option key={f} value={f}>{f.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join('-')}</option>)}
                   </select>
                 </Field>
-                <Field label="Start Date">
+                <Field label="Start date">
                   <input type="date" value={settings.base_pay?.start_date || ''} onChange={(e) => update('base_pay.start_date', e.target.value)} className="input-field" />
                 </Field>
               </div>
@@ -178,37 +179,37 @@ export default function SettingsPage() {
               {(settings.fixed_income || []).map((inc, i) => (
                 <div key={i} className="grid grid-cols-12 gap-3 items-end">
                   <div className="col-span-5">
-                    {i === 0 && <label className="block font-mono text-[10px] uppercase tracking-[0.12em] mb-1" style={{ color: 'var(--crm-text-muted)' }}>Source / Label</label>}
+                    {i === 0 && <label className="block text-[13px] mb-1" style={{ color: 'var(--crm-text-secondary)' }}>Source / label</label>}
                     <input value={inc.label} onChange={(e) => updateFixedIncome(i, 'label', e.target.value)} placeholder="e.g. Retainer, Consulting" className="input-field" />
                   </div>
                   <div className="col-span-3">
-                    {i === 0 && <label className="block font-mono text-[10px] uppercase tracking-[0.12em] mb-1" style={{ color: 'var(--crm-text-muted)' }}>Amount ($)</label>}
+                    {i === 0 && <label className="block text-[13px] mb-1" style={{ color: 'var(--crm-text-secondary)' }}>Amount ($)</label>}
                     <input type="number" step="0.01" value={inc.amount || ''} onChange={(e) => updateFixedIncome(i, 'amount', e.target.value)} className="input-field" />
                   </div>
                   <div className="col-span-3">
-                    {i === 0 && <label className="block font-mono text-[10px] uppercase tracking-[0.12em] mb-1" style={{ color: 'var(--crm-text-muted)' }}>Frequency</label>}
+                    {i === 0 && <label className="block text-[13px] mb-1" style={{ color: 'var(--crm-text-secondary)' }}>Frequency</label>}
                     <select value={inc.frequency} onChange={(e) => updateFixedIncome(i, 'frequency', e.target.value)} className="input-field">
                       {PAY_FREQUENCIES.map((f) => <option key={f} value={f}>{f.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join('-')}</option>)}
                     </select>
                   </div>
                   <div className="col-span-1 flex justify-center">
-                    <button onClick={() => removeFixedIncome(i)} className="font-mono text-[14px]" style={{ color: 'var(--crm-negative)' }}>×</button>
+                    <button onClick={() => removeFixedIncome(i)} className="text-[16px]" style={{ color: 'var(--crm-negative)' }}>×</button>
                   </div>
                 </div>
               ))}
             </div>
-            <button onClick={addFixedIncome} className="mt-3 font-mono text-[11px] uppercase tracking-[0.08em]" style={{ color: '#1E90FF' }}>+ Add Income Source</button>
+            <button onClick={addFixedIncome} className="mt-3 text-[13px]" style={{ color: 'var(--crm-accent)' }}>+ Add income source</button>
           </Section>
 
           <Section title="Bonus Tiers" subtitle="Performance bonuses based on revenue or deal count">
             <div className="flex items-center gap-3 mb-4">
               <Toggle checked={settings.bonuses?.enabled} onChange={(v) => update('bonuses.enabled', v)} />
-              <span className="font-mono text-[11px]" style={{ color: 'var(--crm-text-secondary)' }}>Enable bonus structure</span>
+              <span className="text-[13px]" style={{ color: 'var(--crm-text-secondary)' }}>Enable bonus structure</span>
             </div>
             {settings.bonuses?.enabled && (
               <>
                 <div className="mb-4">
-                  <Field label="Threshold Type">
+                  <Field label="Threshold type">
                     <select value={settings.bonuses?.threshold_type || 'revenue'} onChange={(e) => update('bonuses.threshold_type', e.target.value)} className="input-field" style={{ width: '12rem' }}>
                       <option value="revenue">Revenue ($)</option>
                       <option value="deals">Deal Count</option>
@@ -219,24 +220,24 @@ export default function SettingsPage() {
                   {(settings.bonuses?.tiers || []).map((tier, i) => (
                     <div key={i} className="grid grid-cols-12 gap-3 items-end">
                       <div className="col-span-4">
-                        {i === 0 && <label className="block font-mono text-[10px] uppercase tracking-[0.12em] mb-1" style={{ color: 'var(--crm-text-muted)' }}>Label</label>}
+                        {i === 0 && <label className="block text-[13px] mb-1" style={{ color: 'var(--crm-text-secondary)' }}>Label</label>}
                         <input value={tier.label} onChange={(e) => updateBonusTier(i, 'label', e.target.value)} placeholder="e.g. Gold Tier" className="input-field" />
                       </div>
                       <div className="col-span-3">
-                        {i === 0 && <label className="block font-mono text-[10px] uppercase tracking-[0.12em] mb-1" style={{ color: 'var(--crm-text-muted)' }}>Threshold</label>}
+                        {i === 0 && <label className="block text-[13px] mb-1" style={{ color: 'var(--crm-text-secondary)' }}>Threshold</label>}
                         <input type="number" value={tier.threshold || ''} onChange={(e) => updateBonusTier(i, 'threshold', e.target.value)} className="input-field" />
                       </div>
                       <div className="col-span-4">
-                        {i === 0 && <label className="block font-mono text-[10px] uppercase tracking-[0.12em] mb-1" style={{ color: 'var(--crm-text-muted)' }}>Bonus ($)</label>}
+                        {i === 0 && <label className="block text-[13px] mb-1" style={{ color: 'var(--crm-text-secondary)' }}>Bonus ($)</label>}
                         <input type="number" step="0.01" value={tier.bonus || ''} onChange={(e) => updateBonusTier(i, 'bonus', e.target.value)} className="input-field" />
                       </div>
                       <div className="col-span-1 flex justify-center">
-                        <button onClick={() => removeBonusTier(i)} className="font-mono text-[14px]" style={{ color: 'var(--crm-negative)' }}>×</button>
+                        <button onClick={() => removeBonusTier(i)} className="text-[16px]" style={{ color: 'var(--crm-negative)' }}>×</button>
                       </div>
                     </div>
                   ))}
                 </div>
-                <button onClick={addBonusTier} className="mt-3 font-mono text-[11px] uppercase tracking-[0.08em]" style={{ color: '#1E90FF' }}>+ Add Tier</button>
+                <button onClick={addBonusTier} className="mt-3 text-[13px]" style={{ color: 'var(--crm-accent)' }}>+ Add tier</button>
               </>
             )}
           </Section>
@@ -248,17 +249,17 @@ export default function SettingsPage() {
           <Section title="Default Commission Rates" subtitle="Per-stream rates applied to new commissions">
             <div className="space-y-3">
               {Object.values(STREAMS).map((s) => (
-                <div key={s.key} className="flex items-center justify-between p-3 rounded" style={{ background: 'var(--crm-surface2)' }}>
+                <div key={s.key} className="flex items-center justify-between p-3 rounded-xl" style={{ background: 'var(--crm-surface2)' }}>
                   <div className="flex items-center gap-3">
                     <div className="w-2 h-2 rounded-full" style={{ backgroundColor: s.color }} />
-                    <span className="font-mono text-[12px]">{s.label}</span>
+                    <span className="text-[13px]">{s.label}</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <input type="number" step="0.01" value={settings.rates?.[s.key] ?? ''} onChange={(e) => {
                       const rates = { ...settings.rates, [s.key]: parseFloat(e.target.value) || 0 };
                       update('rates', rates);
                     }} className="w-24 input-field text-right" />
-                    <span className="font-mono text-[10px]" style={{ color: 'var(--crm-text-muted)', width: '3rem' }}>({((settings.rates?.[s.key] || 0) * 100).toFixed(0)}%)</span>
+                    <span className="text-[12px]" style={{ color: 'var(--crm-text-muted)', width: '3rem' }}>({((settings.rates?.[s.key] || 0) * 100).toFixed(0)}%)</span>
                   </div>
                 </div>
               ))}
@@ -268,7 +269,7 @@ export default function SettingsPage() {
           <Section title="Rate Overrides">
             <div className="flex items-center gap-3">
               <Toggle checked={settings.allow_rate_overrides} onChange={(v) => update('allow_rate_overrides', v)} />
-              <span className="font-mono text-[11px]" style={{ color: 'var(--crm-text-secondary)' }}>Allow per-deal rate overrides when entering commissions</span>
+              <span className="text-[13px]" style={{ color: 'var(--crm-text-secondary)' }}>Allow per-deal rate overrides when entering commissions</span>
             </div>
           </Section>
         </div>
@@ -279,21 +280,21 @@ export default function SettingsPage() {
           <Section title="Reps Under Management" subtitle="Manage your team members, their pay, and commission splits">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-4">
-                <span className="font-mono text-[11px]" style={{ color: 'var(--crm-text-secondary)' }}>{reps.filter((r) => r.status === 'active').length} active reps</span>
-                <span className="font-mono text-[11px]" style={{ color: 'var(--crm-text-muted)' }}>·</span>
-                <span className="font-mono text-[11px]" style={{ color: 'var(--crm-text-secondary)' }}>{reps.length} total</span>
+                <span className="text-[13px]" style={{ color: 'var(--crm-text-secondary)' }}>{reps.filter((r) => r.status === 'active').length} active reps</span>
+                <span className="text-[13px]" style={{ color: 'var(--crm-text-muted)' }}>·</span>
+                <span className="text-[13px]" style={{ color: 'var(--crm-text-secondary)' }}>{reps.length} total</span>
               </div>
               <button onClick={() => { setRepForm(blankRep()); setEditingRep(null); setShowRepForm(true); }}
-                className="px-4 py-2 rounded font-mono text-[11px] uppercase tracking-[0.1em]" style={{ background: '#1E90FF', color: '#fff' }}>
+                className="px-4 py-2 rounded-xl text-[13px] font-medium" style={{ background: 'var(--crm-accent)', color: '#0a0c0a' }}>
                 + Add Rep
               </button>
             </div>
 
             {showRepForm && (
-              <form onSubmit={saveRep} className="p-5 rounded space-y-4 mb-4" style={{ background: 'var(--crm-surface2)', border: '1px solid var(--crm-border)' }}>
-                <h3 className="font-mono text-[12px] uppercase tracking-[0.1em] font-semibold">{editingRep ? 'Edit' : 'Add'} Rep</h3>
+              <form onSubmit={saveRep} className="p-5 rounded-xl space-y-4 mb-4" style={{ background: 'var(--crm-surface2)', border: '1px solid var(--crm-border)' }}>
+                <h3 className="text-sm font-semibold">{editingRep ? 'Edit' : 'Add'} Rep</h3>
                 <div className="grid grid-cols-3 gap-4">
-                  <Field label="Full Name">
+                  <Field label="Full name">
                     <input value={repForm.name} onChange={(e) => setRepForm({ ...repForm, name: e.target.value })} required className="input-field" />
                   </Field>
                   <Field label="Email">
@@ -304,7 +305,7 @@ export default function SettingsPage() {
                   </Field>
                 </div>
                 <div className="grid grid-cols-3 gap-4">
-                  <Field label="Role / Title">
+                  <Field label="Role / title">
                     <input value={repForm.role} onChange={(e) => setRepForm({ ...repForm, role: e.target.value })} placeholder="e.g. Sales Rep, Closer" className="input-field" />
                   </Field>
                   <Field label="Status">
@@ -312,33 +313,33 @@ export default function SettingsPage() {
                       {REP_STATUSES.map((s) => <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>)}
                     </select>
                   </Field>
-                  <Field label="Start Date">
+                  <Field label="Start date">
                     <input type="date" value={repForm.start_date} onChange={(e) => setRepForm({ ...repForm, start_date: e.target.value })} className="input-field" />
                   </Field>
                 </div>
                 <div className="grid grid-cols-3 gap-4">
-                  <Field label="Base Pay ($)">
+                  <Field label="Base pay ($)">
                     <input type="number" step="0.01" value={repForm.base_pay} onChange={(e) => setRepForm({ ...repForm, base_pay: e.target.value })} placeholder="0.00" className="input-field" />
                   </Field>
-                  <Field label="Pay Frequency">
+                  <Field label="Pay frequency">
                     <select value={repForm.pay_frequency} onChange={(e) => setRepForm({ ...repForm, pay_frequency: e.target.value })} className="input-field">
                       {PAY_FREQUENCIES.map((f) => <option key={f} value={f}>{f.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join('-')}</option>)}
                     </select>
                   </Field>
-                  <Field label="Commission Split (%)">
+                  <Field label="Commission split (%)">
                     <input type="number" step="0.01" value={repForm.commission_split} onChange={(e) => setRepForm({ ...repForm, commission_split: e.target.value })} placeholder="e.g. 0.50 = 50%" className="input-field" />
                   </Field>
                 </div>
                 <div>
-                  <label className="block font-mono text-[10px] uppercase tracking-[0.12em] mb-2" style={{ color: 'var(--crm-text-muted)' }}>Assigned Streams</label>
+                  <label className="block text-[13px] mb-2" style={{ color: 'var(--crm-text-secondary)' }}>Assigned streams</label>
                   <div className="flex gap-2 flex-wrap">
                     {Object.values(STREAMS).map((s) => (
                       <button key={s.key} type="button" onClick={() => toggleRepStream(s.key)}
-                        className="flex items-center gap-2 px-3 py-1.5 rounded font-mono text-[10px] uppercase transition-colors"
+                        className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-[12px] transition-colors"
                         style={{
-                          background: (repForm.streams || []).includes(s.key) ? 'rgba(30,144,255,0.1)' : 'var(--crm-surface)',
-                          color: (repForm.streams || []).includes(s.key) ? '#1E90FF' : 'var(--crm-text-muted)',
-                          border: (repForm.streams || []).includes(s.key) ? '1px solid rgba(30,144,255,0.3)' : '1px solid var(--crm-border)',
+                          background: (repForm.streams || []).includes(s.key) ? 'rgba(74,222,128,0.1)' : 'var(--crm-surface)',
+                          color: (repForm.streams || []).includes(s.key) ? 'var(--crm-accent)' : 'var(--crm-text-muted)',
+                          border: (repForm.streams || []).includes(s.key) ? '1px solid rgba(74,222,128,0.3)' : '1px solid var(--crm-border)',
                         }}>
                         <div className="w-2 h-2 rounded-full" style={{ backgroundColor: s.color }} />
                         {s.label}
@@ -347,11 +348,11 @@ export default function SettingsPage() {
                   </div>
                 </div>
                 <div>
-                  <label className="block font-mono text-[10px] uppercase tracking-[0.12em] mb-2" style={{ color: 'var(--crm-text-muted)' }}>Rate Overrides (leave blank to use defaults)</label>
+                  <label className="block text-[13px] mb-2" style={{ color: 'var(--crm-text-secondary)' }}>Rate overrides (leave blank to use defaults)</label>
                   <div className="grid grid-cols-4 gap-3">
                     {Object.values(STREAMS).map((s) => (
                       <div key={s.key}>
-                        <label className="block font-mono text-[10px] mb-1" style={{ color: 'var(--crm-text-muted)' }}>{s.label}</label>
+                        <label className="block text-[12px] mb-1" style={{ color: 'var(--crm-text-muted)' }}>{s.label}</label>
                         <input type="number" step="0.01"
                           value={repForm.override_rates?.[s.key] ?? ''}
                           onChange={(e) => {
@@ -370,43 +371,43 @@ export default function SettingsPage() {
                   <textarea value={repForm.notes} onChange={(e) => setRepForm({ ...repForm, notes: e.target.value })} rows={2} className="input-field" placeholder="Internal notes about this rep..." />
                 </Field>
                 <div className="flex gap-2 pt-2">
-                  <button type="submit" className="px-4 py-2 rounded font-mono text-[11px] uppercase" style={{ background: '#1E90FF', color: '#fff' }}>{editingRep ? 'Update' : 'Add'} Rep</button>
-                  <button type="button" onClick={() => { setShowRepForm(false); setEditingRep(null); }} className="px-4 py-2 rounded font-mono text-[11px] uppercase" style={{ background: 'var(--crm-surface)', color: 'var(--crm-text-secondary)' }}>Cancel</button>
+                  <button type="submit" className="px-4 py-2 rounded-xl text-[13px] font-medium" style={{ background: 'var(--crm-accent)', color: '#0a0c0a' }}>{editingRep ? 'Update' : 'Add'} Rep</button>
+                  <button type="button" onClick={() => { setShowRepForm(false); setEditingRep(null); }} className="px-4 py-2 rounded-xl text-[13px]" style={{ background: 'var(--crm-surface)', color: 'var(--crm-text-secondary)' }}>Cancel</button>
                 </div>
               </form>
             )}
 
             <div className="space-y-2">
               {reps.map((rep) => (
-                <div key={rep.id} className="p-4 rounded transition-colors" style={{ border: '1px solid var(--crm-border)', background: 'var(--crm-surface)' }}>
+                <div key={rep.id} className="p-4 rounded-xl transition-colors" style={{ border: '1px solid var(--crm-border)', background: 'var(--crm-surface)' }}>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded flex items-center justify-center font-mono text-[11px] font-semibold" style={{ background: 'var(--crm-surface2)', color: 'var(--crm-text-muted)' }}>
+                      <div className="w-10 h-10 rounded-xl flex items-center justify-center text-[12px] font-semibold" style={{ background: 'var(--crm-surface2)', color: 'var(--crm-text-muted)' }}>
                         {(rep.name || '?').split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2)}
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="font-mono text-[13px] font-semibold">{rep.name}</span>
-                          <span className="font-mono text-[10px] uppercase px-2 py-0.5 rounded" style={{
-                            background: rep.status === 'active' ? 'rgba(34,197,94,0.1)' : rep.status === 'onboarding' ? 'rgba(30,144,255,0.1)' : 'rgba(255,255,255,0.05)',
-                            color: rep.status === 'active' ? '#22c55e' : rep.status === 'onboarding' ? '#1E90FF' : 'var(--crm-text-muted)',
+                          <span className="text-[14px] font-semibold">{rep.name}</span>
+                          <span className="text-[12px] px-2 py-0.5 rounded-lg" style={{
+                            background: rep.status === 'active' ? 'rgba(74,222,128,0.1)' : rep.status === 'onboarding' ? 'rgba(74,222,128,0.06)' : 'rgba(255,255,255,0.05)',
+                            color: rep.status === 'active' ? 'var(--crm-accent)' : rep.status === 'onboarding' ? 'var(--crm-accent)' : 'var(--crm-text-muted)',
                           }}>{rep.status}</span>
                         </div>
                         <div className="flex items-center gap-3 mt-0.5">
-                          {rep.role && <span className="font-mono text-[10px]" style={{ color: 'var(--crm-text-muted)' }}>{rep.role}</span>}
-                          {rep.email && <span className="font-mono text-[10px]" style={{ color: 'var(--crm-text-muted)' }}>{rep.email}</span>}
+                          {rep.role && <span className="text-[12px]" style={{ color: 'var(--crm-text-muted)' }}>{rep.role}</span>}
+                          {rep.email && <span className="text-[12px]" style={{ color: 'var(--crm-text-muted)' }}>{rep.email}</span>}
                         </div>
                       </div>
                     </div>
                     <div className="flex items-center gap-6">
                       <div className="text-right">
-                        <p className="font-mono text-[10px] uppercase" style={{ color: 'var(--crm-text-muted)' }}>Base Pay</p>
-                        <p className="font-mono text-[12px]">${(rep.base_pay || 0).toLocaleString()}/{(rep.pay_frequency || 'bi-weekly').replace('-', '')}</p>
+                        <p className="text-[12px]" style={{ color: 'var(--crm-text-muted)' }}>Base pay</p>
+                        <p className="text-[13px]">${(rep.base_pay || 0).toLocaleString()}/{(rep.pay_frequency || 'bi-weekly').replace('-', '')}</p>
                       </div>
                       {rep.commission_split > 0 && (
                         <div className="text-right">
-                          <p className="font-mono text-[10px] uppercase" style={{ color: 'var(--crm-text-muted)' }}>Split</p>
-                          <p className="font-mono text-[12px]">{(rep.commission_split * 100).toFixed(0)}%</p>
+                          <p className="text-[12px]" style={{ color: 'var(--crm-text-muted)' }}>Split</p>
+                          <p className="text-[13px]">{(rep.commission_split * 100).toFixed(0)}%</p>
                         </div>
                       )}
                       <div className="flex gap-1">
@@ -415,15 +416,15 @@ export default function SettingsPage() {
                         ))}
                       </div>
                       <div className="flex items-center gap-2">
-                        <button onClick={() => { setRepForm({ ...rep }); setEditingRep(rep.id); setShowRepForm(true); }} className="font-mono text-[10px] uppercase" style={{ color: 'var(--crm-text-muted)' }}>Edit</button>
-                        <button onClick={() => deleteRep(rep.id)} className="font-mono text-[10px] uppercase" style={{ color: 'var(--crm-negative)' }}>Del</button>
+                        <button onClick={() => { setRepForm({ ...rep }); setEditingRep(rep.id); setShowRepForm(true); }} className="text-[12px]" style={{ color: 'var(--crm-text-muted)' }}>Edit</button>
+                        <button onClick={() => deleteRep(rep.id)} className="text-[12px]" style={{ color: 'var(--crm-negative)' }}>Del</button>
                       </div>
                     </div>
                   </div>
                 </div>
               ))}
               {reps.length === 0 && (
-                <div className="text-center py-12 font-mono text-[11px]" style={{ color: 'var(--crm-text-muted)' }}>No reps yet. Add your first team member above.</div>
+                <div className="text-center py-12 text-[13px]" style={{ color: 'var(--crm-text-muted)' }}>No reps yet. Add your first team member above.</div>
               )}
             </div>
           </Section>
@@ -434,7 +435,7 @@ export default function SettingsPage() {
         <div className="space-y-5">
           <Section title="Personal Profile">
             <div className="grid grid-cols-2 gap-4">
-              <Field label="Full Name">
+              <Field label="Full name">
                 <input value={settings.profile?.name || ''} onChange={(e) => update('profile.name', e.target.value)} className="input-field" />
               </Field>
               <Field label="Title">
@@ -454,10 +455,10 @@ export default function SettingsPage() {
 
           <Section title="Business Entity">
             <div className="grid grid-cols-2 gap-4">
-              <Field label="Entity Name">
+              <Field label="Entity name">
                 <input value={settings.business?.entity_name || ''} onChange={(e) => update('business.entity_name', e.target.value)} className="input-field" />
               </Field>
-              <Field label="Entity Type">
+              <Field label="Entity type">
                 <select value={settings.business?.entity_type || ''} onChange={(e) => update('business.entity_type', e.target.value)} className="input-field">
                   <option value="">Select...</option>
                   <option value="sole_prop">Sole Proprietorship</option>
@@ -471,7 +472,7 @@ export default function SettingsPage() {
               <Field label="EIN">
                 <input value={settings.business?.ein || ''} onChange={(e) => update('business.ein', e.target.value)} placeholder="XX-XXXXXXX" className="input-field" />
               </Field>
-              <Field label="Fiscal Year Start">
+              <Field label="Fiscal year start">
                 <select value={settings.business?.fiscal_year_start || 'january'} onChange={(e) => update('business.fiscal_year_start', e.target.value)} className="input-field">
                   {MONTHS.map((m) => <option key={m} value={m.toLowerCase()}>{m}</option>)}
                 </select>
@@ -485,18 +486,18 @@ export default function SettingsPage() {
         <div className="space-y-5">
           <Section title="Tax Settings" subtitle="Used to estimate tax liability on the P&L">
             <div className="grid grid-cols-2 gap-4">
-              <Field label="Estimated Tax Rate">
+              <Field label="Estimated tax rate">
                 <div className="flex items-center gap-2">
                   <input type="number" step="0.01" value={settings.tax?.estimated_rate || ''} onChange={(e) => update('tax.estimated_rate', parseFloat(e.target.value) || 0)}
                     className="input-field w-32 text-right" />
-                  <span className="font-mono text-[10px]" style={{ color: 'var(--crm-text-muted)' }}>({((settings.tax?.estimated_rate || 0) * 100).toFixed(0)}%)</span>
+                  <span className="text-[12px]" style={{ color: 'var(--crm-text-muted)' }}>({((settings.tax?.estimated_rate || 0) * 100).toFixed(0)}%)</span>
                 </div>
               </Field>
               <div>
-                <label className="block font-mono text-[10px] uppercase tracking-[0.12em] mb-1" style={{ color: 'var(--crm-text-muted)' }}>Auto Set-Aside</label>
+                <label className="block text-[13px] mb-1" style={{ color: 'var(--crm-text-secondary)' }}>Auto set-aside</label>
                 <div className="flex items-center gap-3 mt-2">
                   <Toggle checked={settings.tax?.set_aside} onChange={(v) => update('tax.set_aside', v)} />
-                  <span className="font-mono text-[11px]" style={{ color: 'var(--crm-text-secondary)' }}>Show tax set-aside amounts on dashboard</span>
+                  <span className="text-[13px]" style={{ color: 'var(--crm-text-secondary)' }}>Show tax set-aside amounts on dashboard</span>
                 </div>
               </div>
             </div>
@@ -509,14 +510,15 @@ export default function SettingsPage() {
           <Section title="Display Preferences">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block font-mono text-[10px] uppercase tracking-[0.12em] mb-2" style={{ color: 'var(--crm-text-muted)' }}>Theme</label>
+                <label className="block text-[13px] mb-2" style={{ color: 'var(--crm-text-secondary)' }}>Theme</label>
                 <div className="flex gap-2">
                   {['dark', 'light'].map((t) => (
                     <button key={t} onClick={() => update('theme', t)}
-                      className="px-4 py-2 rounded font-mono text-[11px] uppercase capitalize"
+                      className="px-4 py-2 rounded-xl text-[13px] capitalize"
                       style={{
-                        background: settings.theme === t ? '#1E90FF' : 'var(--crm-surface2)',
-                        color: settings.theme === t ? '#fff' : 'var(--crm-text-muted)',
+                        background: settings.theme === t ? 'var(--crm-accent)' : 'var(--crm-surface2)',
+                        color: settings.theme === t ? '#0a0c0a' : 'var(--crm-text-muted)',
+                        fontWeight: settings.theme === t ? 600 : 400,
                       }}>
                       {t}
                     </button>
@@ -535,7 +537,7 @@ export default function SettingsPage() {
           </Section>
 
           <Section title="Data Export">
-            <p className="font-mono text-[11px] mb-3" style={{ color: 'var(--crm-text-muted)' }}>Export all dashboard data as JSON for backup or migration.</p>
+            <p className="text-[13px] mb-3" style={{ color: 'var(--crm-text-muted)' }}>Export all dashboard data as JSON for backup or migration.</p>
             <button onClick={async () => {
               const res = await fetch('/api/dashboard?range=ytd');
               const data = await res.json();
@@ -545,7 +547,7 @@ export default function SettingsPage() {
               a.href = url;
               a.download = `summit-export-${new Date().toISOString().split('T')[0]}.json`;
               a.click();
-            }} className="px-4 py-2 rounded font-mono text-[11px] uppercase" style={{ background: 'var(--crm-surface2)', color: 'var(--crm-text-secondary)' }}>
+            }} className="px-4 py-2 rounded-xl text-[13px]" style={{ background: 'var(--crm-surface2)', color: 'var(--crm-text-secondary)' }}>
               Export Dashboard Data
             </button>
           </Section>
@@ -559,8 +561,8 @@ function Section({ title, subtitle, children }) {
   return (
     <div className="glass-card-solid p-5">
       <div className="mb-4">
-        <h2 className="font-mono text-[12px] uppercase tracking-[0.1em] font-semibold">{title}</h2>
-        {subtitle && <p className="font-mono text-[10px] mt-0.5" style={{ color: 'var(--crm-text-muted)' }}>{subtitle}</p>}
+        <h2 className="text-sm font-semibold">{title}</h2>
+        {subtitle && <p className="text-[13px] mt-0.5" style={{ color: 'var(--crm-text-muted)' }}>{subtitle}</p>}
       </div>
       {children}
     </div>
@@ -570,7 +572,7 @@ function Section({ title, subtitle, children }) {
 function Field({ label, children }) {
   return (
     <div>
-      <label className="block font-mono text-[10px] uppercase tracking-[0.12em] mb-1" style={{ color: 'var(--crm-text-muted)' }}>{label}</label>
+      <label className="block text-[13px] mb-1" style={{ color: 'var(--crm-text-secondary)' }}>{label}</label>
       {children}
     </div>
   );
@@ -580,7 +582,7 @@ function Toggle({ checked, onChange }) {
   return (
     <button type="button" onClick={() => onChange(!checked)}
       className="relative w-10 h-5 rounded-full transition-colors"
-      style={{ background: checked ? '#1E90FF' : 'var(--crm-surface2)' }}>
+      style={{ background: checked ? 'var(--crm-accent)' : 'var(--crm-surface2)' }}>
       <div className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-transform ${checked ? 'translate-x-5' : 'translate-x-0.5'}`} />
     </button>
   );
