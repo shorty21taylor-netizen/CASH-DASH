@@ -3,7 +3,7 @@ import { initStore, getCache, saveRecord } from '../../../lib/store.js';
 
 const DEFAULT_SETTINGS = {
   id: 'app-settings',
-  rates: { htA: 0.10, htB: 0.15, life: 0.50 },
+  rates: { htA: 0.10, htB: 0.15, life: 0.50, summit: 0.10 },
   theme: 'dark',
 };
 

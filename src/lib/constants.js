@@ -2,6 +2,7 @@ export const STREAMS = {
   htA: { key: 'htA', label: 'I2I Offer', color: '#dc2626' },
   htB: { key: 'htB', label: 'BNB Offer', color: '#f97316' },
   life: { key: 'life', label: 'Life Insurance', color: '#eab308' },
+  summit: { key: 'summit', label: 'Summit Placement', color: '#8b5cf6' },
 };
 
 export const STATUSES = {
@@ -20,6 +21,7 @@ export const DEFAULT_RATES = {
   htA: 0.10,
   htB: 0.15,
   life: 0.50,
+  summit: 0.10,
 };
 
 export const EXPENSE_CATEGORIES = ['business', 'personal'];

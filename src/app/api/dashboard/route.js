@@ -27,6 +27,7 @@ export async function GET(request) {
     htA: paidComm.filter((c) => c.stream === 'htA').reduce((s, c) => s + (c.amount * c.rate), 0),
     htB: paidComm.filter((c) => c.stream === 'htB').reduce((s, c) => s + (c.amount * c.rate), 0),
     life: paidComm.filter((c) => c.stream === 'life').reduce((s, c) => s + (c.amount * c.rate), 0),
+    summit: paidComm.filter((c) => c.stream === 'summit').reduce((s, c) => s + (c.amount * c.rate), 0),
   };
 
   const renewalIncome = policies
@@ -99,7 +100,7 @@ function buildMonthlyData(commissions, expenses, marketProfits) {
   commissions.forEach((c) => {
     if (!c.date) return;
     const m = c.date.substring(0, 7);
-    if (!months[m]) months[m] = { month: m, htA: 0, htB: 0, life: 0, market: 0, revenue: 0, expenses: 0 };
+    if (!months[m]) months[m] = { month: m, htA: 0, htB: 0, life: 0, summit: 0, market: 0, revenue: 0, expenses: 0 };
     if (c.status === 'paid') {
       const earned = c.amount * c.rate;
       months[m][c.stream] += earned;
@@ -109,13 +110,13 @@ function buildMonthlyData(commissions, expenses, marketProfits) {
   expenses.forEach((e) => {
     if (!e.date) return;
     const m = e.date.substring(0, 7);
-    if (!months[m]) months[m] = { month: m, htA: 0, htB: 0, life: 0, market: 0, revenue: 0, expenses: 0 };
+    if (!months[m]) months[m] = { month: m, htA: 0, htB: 0, life: 0, summit: 0, market: 0, revenue: 0, expenses: 0 };
     months[m].expenses += e.amount;
   });
   marketProfits.forEach((p) => {
     if (!p.date) return;
     const m = p.date.substring(0, 7);
-    if (!months[m]) months[m] = { month: m, htA: 0, htB: 0, life: 0, market: 0, revenue: 0, expenses: 0 };
+    if (!months[m]) months[m] = { month: m, htA: 0, htB: 0, life: 0, summit: 0, market: 0, revenue: 0, expenses: 0 };
     months[m].market += p.amount;
     months[m].revenue += p.amount;
   });

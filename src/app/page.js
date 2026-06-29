@@ -72,11 +72,12 @@ export default function CommandCenter() {
       </div>
 
       {/* Stream breakdown */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
           { key: 'htA', label: 'I2I Offer', color: '#dc2626' },
           { key: 'htB', label: 'BNB Offer', color: '#f97316' },
           { key: 'life', label: 'Life Insurance', color: '#eab308' },
+          { key: 'summit', label: 'Summit Placement', color: '#8b5cf6' },
         ].map((s) => (
           <div key={s.key} className="glass-card-solid p-5">
             <div className="flex items-center gap-2 mb-2">

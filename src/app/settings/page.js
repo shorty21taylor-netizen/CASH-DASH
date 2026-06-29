@@ -41,6 +41,7 @@ export default function SettingsPage() {
               { key: 'htA', label: 'I2I Offer' },
               { key: 'htB', label: 'BNB Offer' },
               { key: 'life', label: 'Life Insurance (Default)' },
+              { key: 'summit', label: 'Summit Placement' },
             ].map((s) => (
               <div key={s.key} className="flex items-center justify-between">
                 <span className="text-sm text-neutral-400">{s.label}</span>
