@@ -26,11 +26,13 @@ export default function CommandCenter() {
     );
   }
 
+  const totalComm = data?.commRevenue || 0;
   const pnl = data?.netPnl || 0;
   const isPositive = pnl >= 0;
 
   return (
     <div className="space-y-6 max-w-7xl">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <img src="/summit-logo.png" alt="" className="w-10 h-10" onError={(e) => { e.target.style.display = 'none'; }} />
@@ -49,23 +51,23 @@ export default function CommandCenter() {
         </div>
       </div>
 
-      {/* P&L Hero */}
-      <div className={`rounded-2xl p-8 text-center ${isPositive ? 'pnl-hero-positive' : 'pnl-hero-negative'}`}>
-        <p className="text-sm font-medium uppercase tracking-wider text-neutral-400 mb-2">Net P&L ({range.toUpperCase()})</p>
-        <p className={`metric-number-xl ${isPositive ? 'text-green-400' : 'text-red-400'}`}>
-          {pnl < 0 ? '-' : ''}${Math.abs(pnl).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+      {/* Total Commissions Hero — all streams combined */}
+      <div className="pnl-hero-positive rounded-2xl p-8 text-center">
+        <p className="text-sm font-medium uppercase tracking-wider text-neutral-400 mb-2">Total Commissions Earned ({range.toUpperCase()})</p>
+        <p className="metric-number-xl text-green-400">
+          ${totalComm.toLocaleString('en-US', { minimumFractionDigits: 2 })}
         </p>
         <div className="flex justify-center gap-8 mt-4 text-sm">
-          <span className="text-neutral-400">Revenue: <span className="text-green-400 font-semibold">${(data?.totalRevenue || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span></span>
-          <span className="text-neutral-400">Expenses: <span className="text-red-400 font-semibold">${(data?.totalExpenses || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span></span>
+          <span className="text-neutral-400">Pipeline: <span className="text-yellow-400 font-semibold">${(data?.pendingComm || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span></span>
+          <span className="text-neutral-400">Deals: <span className="text-white font-semibold">{data?.totalCommissions || 0}</span></span>
         </div>
       </div>
 
       {/* Metric cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <MetricCard title="Commissions Earned" value={data?.totalRevenue || 0} subtitle={`${data?.totalCommissions || 0} total deals`} positive={true} />
-        <MetricCard title="Pipeline (Pending)" value={data?.pendingComm || 0} subtitle="Awaiting approval" />
+        <MetricCard title="Market Profits" value={data?.marketProfits || 0} subtitle="Trading & investments" positive={(data?.marketProfits || 0) >= 0} />
         <MetricCard title="Renewal Income (Annual)" value={data?.renewalIncome || 0} subtitle={`${data?.activePolicies || 0} active policies`} positive={true} />
+        <MetricCard title="Other Income" value={data?.otherIncome || 0} subtitle="Non-commission revenue" />
         <MetricCard title="Net Worth" value={data?.netWorth || 0} positive={(data?.netWorth || 0) >= 0} />
       </div>
 
@@ -99,6 +101,19 @@ export default function CommandCenter() {
           ]}
           title="Revenue vs Expenses"
         />
+      </div>
+
+      {/* Monthly P&L — lower on the page */}
+      <div className={`rounded-2xl p-8 text-center ${isPositive ? 'pnl-hero-positive' : 'pnl-hero-negative'}`}>
+        <p className="text-sm font-medium uppercase tracking-wider text-neutral-400 mb-2">Net P&L ({range.toUpperCase()})</p>
+        <p className={`metric-number-xl ${isPositive ? 'text-green-400' : 'text-red-400'}`}>
+          {pnl < 0 ? '-' : ''}${Math.abs(pnl).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+        </p>
+        <div className="flex justify-center gap-8 mt-4 text-sm">
+          <span className="text-neutral-400">Revenue: <span className="text-green-400 font-semibold">${(data?.totalRevenue || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span></span>
+          <span className="text-neutral-400">Expenses: <span className="text-red-400 font-semibold">${(data?.totalExpenses || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span></span>
+          <span className="text-neutral-400">Market: <span className="text-green-400 font-semibold">${(data?.marketProfits || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span></span>
+        </div>
       </div>
     </div>
   );

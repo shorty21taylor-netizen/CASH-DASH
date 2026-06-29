@@ -6,7 +6,7 @@ export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const range = searchParams.get('range') || 'mtd';
   const cache = getCache();
-  const { commissions, policies, expenses, income_other, accounts } = cache;
+  const { commissions, policies, expenses, income_other, accounts, market_profits } = cache;
 
   const now = new Date();
   const year = now.getFullYear();
@@ -37,7 +37,11 @@ export async function GET(request) {
     .filter((i) => inRange(i.date))
     .reduce((s, i) => s + i.amount, 0);
 
-  const totalRevenue = commRevenue + otherIncome;
+  const marketProfits = (market_profits || [])
+    .filter((p) => inRange(p.date))
+    .reduce((s, p) => s + p.amount, 0);
+
+  const totalRevenue = commRevenue + otherIncome + marketProfits;
 
   const rangeExpenses = expenses.filter((e) => {
     if (e.recurring && e.frequency === 'monthly') return true;
@@ -68,16 +72,18 @@ export async function GET(request) {
     .filter((c) => c.status !== 'paid')
     .reduce((s, c) => s + (c.amount * c.rate), 0);
 
-  const monthlyData = buildMonthlyData(commissions, expenses);
+  const monthlyData = buildMonthlyData(commissions, expenses, market_profits || []);
 
   return NextResponse.json({
     range,
+    commRevenue,
     totalRevenue,
     totalExpenses,
     netPnl,
     byStream,
     renewalIncome,
     otherIncome,
+    marketProfits,
     pendingComm,
     bizExpenses,
     personalExpenses,
@@ -88,12 +94,12 @@ export async function GET(request) {
   });
 }
 
-function buildMonthlyData(commissions, expenses) {
+function buildMonthlyData(commissions, expenses, marketProfits) {
   const months = {};
   commissions.forEach((c) => {
     if (!c.date) return;
     const m = c.date.substring(0, 7);
-    if (!months[m]) months[m] = { month: m, htA: 0, htB: 0, life: 0, revenue: 0, expenses: 0 };
+    if (!months[m]) months[m] = { month: m, htA: 0, htB: 0, life: 0, market: 0, revenue: 0, expenses: 0 };
     if (c.status === 'paid') {
       const earned = c.amount * c.rate;
       months[m][c.stream] += earned;
@@ -103,8 +109,15 @@ function buildMonthlyData(commissions, expenses) {
   expenses.forEach((e) => {
     if (!e.date) return;
     const m = e.date.substring(0, 7);
-    if (!months[m]) months[m] = { month: m, htA: 0, htB: 0, life: 0, revenue: 0, expenses: 0 };
+    if (!months[m]) months[m] = { month: m, htA: 0, htB: 0, life: 0, market: 0, revenue: 0, expenses: 0 };
     months[m].expenses += e.amount;
+  });
+  marketProfits.forEach((p) => {
+    if (!p.date) return;
+    const m = p.date.substring(0, 7);
+    if (!months[m]) months[m] = { month: m, htA: 0, htB: 0, life: 0, market: 0, revenue: 0, expenses: 0 };
+    months[m].market += p.amount;
+    months[m].revenue += p.amount;
   });
   return Object.values(months).sort((a, b) => a.month.localeCompare(b.month)).slice(-6);
 }

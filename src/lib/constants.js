@@ -30,5 +30,6 @@ export const TIME_CATEGORIES = ['deep_work', 'meetings', 'admin', 'learning', 'h
 
 export const TABLES = [
   'commissions', 'policies', 'expenses', 'income_other',
-  'accounts', 'goals', 'habits', 'health_logs', 'time_logs'
+  'accounts', 'goals', 'habits', 'health_logs', 'time_logs',
+  'market_profits'
 ];

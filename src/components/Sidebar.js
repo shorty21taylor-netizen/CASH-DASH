@@ -8,6 +8,7 @@ const navItems = [
   { href: '/', label: 'Command Center', icon: '⚡' },
   { href: '/commissions', label: 'Commissions', icon: '💰' },
   { href: '/life-insurance', label: 'Life Insurance', icon: '🛡️' },
+  { href: '/market', label: 'Market Profits', icon: '📈' },
   { href: '/pnl', label: 'P&L Statement', icon: '📊' },
   { href: '/networth', label: 'Net Worth', icon: '🏦' },
   { type: 'divider' },

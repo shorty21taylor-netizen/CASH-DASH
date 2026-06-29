@@ -22,6 +22,7 @@ export default function StreamChart({ data, title = 'Revenue by Stream' }) {
               <Bar dataKey="htA" name="High Ticket A" fill="#dc2626" radius={[4, 4, 0, 0]} />
               <Bar dataKey="htB" name="High Ticket B" fill="#f97316" radius={[4, 4, 0, 0]} />
               <Bar dataKey="life" name="Life Insurance" fill="#eab308" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="market" name="Market Profits" fill="#22c55e" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
