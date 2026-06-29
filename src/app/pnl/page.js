@@ -51,8 +51,8 @@ export default function PnLPage() {
         <div className="p-6 border-b" style={{ borderColor: 'var(--crm-border)' }}>
           <h2 className="text-sm font-semibold text-neutral-500 uppercase tracking-wider mb-4">Revenue</h2>
           <div className="space-y-2">
-            <Row label="High Ticket A" value={data.byStream?.htA || 0} />
-            <Row label="High Ticket B" value={data.byStream?.htB || 0} />
+            <Row label="I2I Offer" value={data.byStream?.htA || 0} />
+            <Row label="BNB Offer" value={data.byStream?.htB || 0} />
             <Row label="Life Insurance" value={data.byStream?.life || 0} />
             <Row label="Renewal Income" value={data.renewalIncome || 0} />
             <Row label="Market Profits" value={data.marketProfits || 0} positive={(data.marketProfits || 0) >= 0} negative={(data.marketProfits || 0) < 0} />

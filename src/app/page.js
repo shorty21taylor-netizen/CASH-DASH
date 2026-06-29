@@ -74,8 +74,8 @@ export default function CommandCenter() {
       {/* Stream breakdown */}
       <div className="grid grid-cols-3 gap-4">
         {[
-          { key: 'htA', label: 'High Ticket A', color: '#dc2626' },
-          { key: 'htB', label: 'High Ticket B', color: '#f97316' },
+          { key: 'htA', label: 'I2I Offer', color: '#dc2626' },
+          { key: 'htB', label: 'BNB Offer', color: '#f97316' },
           { key: 'life', label: 'Life Insurance', color: '#eab308' },
         ].map((s) => (
           <div key={s.key} className="glass-card-solid p-5">

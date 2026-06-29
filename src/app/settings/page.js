@@ -38,8 +38,8 @@ export default function SettingsPage() {
           <h2 className="font-semibold mb-4">Commission Rates</h2>
           <div className="space-y-3">
             {[
-              { key: 'htA', label: 'High Ticket A' },
-              { key: 'htB', label: 'High Ticket B' },
+              { key: 'htA', label: 'I2I Offer' },
+              { key: 'htB', label: 'BNB Offer' },
               { key: 'life', label: 'Life Insurance (Default)' },
             ].map((s) => (
               <div key={s.key} className="flex items-center justify-between">

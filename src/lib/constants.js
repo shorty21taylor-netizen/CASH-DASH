@@ -1,6 +1,6 @@
 export const STREAMS = {
-  htA: { key: 'htA', label: 'High Ticket A', color: '#dc2626' },
-  htB: { key: 'htB', label: 'High Ticket B', color: '#f97316' },
+  htA: { key: 'htA', label: 'I2I Offer', color: '#dc2626' },
+  htB: { key: 'htB', label: 'BNB Offer', color: '#f97316' },
   life: { key: 'life', label: 'Life Insurance', color: '#eab308' },
 };
 
