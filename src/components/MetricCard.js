@@ -9,9 +9,9 @@ export default function MetricCard({ title, value, subtitle, positive, className
 
   return (
     <div className={`glass-card-solid p-5 ${className}`}>
-      <p className="text-xs font-medium uppercase tracking-wider text-neutral-500 mb-2">{title}</p>
+      <p className="text-[11px] font-semibold uppercase tracking-[0.15em] mb-2" style={{ color: 'var(--crm-text-muted)' }}>{title}</p>
       <p className={`metric-number ${color}`}>{prefix}{formatted}</p>
-      {subtitle && <p className="text-xs text-neutral-500 mt-2">{subtitle}</p>}
+      {subtitle && <p className="text-xs mt-2" style={{ color: 'var(--crm-text-muted)' }}>{subtitle}</p>}
     </div>
   );
 }

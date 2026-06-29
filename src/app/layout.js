@@ -2,8 +2,8 @@ import './globals.css';
 import Sidebar from '../components/Sidebar.js';
 
 export const metadata = {
-  title: 'Summit Command Center',
-  description: 'Commission tracking, P&L, and personal life OS',
+  title: 'Shorty War Room',
+  description: 'Commission tracking, P&L, and personal command dashboard',
 };
 
 export default function RootLayout({ children }) {
@@ -14,9 +14,9 @@ export default function RootLayout({ children }) {
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
       </head>
-      <body className="flex h-screen overflow-hidden">
+      <body className="flex h-screen overflow-hidden antialiased">
         <Sidebar />
-        <main className="flex-1 overflow-y-auto p-6 lg:p-8">
+        <main className="flex-1 overflow-y-auto p-6 lg:p-8" style={{ background: 'var(--crm-bg)' }}>
           {children}
         </main>
       </body>

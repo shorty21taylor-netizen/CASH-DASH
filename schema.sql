@@ -1,4 +1,4 @@
--- Summit Command Center Schema
+-- Shorty War Room Schema
 -- All tables use JSONB for flexible data storage
 -- NEVER DROP/TRUNCATE/DELETE — soft deletes only
 
