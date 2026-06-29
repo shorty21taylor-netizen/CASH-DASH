@@ -30,22 +30,23 @@ export default function GoalsPage() {
   }
 
   return (
-    <div className="space-y-6 max-w-5xl">
+    <div className="space-y-5 max-w-5xl">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Goals</h1>
-        <button onClick={() => setShowForm(true)} className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium">+ New Goal</button>
+        <h1 className="font-mono text-[14px] uppercase tracking-[0.12em] font-semibold">GOALS</h1>
+        <button onClick={() => setShowForm(true)} className="px-4 py-2 rounded font-mono text-[11px] uppercase tracking-[0.1em]" style={{ background: '#1E90FF', color: '#fff' }}>+ NEW GOAL</button>
       </div>
 
       {showForm && (
-        <form onSubmit={handleSubmit} className="glass-card-solid p-6 space-y-4">
+        <form onSubmit={handleSubmit} className="glass-card-solid p-5 space-y-4">
+          <h2 className="font-mono text-[12px] uppercase tracking-[0.1em] font-semibold">NEW GOAL</h2>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs text-neutral-500 mb-1">Title</label>
-              <input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required className="w-full bg-neutral-900 border border-neutral-700 rounded-lg px-3 py-2 text-white text-sm" />
+              <label className="block font-mono text-[10px] uppercase tracking-[0.12em] mb-1" style={{ color: 'var(--crm-text-muted)' }}>Title</label>
+              <input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required className="input-field" />
             </div>
             <div>
-              <label className="block text-xs text-neutral-500 mb-1">Category</label>
-              <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className="w-full bg-neutral-900 border border-neutral-700 rounded-lg px-3 py-2 text-white text-sm">
+              <label className="block font-mono text-[10px] uppercase tracking-[0.12em] mb-1" style={{ color: 'var(--crm-text-muted)' }}>Category</label>
+              <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className="input-field">
                 <option value="business">Business</option>
                 <option value="personal">Personal</option>
                 <option value="health">Health</option>
@@ -55,25 +56,25 @@ export default function GoalsPage() {
           </div>
           <div className="grid grid-cols-4 gap-4">
             <div>
-              <label className="block text-xs text-neutral-500 mb-1">Target</label>
-              <input type="number" step="0.01" value={form.target} onChange={(e) => setForm({ ...form, target: e.target.value })} required className="w-full bg-neutral-900 border border-neutral-700 rounded-lg px-3 py-2 text-white text-sm" />
+              <label className="block font-mono text-[10px] uppercase tracking-[0.12em] mb-1" style={{ color: 'var(--crm-text-muted)' }}>Target</label>
+              <input type="number" step="0.01" value={form.target} onChange={(e) => setForm({ ...form, target: e.target.value })} required className="input-field" />
             </div>
             <div>
-              <label className="block text-xs text-neutral-500 mb-1">Current</label>
-              <input type="number" step="0.01" value={form.current} onChange={(e) => setForm({ ...form, current: e.target.value })} className="w-full bg-neutral-900 border border-neutral-700 rounded-lg px-3 py-2 text-white text-sm" />
+              <label className="block font-mono text-[10px] uppercase tracking-[0.12em] mb-1" style={{ color: 'var(--crm-text-muted)' }}>Current</label>
+              <input type="number" step="0.01" value={form.current} onChange={(e) => setForm({ ...form, current: e.target.value })} className="input-field" />
             </div>
             <div>
-              <label className="block text-xs text-neutral-500 mb-1">Unit</label>
-              <input value={form.unit} onChange={(e) => setForm({ ...form, unit: e.target.value })} className="w-full bg-neutral-900 border border-neutral-700 rounded-lg px-3 py-2 text-white text-sm" />
+              <label className="block font-mono text-[10px] uppercase tracking-[0.12em] mb-1" style={{ color: 'var(--crm-text-muted)' }}>Unit</label>
+              <input value={form.unit} onChange={(e) => setForm({ ...form, unit: e.target.value })} className="input-field" />
             </div>
             <div>
-              <label className="block text-xs text-neutral-500 mb-1">Deadline</label>
-              <input type="date" value={form.deadline} onChange={(e) => setForm({ ...form, deadline: e.target.value })} className="w-full bg-neutral-900 border border-neutral-700 rounded-lg px-3 py-2 text-white text-sm" />
+              <label className="block font-mono text-[10px] uppercase tracking-[0.12em] mb-1" style={{ color: 'var(--crm-text-muted)' }}>Deadline</label>
+              <input type="date" value={form.deadline} onChange={(e) => setForm({ ...form, deadline: e.target.value })} className="input-field" />
             </div>
           </div>
           <div className="flex gap-2">
-            <button type="submit" className="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium">Add Goal</button>
-            <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 bg-neutral-800 text-white rounded-lg text-sm">Cancel</button>
+            <button type="submit" className="px-4 py-2 rounded font-mono text-[11px] uppercase" style={{ background: '#1E90FF', color: '#fff' }}>Add Goal</button>
+            <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 rounded font-mono text-[11px] uppercase" style={{ background: 'var(--crm-surface2)', color: 'var(--crm-text-secondary)' }}>Cancel</button>
           </div>
         </form>
       )}
@@ -85,26 +86,26 @@ export default function GoalsPage() {
             <div key={g.id} className="glass-card-solid p-5">
               <div className="flex items-start justify-between mb-3">
                 <div>
-                  <h3 className="font-semibold">{g.title}</h3>
-                  <p className="text-xs text-neutral-500 capitalize">{g.category} {g.deadline && `· Due ${g.deadline}`}</p>
+                  <h3 className="font-mono text-[13px] font-semibold">{g.title}</h3>
+                  <p className="font-mono text-[10px] uppercase tracking-[0.08em] capitalize" style={{ color: 'var(--crm-text-muted)' }}>{g.category} {g.deadline && `· Due ${g.deadline}`}</p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-mono">{g.unit === '$' ? '$' : ''}{g.current}{g.unit !== '$' ? ` ${g.unit}` : ''} / {g.unit === '$' ? '$' : ''}{g.target}{g.unit !== '$' ? ` ${g.unit}` : ''}</span>
-                  <button onClick={() => handleDelete(g.id)} className="text-xs text-red-400 hover:text-red-300 ml-2">×</button>
+                  <span className="font-mono text-[12px]">{g.unit === '$' ? '$' : ''}{g.current}{g.unit !== '$' ? ` ${g.unit}` : ''} / {g.unit === '$' ? '$' : ''}{g.target}{g.unit !== '$' ? ` ${g.unit}` : ''}</span>
+                  <button onClick={() => handleDelete(g.id)} className="font-mono text-[10px] uppercase ml-2" style={{ color: 'var(--crm-negative)' }}>x</button>
                 </div>
               </div>
-              <div className="w-full h-3 bg-neutral-800 rounded-full overflow-hidden">
-                <div className="h-full rounded-full transition-all bg-gradient-to-r from-red-600 to-orange-500" style={{ width: `${pct}%` }} />
+              <div className="w-full h-2 rounded overflow-hidden" style={{ background: 'var(--crm-surface2)' }}>
+                <div className="h-full rounded transition-all" style={{ width: `${pct}%`, background: '#1E90FF' }} />
               </div>
               <div className="flex justify-between mt-2">
-                <span className="text-xs text-neutral-500">{pct.toFixed(0)}%</span>
-                <input type="number" step="1" placeholder="Update" className="w-24 bg-neutral-900 border border-neutral-700 rounded px-2 py-1 text-xs text-white"
+                <span className="font-mono text-[10px]" style={{ color: 'var(--crm-text-muted)' }}>{pct.toFixed(0)}%</span>
+                <input type="number" step="1" placeholder="Update" className="input-field w-24 text-[11px]"
                   onKeyDown={(e) => { if (e.key === 'Enter') { updateProgress(g, parseFloat(e.target.value)); e.target.value = ''; } }} />
               </div>
             </div>
           );
         })}
-        {goals.length === 0 && <EmptyState icon="🎯" message="No goals yet. Set one!" />}
+        {goals.length === 0 && <EmptyState icon="—" message="No goals yet. Set one!" />}
       </div>
     </div>
   );

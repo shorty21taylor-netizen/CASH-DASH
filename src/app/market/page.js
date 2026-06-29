@@ -41,100 +41,101 @@ export default function MarketProfitsPage() {
   const chartData = Object.values(monthly).slice(-12);
 
   return (
-    <div className="space-y-6 max-w-5xl">
+    <div className="space-y-5 max-w-5xl">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Market Profits</h1>
-          <p className="text-neutral-500 text-sm">Trading & investment gains</p>
+          <h1 className="font-mono text-[14px] uppercase tracking-[0.12em] font-semibold">MARKET PROFITS</h1>
+          <p className="font-mono text-[11px] mt-0.5" style={{ color: 'var(--crm-text-muted)' }}>Trading & investment gains</p>
         </div>
-        <button onClick={() => setShowForm(true)} className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium">+ Log Profit</button>
+        <button onClick={() => setShowForm(true)} className="px-4 py-2 rounded font-mono text-[11px] uppercase tracking-[0.1em]" style={{ background: '#1E90FF', color: '#fff' }}>+ LOG PROFIT</button>
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-3 gap-3">
         <MetricCard title="Total P&L" value={total} positive={total >= 0} />
         <MetricCard title="Realized" value={realized} positive={realized >= 0} />
         <MetricCard title="Unrealized" value={unrealized} positive={unrealized >= 0} />
       </div>
 
       {showForm && (
-        <form onSubmit={handleSubmit} className="glass-card-solid p-6 space-y-4">
-          <h2 className="font-semibold">Log Market Profit/Loss</h2>
+        <form onSubmit={handleSubmit} className="glass-card-solid p-5 space-y-4">
+          <h2 className="font-mono text-[12px] uppercase tracking-[0.1em] font-semibold">LOG MARKET PROFIT/LOSS</h2>
           <div className="grid grid-cols-3 gap-4">
             <div>
-              <label className="block text-xs text-neutral-500 mb-1">Source / Broker</label>
-              <input value={form.source} onChange={(e) => setForm({ ...form, source: e.target.value })} placeholder="e.g. Robinhood, TD" className="w-full bg-neutral-900 border border-neutral-700 rounded-lg px-3 py-2 text-white text-sm" />
+              <label className="block font-mono text-[10px] uppercase tracking-[0.12em] mb-1" style={{ color: 'var(--crm-text-muted)' }}>Source / Broker</label>
+              <input value={form.source} onChange={(e) => setForm({ ...form, source: e.target.value })} placeholder="e.g. Robinhood, TD" className="input-field" />
             </div>
             <div>
-              <label className="block text-xs text-neutral-500 mb-1">Ticker / Asset</label>
-              <input value={form.ticker} onChange={(e) => setForm({ ...form, ticker: e.target.value })} placeholder="e.g. AAPL, BTC" className="w-full bg-neutral-900 border border-neutral-700 rounded-lg px-3 py-2 text-white text-sm" />
+              <label className="block font-mono text-[10px] uppercase tracking-[0.12em] mb-1" style={{ color: 'var(--crm-text-muted)' }}>Ticker / Asset</label>
+              <input value={form.ticker} onChange={(e) => setForm({ ...form, ticker: e.target.value })} placeholder="e.g. AAPL, BTC" className="input-field" />
             </div>
             <div>
-              <label className="block text-xs text-neutral-500 mb-1">Amount ($)</label>
-              <input type="number" step="0.01" value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} required placeholder="Negative for losses" className="w-full bg-neutral-900 border border-neutral-700 rounded-lg px-3 py-2 text-white text-sm" />
+              <label className="block font-mono text-[10px] uppercase tracking-[0.12em] mb-1" style={{ color: 'var(--crm-text-muted)' }}>Amount ($)</label>
+              <input type="number" step="0.01" value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} required placeholder="Negative for losses" className="input-field" />
             </div>
           </div>
           <div className="grid grid-cols-3 gap-4">
             <div>
-              <label className="block text-xs text-neutral-500 mb-1">Type</label>
-              <select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })} className="w-full bg-neutral-900 border border-neutral-700 rounded-lg px-3 py-2 text-white text-sm">
+              <label className="block font-mono text-[10px] uppercase tracking-[0.12em] mb-1" style={{ color: 'var(--crm-text-muted)' }}>Type</label>
+              <select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })} className="input-field">
                 <option value="realized">Realized</option>
                 <option value="unrealized">Unrealized</option>
               </select>
             </div>
             <div>
-              <label className="block text-xs text-neutral-500 mb-1">Date</label>
-              <input type="date" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} className="w-full bg-neutral-900 border border-neutral-700 rounded-lg px-3 py-2 text-white text-sm" />
+              <label className="block font-mono text-[10px] uppercase tracking-[0.12em] mb-1" style={{ color: 'var(--crm-text-muted)' }}>Date</label>
+              <input type="date" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} className="input-field" />
             </div>
             <div>
-              <label className="block text-xs text-neutral-500 mb-1">Notes</label>
-              <input value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} className="w-full bg-neutral-900 border border-neutral-700 rounded-lg px-3 py-2 text-white text-sm" />
+              <label className="block font-mono text-[10px] uppercase tracking-[0.12em] mb-1" style={{ color: 'var(--crm-text-muted)' }}>Notes</label>
+              <input value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} className="input-field" />
             </div>
           </div>
           <div className="flex gap-2">
-            <button type="submit" className="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium">Add</button>
-            <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 bg-neutral-800 text-white rounded-lg text-sm">Cancel</button>
+            <button type="submit" className="px-4 py-2 rounded font-mono text-[11px] uppercase" style={{ background: '#1E90FF', color: '#fff' }}>Add</button>
+            <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 rounded font-mono text-[11px] uppercase" style={{ background: 'var(--crm-surface2)', color: 'var(--crm-text-secondary)' }}>Cancel</button>
           </div>
         </form>
       )}
 
       {chartData.length > 1 && (
-        <TrendChart data={chartData} lines={[{ key: 'profit', name: 'Market P&L', color: '#22c55e' }]} title="Monthly Market P&L" />
+        <TrendChart data={chartData} lines={[{ key: 'profit', name: 'Market P&L', color: '#22c55e' }]} title="MONTHLY MARKET P&L" />
       )}
 
       <div className="glass-card-solid overflow-hidden">
         <table className="w-full">
           <thead>
             <tr className="border-b" style={{ borderColor: 'var(--crm-border)' }}>
-              <th className="text-left px-4 py-3 text-xs font-medium text-neutral-500 uppercase">Date</th>
-              <th className="text-left px-4 py-3 text-xs font-medium text-neutral-500 uppercase">Ticker</th>
-              <th className="text-left px-4 py-3 text-xs font-medium text-neutral-500 uppercase">Source</th>
-              <th className="text-right px-4 py-3 text-xs font-medium text-neutral-500 uppercase">Amount</th>
-              <th className="text-left px-4 py-3 text-xs font-medium text-neutral-500 uppercase">Type</th>
-              <th className="text-left px-4 py-3 text-xs font-medium text-neutral-500 uppercase">Notes</th>
+              <th className="text-left px-4 py-3 font-mono text-[10px] uppercase tracking-[0.12em] font-normal" style={{ color: 'var(--crm-text-muted)' }}>Date</th>
+              <th className="text-left px-4 py-3 font-mono text-[10px] uppercase tracking-[0.12em] font-normal" style={{ color: 'var(--crm-text-muted)' }}>Ticker</th>
+              <th className="text-left px-4 py-3 font-mono text-[10px] uppercase tracking-[0.12em] font-normal" style={{ color: 'var(--crm-text-muted)' }}>Source</th>
+              <th className="text-right px-4 py-3 font-mono text-[10px] uppercase tracking-[0.12em] font-normal" style={{ color: 'var(--crm-text-muted)' }}>Amount</th>
+              <th className="text-left px-4 py-3 font-mono text-[10px] uppercase tracking-[0.12em] font-normal" style={{ color: 'var(--crm-text-muted)' }}>Type</th>
+              <th className="text-left px-4 py-3 font-mono text-[10px] uppercase tracking-[0.12em] font-normal" style={{ color: 'var(--crm-text-muted)' }}>Notes</th>
               <th className="px-4 py-3"></th>
             </tr>
           </thead>
           <tbody>
             {profits.map((p) => (
               <tr key={p.id} className="border-b hover:bg-white/[0.02]" style={{ borderColor: 'var(--crm-border)' }}>
-                <td className="px-4 py-3 text-sm">{p.date}</td>
-                <td className="px-4 py-3 text-sm font-mono font-medium">{p.ticker || '—'}</td>
-                <td className="px-4 py-3 text-sm text-neutral-400">{p.source || '—'}</td>
-                <td className={`px-4 py-3 text-sm text-right font-mono ${(p.amount || 0) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                <td className="px-4 py-3 font-mono text-[12px]">{p.date}</td>
+                <td className="px-4 py-3 font-mono text-[12px] font-medium">{p.ticker || '—'}</td>
+                <td className="px-4 py-3 font-mono text-[12px]" style={{ color: 'var(--crm-text-muted)' }}>{p.source || '—'}</td>
+                <td className="px-4 py-3 text-right font-mono text-[13px]" style={{ color: (p.amount || 0) >= 0 ? 'var(--crm-positive)' : 'var(--crm-negative)' }}>
                   {(p.amount || 0) < 0 ? '-' : ''}${Math.abs(p.amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
                 </td>
                 <td className="px-4 py-3">
-                  <span className={`text-xs font-medium px-2 py-1 rounded-full capitalize ${p.type === 'realized' ? 'bg-green-500/10 text-green-400' : 'bg-blue-500/10 text-blue-400'}`}>
-                    {p.type}
-                  </span>
+                  <span className="font-mono text-[10px] uppercase px-2 py-0.5 rounded" style={{
+                    background: p.type === 'realized' ? 'rgba(30,144,255,0.1)' : 'rgba(255,255,255,0.05)',
+                    color: p.type === 'realized' ? '#1E90FF' : 'var(--crm-text-secondary)',
+                  }}>{p.type}</span>
                 </td>
-                <td className="px-4 py-3 text-sm text-neutral-400 truncate max-w-[200px]">{p.notes}</td>
-                <td className="px-4 py-3 text-right"><button onClick={() => handleDelete(p.id)} className="text-xs text-red-400 hover:text-red-300">×</button></td>
+                <td className="px-4 py-3 font-mono text-[11px] truncate max-w-[200px]" style={{ color: 'var(--crm-text-muted)' }}>{p.notes}</td>
+                <td className="px-4 py-3 text-right"><button onClick={() => handleDelete(p.id)} className="font-mono text-[10px] uppercase" style={{ color: 'var(--crm-negative)' }}>x</button></td>
               </tr>
             ))}
           </tbody>
         </table>
-        {profits.length === 0 && <EmptyState icon="📈" message="No market profits logged yet." />}
+        {profits.length === 0 && <EmptyState icon="—" message="No market profits logged" />}
       </div>
     </div>
   );

@@ -29,28 +29,29 @@ export default function PnLPage() {
     fetch('/api/expenses').then((r) => r.json()).then((d) => setExpenses(d.expenses || []));
   }
 
-  if (!data) return <div className="text-neutral-500">Loading...</div>;
+  if (!data) return <span className="font-mono text-[12px] uppercase" style={{ color: 'var(--crm-text-muted)' }}>Loading...</span>;
 
   const margin = data.totalRevenue > 0 ? ((data.netPnl / data.totalRevenue) * 100).toFixed(1) : '0.0';
 
   return (
-    <div className="space-y-6 max-w-5xl">
+    <div className="space-y-5 max-w-5xl">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">P&L Statement</h1>
-        <div className="flex gap-1 p-1 rounded-lg" style={{ background: 'var(--crm-surface)' }}>
+        <h1 className="font-mono text-[14px] uppercase tracking-[0.12em] font-semibold">P&L STATEMENT</h1>
+        <div className="flex gap-px rounded" style={{ border: '1px solid var(--crm-border)' }}>
           {['mtd', 'ytd'].map((r) => (
             <button key={r} onClick={() => setRange(r)}
-              className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${range === r ? 'bg-red-600 text-white' : 'text-neutral-400 hover:text-white'}`}>
-              {r.toUpperCase()}
+              className="px-4 py-1.5 font-mono text-[11px] uppercase tracking-[0.1em] transition-colors"
+              style={{ background: range === r ? '#1E90FF' : 'transparent', color: range === r ? '#fff' : 'var(--crm-text-muted)' }}>
+              {r}
             </button>
           ))}
         </div>
       </div>
 
       <div className="glass-card-solid overflow-hidden">
-        <div className="p-6 border-b" style={{ borderColor: 'var(--crm-border)' }}>
-          <h2 className="text-sm font-semibold text-neutral-500 uppercase tracking-wider mb-4">Revenue</h2>
-          <div className="space-y-2">
+        <div className="p-5 border-b" style={{ borderColor: 'var(--crm-border)' }}>
+          <h2 className="font-mono text-[10px] uppercase tracking-[0.12em] mb-4" style={{ color: 'var(--crm-text-muted)' }}>REVENUE</h2>
+          <div className="space-y-1">
             <Row label="I2I Offer" value={data.byStream?.htA || 0} />
             <Row label="BNB Offer" value={data.byStream?.htB || 0} />
             <Row label="Life Insurance" value={data.byStream?.life || 0} />
@@ -61,37 +62,37 @@ export default function PnLPage() {
             <Row label="Total Revenue" value={data.totalRevenue || 0} bold positive />
           </div>
         </div>
-        <div className="p-6 border-b" style={{ borderColor: 'var(--crm-border)' }}>
+        <div className="p-5 border-b" style={{ borderColor: 'var(--crm-border)' }}>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-sm font-semibold text-neutral-500 uppercase tracking-wider">Expenses</h2>
-            <button onClick={() => setShowExpenseForm(!showExpenseForm)} className="text-xs text-red-400 hover:text-red-300">+ Add Expense</button>
+            <h2 className="font-mono text-[10px] uppercase tracking-[0.12em]" style={{ color: 'var(--crm-text-muted)' }}>EXPENSES</h2>
+            <button onClick={() => setShowExpenseForm(!showExpenseForm)} className="font-mono text-[10px] uppercase tracking-[0.08em]" style={{ color: '#1E90FF' }}>+ Add</button>
           </div>
           {showExpenseForm && (
-            <form onSubmit={addExpense} className="mb-4 p-4 rounded-lg bg-neutral-900 space-y-3">
+            <form onSubmit={addExpense} className="mb-4 p-4 rounded space-y-3" style={{ background: 'var(--crm-surface2)' }}>
               <div className="grid grid-cols-4 gap-3">
-                <input name="label" placeholder="Label" value={expForm.label} onChange={(e) => setExpForm({ ...expForm, label: e.target.value })} required className="bg-neutral-800 border border-neutral-700 rounded px-2 py-1 text-sm text-white" />
-                <input name="amount" type="number" step="0.01" placeholder="Amount" value={expForm.amount} onChange={(e) => setExpForm({ ...expForm, amount: e.target.value })} required className="bg-neutral-800 border border-neutral-700 rounded px-2 py-1 text-sm text-white" />
-                <select value={expForm.category} onChange={(e) => setExpForm({ ...expForm, category: e.target.value })} className="bg-neutral-800 border border-neutral-700 rounded px-2 py-1 text-sm text-white">
+                <input name="label" placeholder="Label" value={expForm.label} onChange={(e) => setExpForm({ ...expForm, label: e.target.value })} required className="input-field" />
+                <input name="amount" type="number" step="0.01" placeholder="Amount" value={expForm.amount} onChange={(e) => setExpForm({ ...expForm, amount: e.target.value })} required className="input-field" />
+                <select value={expForm.category} onChange={(e) => setExpForm({ ...expForm, category: e.target.value })} className="input-field">
                   <option value="business">Business</option>
                   <option value="personal">Personal</option>
                 </select>
-                <select value={expForm.frequency} onChange={(e) => setExpForm({ ...expForm, frequency: e.target.value, recurring: e.target.value !== 'once' })} className="bg-neutral-800 border border-neutral-700 rounded px-2 py-1 text-sm text-white">
+                <select value={expForm.frequency} onChange={(e) => setExpForm({ ...expForm, frequency: e.target.value, recurring: e.target.value !== 'once' })} className="input-field">
                   <option value="once">One-time</option>
                   <option value="monthly">Monthly</option>
                   <option value="yearly">Yearly</option>
                 </select>
               </div>
-              <button type="submit" className="px-3 py-1 bg-red-600 text-white rounded text-sm">Add</button>
+              <button type="submit" className="px-3 py-1 rounded font-mono text-[11px] uppercase" style={{ background: '#1E90FF', color: '#fff' }}>Add</button>
             </form>
           )}
-          <div className="space-y-2">
+          <div className="space-y-1">
             <Row label="Business Expenses" value={data.bizExpenses || 0} negative />
             <Row label="Personal Expenses" value={data.personalExpenses || 0} negative />
             <Row label="Total Expenses" value={data.totalExpenses || 0} bold negative />
           </div>
         </div>
-        <div className="p-6">
-          <div className="space-y-2">
+        <div className="p-5">
+          <div className="space-y-1">
             <Row label="Net P&L" value={data.netPnl || 0} bold positive={data.netPnl >= 0} negative={data.netPnl < 0} xl />
             <Row label="Margin" value={`${margin}%`} />
           </div>
@@ -100,25 +101,25 @@ export default function PnLPage() {
 
       {expenses.length > 0 && (
         <div className="glass-card-solid overflow-hidden">
-          <h3 className="px-6 py-4 font-semibold border-b" style={{ borderColor: 'var(--crm-border)' }}>Expense Detail</h3>
+          <h3 className="px-5 py-3 font-mono text-[11px] uppercase tracking-[0.12em] border-b font-semibold" style={{ borderColor: 'var(--crm-border)' }}>EXPENSE DETAIL</h3>
           <table className="w-full">
             <thead>
               <tr className="border-b" style={{ borderColor: 'var(--crm-border)' }}>
-                <th className="text-left px-4 py-2 text-xs text-neutral-500">Label</th>
-                <th className="text-left px-4 py-2 text-xs text-neutral-500">Category</th>
-                <th className="text-right px-4 py-2 text-xs text-neutral-500">Amount</th>
-                <th className="text-left px-4 py-2 text-xs text-neutral-500">Frequency</th>
-                <th className="text-right px-4 py-2 text-xs text-neutral-500">Actions</th>
+                <th className="text-left px-4 py-2 font-mono text-[10px] uppercase tracking-[0.12em] font-normal" style={{ color: 'var(--crm-text-muted)' }}>Label</th>
+                <th className="text-left px-4 py-2 font-mono text-[10px] uppercase tracking-[0.12em] font-normal" style={{ color: 'var(--crm-text-muted)' }}>Category</th>
+                <th className="text-right px-4 py-2 font-mono text-[10px] uppercase tracking-[0.12em] font-normal" style={{ color: 'var(--crm-text-muted)' }}>Amount</th>
+                <th className="text-left px-4 py-2 font-mono text-[10px] uppercase tracking-[0.12em] font-normal" style={{ color: 'var(--crm-text-muted)' }}>Frequency</th>
+                <th className="text-right px-4 py-2 font-mono text-[10px] uppercase tracking-[0.12em] font-normal" style={{ color: 'var(--crm-text-muted)' }}></th>
               </tr>
             </thead>
             <tbody>
               {expenses.map((e) => (
                 <tr key={e.id} className="border-b hover:bg-white/[0.02]" style={{ borderColor: 'var(--crm-border)' }}>
                   <td className="px-4 py-2 text-sm">{e.label}</td>
-                  <td className="px-4 py-2 text-sm capitalize text-neutral-400">{e.category}</td>
-                  <td className="px-4 py-2 text-sm text-right font-mono text-red-400">${(e.amount || 0).toLocaleString()}</td>
-                  <td className="px-4 py-2 text-sm text-neutral-400 capitalize">{e.frequency}</td>
-                  <td className="px-4 py-2 text-right"><button onClick={() => deleteExpense(e.id)} className="text-xs text-red-400 hover:text-red-300">Delete</button></td>
+                  <td className="px-4 py-2 font-mono text-[11px] uppercase" style={{ color: 'var(--crm-text-muted)' }}>{e.category}</td>
+                  <td className="px-4 py-2 text-right font-mono text-[13px]" style={{ color: 'var(--crm-negative)' }}>${(e.amount || 0).toLocaleString()}</td>
+                  <td className="px-4 py-2 font-mono text-[11px] uppercase" style={{ color: 'var(--crm-text-muted)' }}>{e.frequency}</td>
+                  <td className="px-4 py-2 text-right"><button onClick={() => deleteExpense(e.id)} className="font-mono text-[10px] uppercase" style={{ color: 'var(--crm-negative)' }}>Del</button></td>
                 </tr>
               ))}
             </tbody>
@@ -133,11 +134,11 @@ function Row({ label, value, bold, positive, negative, xl }) {
   const formatted = typeof value === 'number'
     ? `${value < 0 ? '-' : ''}$${Math.abs(value).toLocaleString('en-US', { minimumFractionDigits: 2 })}`
     : value;
-  const color = positive ? 'text-green-400' : negative ? 'text-red-400' : 'text-white';
+  const color = positive ? 'var(--crm-positive)' : negative ? 'var(--crm-negative)' : 'var(--crm-text)';
   return (
     <div className={`flex justify-between items-center ${bold ? 'py-2 border-t' : 'py-1'}`} style={bold ? { borderColor: 'var(--crm-border)' } : {}}>
-      <span className={`text-sm ${bold ? 'font-bold' : 'text-neutral-400'}`}>{label}</span>
-      <span className={`font-mono ${bold ? 'font-bold' : ''} ${xl ? 'text-2xl' : 'text-sm'} ${color}`}>{formatted}</span>
+      <span className={`font-mono text-[12px] ${bold ? 'font-semibold uppercase tracking-[0.08em]' : ''}`} style={{ color: bold ? 'var(--crm-text)' : 'var(--crm-text-muted)' }}>{label}</span>
+      <span className={`font-mono ${xl ? 'text-2xl font-light' : 'text-[13px]'} ${bold ? 'font-semibold' : ''}`} style={{ color }}>{formatted}</span>
     </div>
   );
 }

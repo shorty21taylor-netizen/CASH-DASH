@@ -35,31 +35,31 @@ export default function NetWorthPage() {
   const netWorth = assets - debts;
 
   return (
-    <div className="space-y-6 max-w-5xl">
+    <div className="space-y-5 max-w-5xl">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Net Worth</h1>
-        <button onClick={() => setShowForm(true)} className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium">+ Add Account</button>
+        <h1 className="font-mono text-[14px] uppercase tracking-[0.12em] font-semibold">NET WORTH</h1>
+        <button onClick={() => setShowForm(true)} className="px-4 py-2 rounded font-mono text-[11px] uppercase tracking-[0.1em]" style={{ background: '#1E90FF', color: '#fff' }}>+ ADD ACCOUNT</button>
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-3 gap-3">
         <MetricCard title="Total Assets" value={assets} positive={true} />
         <MetricCard title="Total Debt" value={debts} positive={false} />
         <MetricCard title="Net Worth" value={netWorth} positive={netWorth >= 0} />
       </div>
 
       {showForm && (
-        <form onSubmit={handleSubmit} className="glass-card-solid p-6 space-y-4">
-          <h2 className="font-semibold">Add Account</h2>
+        <form onSubmit={handleSubmit} className="glass-card-solid p-5 space-y-4">
+          <h2 className="font-mono text-[12px] uppercase tracking-[0.1em] font-semibold">ADD ACCOUNT</h2>
           <div className="grid grid-cols-3 gap-4">
-            <input placeholder="Account name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required className="bg-neutral-900 border border-neutral-700 rounded-lg px-3 py-2 text-white text-sm" />
-            <select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })} className="bg-neutral-900 border border-neutral-700 rounded-lg px-3 py-2 text-white text-sm">
+            <input placeholder="Account name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required className="input-field" />
+            <select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })} className="input-field">
               {ACCOUNT_TYPES.map((t) => <option key={t} value={t}>{t.charAt(0).toUpperCase() + t.slice(1)}</option>)}
             </select>
-            <input type="number" step="0.01" placeholder="Balance" value={form.balance} onChange={(e) => setForm({ ...form, balance: e.target.value })} required className="bg-neutral-900 border border-neutral-700 rounded-lg px-3 py-2 text-white text-sm" />
+            <input type="number" step="0.01" placeholder="Balance" value={form.balance} onChange={(e) => setForm({ ...form, balance: e.target.value })} required className="input-field" />
           </div>
           <div className="flex gap-2">
-            <button type="submit" className="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium">Add</button>
-            <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 bg-neutral-800 text-white rounded-lg text-sm">Cancel</button>
+            <button type="submit" className="px-4 py-2 rounded font-mono text-[11px] uppercase" style={{ background: '#1E90FF', color: '#fff' }}>Add</button>
+            <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 rounded font-mono text-[11px] uppercase" style={{ background: 'var(--crm-surface2)', color: 'var(--crm-text-secondary)' }}>Cancel</button>
           </div>
         </form>
       )}
@@ -69,15 +69,15 @@ export default function NetWorthPage() {
         if (list.length === 0) return null;
         return (
           <div key={type} className="glass-card-solid overflow-hidden">
-            <h3 className="px-6 py-3 font-semibold capitalize border-b" style={{ borderColor: 'var(--crm-border)' }}>{type} Accounts</h3>
+            <h3 className="px-5 py-3 font-mono text-[11px] uppercase tracking-[0.12em] font-semibold border-b" style={{ borderColor: 'var(--crm-border)' }}>{type} ACCOUNTS</h3>
             {list.map((a) => (
-              <div key={a.id} className="flex items-center justify-between px-6 py-3 border-b hover:bg-white/[0.02]" style={{ borderColor: 'var(--crm-border)' }}>
-                <span className="text-sm font-medium">{a.name}</span>
+              <div key={a.id} className="flex items-center justify-between px-5 py-3 border-b hover:bg-white/[0.02]" style={{ borderColor: 'var(--crm-border)' }}>
+                <span className="text-sm">{a.name}</span>
                 <div className="flex items-center gap-4">
-                  <span className={`font-mono text-sm ${type === 'debt' ? 'text-red-400' : 'text-green-400'}`}>
+                  <span className="font-mono text-[13px]" style={{ color: type === 'debt' ? 'var(--crm-negative)' : 'var(--crm-positive)' }}>
                     ${(a.balance || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
                   </span>
-                  <button onClick={() => handleDelete(a.id)} className="text-xs text-red-400 hover:text-red-300">Delete</button>
+                  <button onClick={() => handleDelete(a.id)} className="font-mono text-[10px] uppercase" style={{ color: 'var(--crm-negative)' }}>Del</button>
                 </div>
               </div>
             ))}
@@ -85,7 +85,7 @@ export default function NetWorthPage() {
         );
       })}
 
-      {accounts.length === 0 && <EmptyState icon="🏦" message="No accounts yet. Add one to track your net worth!" />}
+      {accounts.length === 0 && <EmptyState icon="—" message="No accounts yet" />}
     </div>
   );
 }

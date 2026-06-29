@@ -3,20 +3,17 @@
 @tailwind utilities;
 
 :root {
-  --crm-bg: #060608;
-  --crm-surface: #0e0e12;
-  --crm-surface2: #16161d;
-  --crm-border: #1e1e2a;
-  --crm-border-glow: rgba(220, 38, 38, 0.12);
-  --crm-text: #eaeaef;
-  --crm-text-muted: #6b6b80;
-  --crm-accent: #dc2626;
-  --crm-accent2: #f97316;
-  --crm-accent-glow: rgba(220, 38, 38, 0.25);
+  --crm-bg: #0e0e10;
+  --crm-surface: #16161a;
+  --crm-surface2: #1c1c20;
+  --crm-border: rgba(255, 255, 255, 0.08);
+  --crm-text: #f5f5f5;
+  --crm-text-secondary: #8a8a90;
+  --crm-text-muted: #6a6a70;
+  --crm-accent: #1E90FF;
   --crm-positive: #22c55e;
   --crm-negative: #ef4444;
-  --crm-glass: rgba(255, 255, 255, 0.02);
-  --crm-glass-border: rgba(255, 255, 255, 0.06);
+  --crm-warm: #b8b2a4;
 }
 
 body {
@@ -26,115 +23,68 @@ body {
 }
 
 .glass-card {
-  background: var(--crm-glass);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid var(--crm-glass-border);
-  border-radius: 16px;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
-}
-
-.glass-card:hover {
-  border-color: rgba(255, 255, 255, 0.1);
-  box-shadow: 0 0 30px rgba(0, 0, 0, 0.4);
+  background: var(--crm-surface);
+  border: 1px solid var(--crm-border);
+  border-radius: 4px;
 }
 
 .glass-card-solid {
   background: var(--crm-surface);
   border: 1px solid var(--crm-border);
-  border-radius: 16px;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  border-radius: 4px;
 }
 
-.glass-card-solid:hover {
-  border-color: rgba(220, 38, 38, 0.15);
-  box-shadow: 0 4px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(220, 38, 38, 0.06);
+.panel-elevated {
+  background: var(--crm-surface2);
+  border: 1px solid var(--crm-border);
+  border-radius: 4px;
+}
+
+.panel-accent {
+  background: #1E90FF;
+  border: 1px solid rgba(30, 144, 255, 0.3);
+  border-radius: 4px;
+  color: #fff;
+}
+
+.panel-warm {
+  background: #2a2720;
+  border: 1px solid rgba(184, 178, 164, 0.15);
+  border-radius: 4px;
 }
 
 .pnl-hero-positive {
-  background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(34, 197, 94, 0.02));
-  border: 1px solid rgba(34, 197, 94, 0.18);
-  box-shadow: 0 0 40px rgba(34, 197, 94, 0.06), inset 0 1px 0 rgba(34, 197, 94, 0.08);
+  background: var(--crm-surface);
+  border: 1px solid var(--crm-border);
+  border-radius: 4px;
 }
 
 .pnl-hero-negative {
-  background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(239, 68, 68, 0.02));
-  border: 1px solid rgba(239, 68, 68, 0.18);
-  box-shadow: 0 0 40px rgba(239, 68, 68, 0.06), inset 0 1px 0 rgba(239, 68, 68, 0.08);
-}
-
-.pnl-gradient-text {
-  background: linear-gradient(135deg, #dc2626, #f97316, #dc2626);
-  background-size: 200% 100%;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  background: var(--crm-surface);
+  border: 1px solid var(--crm-border);
+  border-radius: 4px;
 }
 
 .metric-number {
+  font-family: 'JetBrains Mono', 'Space Mono', monospace;
   font-size: 2rem;
-  font-weight: 800;
+  font-weight: 300;
   line-height: 1;
   letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
 }
 
 .metric-number-xl {
-  font-size: 3.5rem;
-  font-weight: 800;
+  font-family: 'JetBrains Mono', 'Space Mono', monospace;
+  font-size: 3rem;
+  font-weight: 300;
   line-height: 1;
-  letter-spacing: -0.03em;
-}
-
-/* War Room glow effects */
-.glow-red {
-  box-shadow: 0 0 20px rgba(220, 38, 38, 0.15), 0 0 60px rgba(220, 38, 38, 0.05);
-}
-
-.glow-green {
-  box-shadow: 0 0 20px rgba(34, 197, 94, 0.15), 0 0 60px rgba(34, 197, 94, 0.05);
-}
-
-.glow-line {
-  position: relative;
-}
-
-.glow-line::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--crm-accent), transparent);
-  opacity: 0.3;
-}
-
-/* Subtle scan line effect for hero cards */
-.war-room-scan {
-  position: relative;
-  overflow: hidden;
-}
-
-.war-room-scan::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: repeating-linear-gradient(
-    0deg,
-    transparent,
-    transparent 2px,
-    rgba(255, 255, 255, 0.008) 2px,
-    rgba(255, 255, 255, 0.008) 4px
-  );
-  pointer-events: none;
-  z-index: 1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
 }
 
 input[type="date"]::-webkit-calendar-picker-indicator {
-  filter: invert(0.7);
+  filter: invert(0.5);
 }
 
 input, select, textarea {
@@ -143,11 +93,11 @@ input, select, textarea {
 
 input:focus, select:focus, textarea:focus {
   border-color: var(--crm-accent) !important;
-  box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.15), 0 0 20px rgba(220, 38, 38, 0.05);
+  box-shadow: 0 0 0 1px rgba(30, 144, 255, 0.2);
 }
 
 ::-webkit-scrollbar {
-  width: 5px;
+  width: 4px;
 }
 
 ::-webkit-scrollbar-track {
@@ -155,46 +105,26 @@ input:focus, select:focus, textarea:focus {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #222;
-  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #333;
+  background: rgba(255, 255, 255, 0.15);
 }
 
 .input-field {
-  background: #0e0e12;
+  background: var(--crm-surface);
   border: 1px solid var(--crm-border);
-  border-radius: 0.5rem;
+  border-radius: 4px;
   padding: 0.5rem 0.75rem;
   color: var(--crm-text);
-  font-size: 0.875rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8125rem;
   width: 100%;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: border-color 0.15s;
 }
 
-/* Animated border for active sections */
-.active-border {
-  border-image: linear-gradient(135deg, var(--crm-accent), var(--crm-accent2)) 1;
-}
-
-/* Status indicator pulse */
-@keyframes pulse-glow {
-  0%, 100% { opacity: 0.6; }
-  50% { opacity: 1; }
-}
-
-.status-pulse {
-  animation: pulse-glow 2s ease-in-out infinite;
-}
-
-/* Fade-in for page transitions */
-@keyframes fadeSlideIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.animate-in {
-  animation: fadeSlideIn 0.4s ease-out;
+.font-mono {
+  font-family: 'JetBrains Mono', 'Space Mono', monospace !important;
 }
