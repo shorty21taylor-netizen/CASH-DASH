@@ -62,6 +62,12 @@ CREATE TABLE IF NOT EXISTS market_profits (
   created_at TIMESTAMP DEFAULT NOW()
 );
 
+CREATE TABLE IF NOT EXISTS reps (
+  id TEXT PRIMARY KEY,
+  data JSONB NOT NULL,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
 -- Indexes for common queries
 CREATE INDEX IF NOT EXISTS idx_commissions_stream ON commissions ((data->>'stream'));
 CREATE INDEX IF NOT EXISTS idx_commissions_status ON commissions ((data->>'status'));

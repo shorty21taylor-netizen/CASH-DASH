@@ -93,3 +93,14 @@ input:focus, select:focus, textarea:focus {
   background: #333;
   border-radius: 3px;
 }
+
+.input-field {
+  background: #171717;
+  border: 1px solid var(--crm-border);
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  color: var(--crm-text);
+  font-size: 0.875rem;
+  width: 100%;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}

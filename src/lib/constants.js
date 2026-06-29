@@ -30,8 +30,11 @@ export const ACCOUNT_TYPES = ['cash', 'investment', 'debt'];
 export const HABIT_CADENCES = ['daily', 'weekly'];
 export const TIME_CATEGORIES = ['deep_work', 'meetings', 'admin', 'learning', 'health', 'personal', 'other'];
 
+export const PAY_FREQUENCIES = ['weekly', 'bi-weekly', 'semi-monthly', 'monthly', 'annually'];
+export const REP_STATUSES = ['active', 'inactive', 'onboarding'];
+
 export const TABLES = [
   'commissions', 'policies', 'expenses', 'income_other',
   'accounts', 'goals', 'habits', 'health_logs', 'time_logs',
-  'market_profits'
+  'market_profits', 'reps'
 ];
