@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --summit-primary: #5c7cfa;
+  --summit-bg: #020617;
+}
+
+body {
+  background-color: var(--summit-bg);
+  color: #f8fafc;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.7);
+}

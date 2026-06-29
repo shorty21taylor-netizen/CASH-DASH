@@ -1,0 +1,108 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import CommissionForm from '../../../components/CommissionForm.js';
+import { STATUSES, DEFAULT_RATES } from '../../../lib/constants.js';
+
+export default function HighTicketAPage() {
+  const [commissions, setCommissions] = useState([]);
+  const [showForm, setShowForm] = useState(false);
+  const [totals, setTotals] = useState({ earned: 0, pending: 0, count: 0 });
+
+  useEffect(() => { load(); }, []);
+
+  function load() {
+    fetch('/api/commissions?stream=htA')
+      .then((r) => r.json())
+      .then((d) => {
+        const list = d.commissions || [];
+        setCommissions(list);
+        setTotals({
+          earned: list.filter((c) => c.status === 'paid').reduce((s, c) => s + c.amount * c.rate, 0),
+          pending: list.filter((c) => c.status !== 'paid').reduce((s, c) => s + c.amount * c.rate, 0),
+          count: list.length,
+        });
+      });
+  }
+
+  async function handleSubmit(data) {
+    await fetch('/api/commissions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...data, stream: 'htA' }),
+    });
+    setShowForm(false);
+    load();
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-white">High Ticket Offer A</h1>
+          <p className="text-dark-400 text-sm">Flat {(DEFAULT_RATES.htA * 100).toFixed(0)}% commission rate</p>
+        </div>
+        <button onClick={() => setShowForm(!showForm)} className="px-4 py-2 bg-summit-600 hover:bg-summit-700 text-white rounded-lg font-medium transition-colors">
+          + Add Commission
+        </button>
+      </div>
+
+      <div className="grid grid-cols-3 gap-4">
+        <div className="bg-dark-800 border border-dark-700 rounded-xl p-4">
+          <p className="text-dark-400 text-sm">Total Earned</p>
+          <p className="text-xl font-bold text-green-400">${totals.earned.toLocaleString('en-US', { minimumFractionDigits: 2 })}</p>
+        </div>
+        <div className="bg-dark-800 border border-dark-700 rounded-xl p-4">
+          <p className="text-dark-400 text-sm">Pending</p>
+          <p className="text-xl font-bold text-yellow-400">${totals.pending.toLocaleString('en-US', { minimumFractionDigits: 2 })}</p>
+        </div>
+        <div className="bg-dark-800 border border-dark-700 rounded-xl p-4">
+          <p className="text-dark-400 text-sm">Total Deals</p>
+          <p className="text-xl font-bold text-white">{totals.count}</p>
+        </div>
+      </div>
+
+      {showForm && (
+        <div className="bg-dark-800 border border-dark-700 rounded-xl p-6">
+          <CommissionForm
+            initial={{ stream: 'htA', client_name: '', amount: '', rate: DEFAULT_RATES.htA, status: 'pending', date: new Date().toISOString().split('T')[0] }}
+            onSubmit={handleSubmit}
+            onCancel={() => setShowForm(false)}
+          />
+        </div>
+      )}
+
+      <div className="bg-dark-800 border border-dark-700 rounded-xl overflow-hidden">
+        <table className="w-full">
+          <thead className="bg-dark-900">
+            <tr>
+              <th className="text-left px-4 py-3 text-dark-300 text-sm">Client</th>
+              <th className="text-left px-4 py-3 text-dark-300 text-sm">Deal Amount</th>
+              <th className="text-left px-4 py-3 text-dark-300 text-sm">Commission</th>
+              <th className="text-left px-4 py-3 text-dark-300 text-sm">Status</th>
+              <th className="text-left px-4 py-3 text-dark-300 text-sm">Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {commissions.map((c) => (
+              <tr key={c.id} className="border-t border-dark-700">
+                <td className="px-4 py-3 text-white">{c.client_name}</td>
+                <td className="px-4 py-3 text-white">${(c.amount || 0).toLocaleString()}</td>
+                <td className="px-4 py-3 text-summit-400">${((c.amount || 0) * (c.rate || 0)).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+                <td className="px-4 py-3">
+                  <span className="px-2 py-1 rounded text-xs" style={{ backgroundColor: STATUSES[c.status]?.color + '22', color: STATUSES[c.status]?.color }}>
+                    {STATUSES[c.status]?.label}
+                  </span>
+                </td>
+                <td className="px-4 py-3 text-dark-300">{c.date}</td>
+              </tr>
+            ))}
+            {commissions.length === 0 && (
+              <tr><td colSpan="5" className="px-4 py-8 text-center text-dark-400">No commissions yet for High Ticket A.</td></tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
