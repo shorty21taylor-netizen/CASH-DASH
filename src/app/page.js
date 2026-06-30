@@ -26,6 +26,7 @@ export default function WarRoom() {
     );
   }
 
+  const totalRev = data?.totalRevenue || 0;
   const totalComm = data?.commRevenue || 0;
   const pnl = data?.netPnl || 0;
   const isPositive = pnl >= 0;
@@ -50,11 +51,12 @@ export default function WarRoom() {
       </div>
 
       <div className="panel-hero p-8 text-center rounded-3xl">
-        <p className="text-[15px] opacity-70 mb-3" style={{ color: 'var(--crm-text-secondary)' }}>Total commissions ({range.toUpperCase()})</p>
+        <p className="text-[15px] opacity-70 mb-3" style={{ color: 'var(--crm-text-secondary)' }}>Total revenue ({range.toUpperCase()})</p>
         <p className="metric-number-xl text-white">
-          <span className="accent-dollar">$</span>{totalComm.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+          <span className="accent-dollar">$</span>{totalRev.toLocaleString('en-US', { minimumFractionDigits: 2 })}
         </p>
         <div className="flex justify-center gap-10 mt-4">
+          <span className="text-[15px]" style={{ color: 'var(--crm-text-secondary)' }}>Commissions <span className="font-semibold" style={{ color: 'var(--crm-text)' }}>${totalComm.toLocaleString('en-US', { minimumFractionDigits: 0 })}</span></span>
           <span className="text-[15px]" style={{ color: 'var(--crm-text-secondary)' }}>Pipeline <span className="font-semibold" style={{ color: 'var(--crm-text)' }}>${(data?.pendingComm || 0).toLocaleString('en-US', { minimumFractionDigits: 0 })}</span></span>
           <span className="text-[15px]" style={{ color: 'var(--crm-text-secondary)' }}>Deals <span className="font-semibold" style={{ color: 'var(--crm-text)' }}>{data?.totalCommissions || 0}</span></span>
         </div>

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { initStore, getCache, getIncomePaySettings, expandRecurringIncome } from '../../../lib/store.js';
+import { initStore, getCache, getIncomePaySettings, expandBasePaysByStream } from '../../../lib/store.js';
 
 export async function GET(request) {
   await initStore();
@@ -9,6 +9,7 @@ export async function GET(request) {
   const { commissions, policies, expenses, income_other, accounts, market_profits } = cache;
 
   const ips = getIncomePaySettings();
+  console.log('[dashboard] income_pay_settings loaded, base_pays:', JSON.stringify(ips.base_pays));
 
   const now = new Date();
   const year = now.getFullYear();
@@ -24,52 +25,57 @@ export async function GET(request) {
   }
 
   const paidComm = commissions.filter((c) => c.status === 'paid' && inRange(c.date));
-  const commRevenue = paidComm.reduce((s, c) => s + (c.amount * c.rate), 0);
+  const commRevenue = paidComm.reduce((s, c) => s + (Number(c.amount) || 0) * (Number(c.rate) || 0), 0);
 
-  const i2iRetainer = ips.retainers?.i2i?.enabled ? (ips.retainers.i2i.amount || 0) * retainerMonths : 0;
-  const bnbRetainer = ips.retainers?.bnb?.enabled ? (ips.retainers.bnb.amount || 0) * retainerMonths : 0;
+  const i2iRetainer = ips.retainers?.i2i?.enabled ? (Number(ips.retainers.i2i.amount) || 0) * retainerMonths : 0;
+  const bnbRetainer = ips.retainers?.bnb?.enabled ? (Number(ips.retainers.bnb.amount) || 0) * retainerMonths : 0;
   const retainerTotal = i2iRetainer + bnbRetainer;
 
-  const recurringIncome = expandRecurringIncome(ips, retainerMonths);
+  const bpByStream = expandBasePaysByStream(ips, rangeStart, now);
+  const basePayTotal = (Number(bpByStream.htA) || 0) + (Number(bpByStream.htB) || 0)
+    + (Number(bpByStream.life) || 0) + (Number(bpByStream.summit) || 0) + (Number(bpByStream.general) || 0);
+  console.log('[dashboard] base pay by stream:', JSON.stringify(bpByStream), 'total:', basePayTotal);
 
   function calcFreqAmount(amount, freq, months) {
-    const perMonth = freq === 'weekly' ? amount * 52 / 12
-      : freq === 'bi-weekly' ? amount * 26 / 12
-      : freq === 'semi-monthly' ? amount * 2
-      : freq === 'monthly' ? amount
-      : freq === 'annually' ? amount / 12
-      : amount;
+    const amt = Number(amount) || 0;
+    const perMonth = freq === 'weekly' ? amt * 52 / 12
+      : freq === 'bi-weekly' ? amt * 26 / 12
+      : freq === 'semi-monthly' ? amt * 2
+      : freq === 'monthly' ? amt
+      : freq === 'annually' ? amt / 12
+      : freq === 'yearly' ? amt / 12
+      : amt;
     return perMonth * months;
   }
 
-  const basePayAmount = (ips.base_pays || []).reduce((s, bp) => {
-    return s + calcFreqAmount(Number(bp.amount) || 0, bp.frequency || 'bi-weekly', retainerMonths);
-  }, 0);
-
   const additionalIncomeTotal = (ips.additional_income || []).reduce((s, inc) => {
-    return s + calcFreqAmount(Number(inc.amount) || 0, inc.frequency || 'monthly', retainerMonths);
+    return s + calcFreqAmount(inc.amount, inc.frequency || 'monthly', retainerMonths);
   }, 0);
 
   const byStream = {
-    htA: paidComm.filter((c) => c.stream === 'htA').reduce((s, c) => s + (c.amount * c.rate), 0) + i2iRetainer,
-    htB: paidComm.filter((c) => c.stream === 'htB').reduce((s, c) => s + (c.amount * c.rate), 0) + bnbRetainer,
-    life: paidComm.filter((c) => c.stream === 'life').reduce((s, c) => s + (c.amount * c.rate), 0),
-    summit: paidComm.filter((c) => c.stream === 'summit').reduce((s, c) => s + (c.amount * c.rate), 0),
+    htA: paidComm.filter((c) => c.stream === 'htA').reduce((s, c) => s + (Number(c.amount) || 0) * (Number(c.rate) || 0), 0)
+      + i2iRetainer + (Number(bpByStream.htA) || 0),
+    htB: paidComm.filter((c) => c.stream === 'htB').reduce((s, c) => s + (Number(c.amount) || 0) * (Number(c.rate) || 0), 0)
+      + bnbRetainer + (Number(bpByStream.htB) || 0),
+    life: paidComm.filter((c) => c.stream === 'life').reduce((s, c) => s + (Number(c.amount) || 0) * (Number(c.rate) || 0), 0)
+      + (Number(bpByStream.life) || 0),
+    summit: paidComm.filter((c) => c.stream === 'summit').reduce((s, c) => s + (Number(c.amount) || 0) * (Number(c.rate) || 0), 0)
+      + (Number(bpByStream.summit) || 0),
   };
 
   const renewalIncome = policies
     .filter((p) => p.status === 'active')
-    .reduce((s, p) => s + (p.premium * p.renewal_rate), 0);
+    .reduce((s, p) => s + (Number(p.premium) || 0) * (Number(p.renewal_rate) || 0), 0);
 
   const otherIncome = income_other
     .filter((i) => inRange(i.date))
-    .reduce((s, i) => s + i.amount, 0);
+    .reduce((s, i) => s + (Number(i.amount) || 0), 0);
 
   const marketProfits = (market_profits || [])
     .filter((p) => inRange(p.date))
-    .reduce((s, p) => s + p.amount, 0);
+    .reduce((s, p) => s + (Number(p.amount) || 0), 0);
 
-  const totalRevenue = commRevenue + recurringIncome + otherIncome + marketProfits;
+  const totalRevenue = commRevenue + basePayTotal + retainerTotal + additionalIncomeTotal + otherIncome + marketProfits;
 
   const rangeExpenses = expenses.filter((e) => {
     if (e.recurring && e.frequency === 'monthly') return true;
@@ -79,26 +85,26 @@ export async function GET(request) {
   const totalExpenses = rangeExpenses.reduce((s, e) => {
     if (e.recurring && e.frequency === 'monthly') {
       const months = range === 'ytd' ? month + 1 : 1;
-      return s + (e.amount * months);
+      return s + ((Number(e.amount) || 0) * months);
     }
-    return s + e.amount;
+    return s + (Number(e.amount) || 0);
   }, 0);
 
   const bizExpenses = rangeExpenses.filter((e) => e.category === 'business')
-    .reduce((s, e) => s + e.amount, 0);
+    .reduce((s, e) => s + (Number(e.amount) || 0), 0);
   const personalExpenses = rangeExpenses.filter((e) => e.category === 'personal')
-    .reduce((s, e) => s + e.amount, 0);
+    .reduce((s, e) => s + (Number(e.amount) || 0), 0);
 
   const netPnl = totalRevenue - totalExpenses;
 
   const realAccounts = accounts.filter((a) => a.id !== 'app-settings' && a.id !== 'income_pay_settings');
   const netWorth = realAccounts.reduce((s, a) => {
-    return s + (a.type === 'debt' ? -a.balance : a.balance);
+    return s + (a.type === 'debt' ? -(Number(a.balance) || 0) : (Number(a.balance) || 0));
   }, 0);
 
   const pendingComm = commissions
     .filter((c) => c.status !== 'paid')
-    .reduce((s, c) => s + (c.amount * c.rate), 0);
+    .reduce((s, c) => s + (Number(c.amount) || 0) * (Number(c.rate) || 0), 0);
 
   const monthlyData = buildMonthlyData(commissions, expenses, market_profits || []);
 
@@ -111,7 +117,8 @@ export async function GET(request) {
     byStream,
     renewalIncome,
     retainerIncome: retainerTotal,
-    basePayIncome: basePayAmount,
+    basePayIncome: basePayTotal,
+    basePayGeneral: Number(bpByStream.general) || 0,
     additionalIncome: additionalIncomeTotal,
     otherIncome,
     marketProfits,
@@ -132,7 +139,7 @@ function buildMonthlyData(commissions, expenses, marketProfits) {
     const m = c.date.substring(0, 7);
     if (!months[m]) months[m] = { month: m, htA: 0, htB: 0, life: 0, summit: 0, market: 0, revenue: 0, expenses: 0 };
     if (c.status === 'paid') {
-      const earned = c.amount * c.rate;
+      const earned = (Number(c.amount) || 0) * (Number(c.rate) || 0);
       months[m][c.stream] += earned;
       months[m].revenue += earned;
     }
@@ -141,14 +148,14 @@ function buildMonthlyData(commissions, expenses, marketProfits) {
     if (!e.date) return;
     const m = e.date.substring(0, 7);
     if (!months[m]) months[m] = { month: m, htA: 0, htB: 0, life: 0, summit: 0, market: 0, revenue: 0, expenses: 0 };
-    months[m].expenses += e.amount;
+    months[m].expenses += Number(e.amount) || 0;
   });
   marketProfits.forEach((p) => {
     if (!p.date) return;
     const m = p.date.substring(0, 7);
     if (!months[m]) months[m] = { month: m, htA: 0, htB: 0, life: 0, summit: 0, market: 0, revenue: 0, expenses: 0 };
-    months[m].market += p.amount;
-    months[m].revenue += p.amount;
+    months[m].market += Number(p.amount) || 0;
+    months[m].revenue += Number(p.amount) || 0;
   });
   return Object.values(months).sort((a, b) => a.month.localeCompare(b.month)).slice(-6);
 }

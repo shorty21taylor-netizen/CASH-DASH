@@ -49,7 +49,7 @@ export function getIncomePaySettings() {
   if (result.base_pay && !result.base_pays) {
     const bp = result.base_pay;
     result.base_pays = (bp.enabled && bp.amount > 0)
-      ? [{ id: 'migrated_1', label: 'Base Pay', amount: Number(bp.amount) || 0, frequency: bp.frequency || 'bi-weekly', start_date: bp.start_date || '' }]
+      ? [{ id: 'migrated_1', label: 'Base Pay', amount: Number(bp.amount) || 0, frequency: bp.frequency || 'bi-weekly', start_date: bp.start_date || '', stream: 'general' }]
       : [];
     delete result.base_pay;
   }
@@ -59,6 +59,7 @@ export function getIncomePaySettings() {
 
 function freqToMonthly(amount, freq) {
   const amt = Number(amount) || 0;
+  if (amt === 0) return 0;
   return freq === 'weekly' ? amt * 52 / 12
     : freq === 'bi-weekly' ? amt * 26 / 12
     : freq === 'semi-monthly' ? amt * 2
@@ -66,6 +67,45 @@ function freqToMonthly(amount, freq) {
     : freq === 'annually' ? amt / 12
     : freq === 'yearly' ? amt / 12
     : amt;
+}
+
+function parseDate(str) {
+  if (!str) return null;
+  const d = new Date(str + 'T00:00:00');
+  return isNaN(d.getTime()) ? null : d;
+}
+
+function activeMonthsInRange(startDateStr, rangeStartDate, rangeEndDate) {
+  const entryStart = parseDate(startDateStr);
+  const effectiveStart = entryStart && entryStart.getTime() > rangeStartDate.getTime()
+    ? entryStart : rangeStartDate;
+  if (effectiveStart.getTime() > rangeEndDate.getTime()) return 0;
+  const startMonth = effectiveStart.getFullYear() * 12 + effectiveStart.getMonth();
+  const endMonth = rangeEndDate.getFullYear() * 12 + rangeEndDate.getMonth();
+  return Math.max(0, endMonth - startMonth + 1);
+}
+
+export function expandBasePaysByStream(incomePaySettings, rangeStartStr, rangeEndDate) {
+  const ips = incomePaySettings || getIncomePaySettings();
+  const rangeStart = parseDate(rangeStartStr) || new Date();
+  const rangeEnd = rangeEndDate || new Date();
+  const result = { htA: 0, htB: 0, life: 0, summit: 0, general: 0 };
+
+  (ips.base_pays || []).forEach((bp) => {
+    const amt = Number(bp.amount) || 0;
+    if (amt === 0) return;
+    const months = activeMonthsInRange(bp.start_date, rangeStart, rangeEnd);
+    if (months <= 0) return;
+    const total = freqToMonthly(amt, bp.frequency || 'bi-weekly') * months;
+    const stream = bp.stream || 'general';
+    if (result[stream] !== undefined) {
+      result[stream] += total;
+    } else {
+      result.general += total;
+    }
+  });
+
+  return result;
 }
 
 export function expandRecurringIncome(incomePaySettings, months) {

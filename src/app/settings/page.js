@@ -133,7 +133,7 @@ export default function SettingsPage() {
   function addBasePay() {
     setIncomePay((prev) => ({
       ...prev,
-      base_pays: [...(prev.base_pays || []), { id: genId(), label: '', amount: 0, frequency: 'bi-weekly', start_date: '' }],
+      base_pays: [...(prev.base_pays || []), { id: genId(), label: '', amount: 0, frequency: 'bi-weekly', start_date: '', stream: 'general' }],
     }));
   }
 
@@ -256,25 +256,32 @@ export default function SettingsPage() {
                 <div className="space-y-3">
                   {(incomePay.base_pays || []).map((bp, i) => (
                     <div key={bp.id || i} className="grid grid-cols-12 gap-3 items-end">
-                      <div className="col-span-3">
+                      <div className="col-span-2">
                         {i === 0 && <label className="block text-[13px] mb-1" style={{ color: 'var(--crm-text-secondary)' }}>Label</label>}
-                        <input value={bp.label || ''} onChange={(e) => updateBasePay(i, 'label', e.target.value)} placeholder="e.g. I2I Base, BNB Base" className="input-field" />
+                        <input value={bp.label || ''} onChange={(e) => updateBasePay(i, 'label', e.target.value)} placeholder="e.g. I2I Base" className="input-field" />
                       </div>
-                      <div className="col-span-3">
+                      <div className="col-span-2">
                         {i === 0 && <label className="block text-[13px] mb-1" style={{ color: 'var(--crm-text-secondary)' }}>Amount ($)</label>}
                         <input type="number" step="0.01" value={bp.amount || ''} onChange={(e) => updateBasePay(i, 'amount', e.target.value)} placeholder="0.00" className="input-field" />
                       </div>
-                      <div className="col-span-3">
+                      <div className="col-span-2">
                         {i === 0 && <label className="block text-[13px] mb-1" style={{ color: 'var(--crm-text-secondary)' }}>Frequency</label>}
                         <select value={bp.frequency || 'bi-weekly'} onChange={(e) => updateBasePay(i, 'frequency', e.target.value)} className="input-field">
                           {PAY_FREQUENCIES.map((f) => <option key={f} value={f}>{f.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join('-')}</option>)}
                         </select>
                       </div>
                       <div className="col-span-2">
+                        {i === 0 && <label className="block text-[13px] mb-1" style={{ color: 'var(--crm-text-secondary)' }}>Stream</label>}
+                        <select value={bp.stream || 'general'} onChange={(e) => updateBasePay(i, 'stream', e.target.value)} className="input-field">
+                          <option value="general">General</option>
+                          {Object.values(STREAMS).map((s) => <option key={s.key} value={s.key}>{s.label}</option>)}
+                        </select>
+                      </div>
+                      <div className="col-span-2">
                         {i === 0 && <label className="block text-[13px] mb-1" style={{ color: 'var(--crm-text-secondary)' }}>Start date</label>}
                         <input type="date" value={bp.start_date || ''} onChange={(e) => updateBasePay(i, 'start_date', e.target.value)} className="input-field" />
                       </div>
-                      <div className="col-span-1 flex justify-center">
+                      <div className="col-span-2 flex justify-center">
                         <button onClick={() => removeBasePay(i)} className="text-[16px]" style={{ color: 'var(--crm-negative)' }}>×</button>
                       </div>
                     </div>

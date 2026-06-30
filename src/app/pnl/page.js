@@ -60,7 +60,7 @@ export default function PnLPage() {
             <Row label="BNB Offer" value={data.byStream?.htB || 0} />
             <Row label="Life Insurance" value={data.byStream?.life || 0} />
             <Row label="Summit Placement" value={data.byStream?.summit || 0} />
-            <Row label="Base Pay / Salary" value={data.basePayIncome || 0} />
+            <Row label="Base Pay (general)" value={data.basePayGeneral || 0} />
             <Row label="Retainer Income" value={data.retainerIncome || 0} />
             <Row label="Additional Income" value={data.additionalIncome || 0} />
             <Row label="Renewal Income" value={data.renewalIncome || 0} />
