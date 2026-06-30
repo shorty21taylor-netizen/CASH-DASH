@@ -53,56 +53,56 @@ export default function HabitsPage() {
   }
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold">Habits</h1>
-        <button onClick={() => setShowForm(true)} className="px-4 py-2 rounded-xl text-[13px] font-medium" style={{ background: 'var(--crm-accent)', color: '#0a0c0a' }}>+ New habit</button>
+        <h1 className="text-xl font-bold">Habits</h1>
+        <button onClick={() => setShowForm(true)} className="px-5 py-2.5 rounded-xl text-[14px] font-semibold" style={{ background: 'var(--crm-accent)', color: '#fff' }}>+ New habit</button>
       </div>
 
       {showForm && (
-        <form onSubmit={handleSubmit} className="glass-card-solid p-5 flex gap-4 items-end">
+        <form onSubmit={handleSubmit} className="glass-card-solid p-6 flex gap-5 items-end">
           <div className="flex-1">
-            <label className="block text-[13px] mb-1" style={{ color: 'var(--crm-text-secondary)' }}>Habit name</label>
+            <label className="block text-[14px] mb-1.5" style={{ color: 'var(--crm-text-secondary)' }}>Habit name</label>
             <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required className="input-field" />
           </div>
           <div>
-            <label className="block text-[13px] mb-1" style={{ color: 'var(--crm-text-secondary)' }}>Cadence</label>
+            <label className="block text-[14px] mb-1.5" style={{ color: 'var(--crm-text-secondary)' }}>Cadence</label>
             <select value={form.cadence} onChange={(e) => setForm({ ...form, cadence: e.target.value })} className="input-field">
               <option value="daily">Daily</option>
               <option value="weekly">Weekly</option>
             </select>
           </div>
-          <button type="submit" className="px-4 py-2 rounded-xl text-[13px] font-medium" style={{ background: 'var(--crm-accent)', color: '#0a0c0a' }}>Add</button>
-          <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 rounded-xl text-[13px]" style={{ background: 'var(--crm-surface2)', color: 'var(--crm-text-secondary)' }}>Cancel</button>
+          <button type="submit" className="px-5 py-2.5 rounded-xl text-[14px] font-semibold" style={{ background: 'var(--crm-accent)', color: '#fff' }}>Add</button>
+          <button type="button" onClick={() => setShowForm(false)} className="px-5 py-2.5 rounded-xl text-[14px]" style={{ background: 'var(--crm-surface2)', color: 'var(--crm-text-secondary)' }}>Cancel</button>
         </form>
       )}
 
-      <div className="space-y-3">
+      <div className="space-y-4">
         {habits.map((h) => (
-          <div key={h.id} className="glass-card-solid p-5">
-            <div className="flex items-center justify-between mb-3">
+          <div key={h.id} className="glass-card-solid p-6">
+            <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
-                <h3 className="text-[14px] font-semibold">{h.name}</h3>
-                <span className="text-[12px] px-2 py-0.5 rounded-lg capitalize" style={{ background: 'var(--crm-surface2)', color: 'var(--crm-text-muted)' }}>{h.cadence}</span>
+                <h3 className="text-[16px] font-bold">{h.name}</h3>
+                <span className="text-[13px] px-3 py-1 rounded-lg capitalize font-medium" style={{ background: 'var(--crm-surface2)', color: 'var(--crm-text-muted)' }}>{h.cadence}</span>
               </div>
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-1">
-                  <span className="text-[14px] font-semibold" style={{ color: 'var(--crm-accent)' }}>{h.streak || 0}</span>
-                  <span className="text-[12px]" style={{ color: 'var(--crm-text-muted)' }}>streak</span>
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[16px] font-bold" style={{ color: 'var(--crm-accent)' }}>{h.streak || 0}</span>
+                  <span className="text-[13px]" style={{ color: 'var(--crm-text-muted)' }}>streak</span>
                 </div>
-                <button onClick={() => handleDelete(h.id)} className="text-[12px]" style={{ color: 'var(--crm-negative)' }}>x</button>
+                <button onClick={() => handleDelete(h.id)} className="text-[13px]" style={{ color: 'var(--crm-negative)' }}>x</button>
               </div>
             </div>
-            <div className="flex gap-1">
+            <div className="flex gap-1.5">
               {last14.map((dateStr) => {
                 const done = h.history?.[dateStr];
                 return (
                   <button key={dateStr} onClick={() => toggleDay(h, dateStr)}
-                    className="w-8 h-8 rounded-lg text-xs transition-all"
+                    className="w-10 h-10 rounded-lg text-sm font-medium transition-all"
                     style={{
-                      background: done ? 'rgba(74,222,128,0.15)' : 'var(--crm-surface2)',
+                      background: done ? 'rgba(30,144,255,0.15)' : 'var(--crm-surface2)',
                       color: done ? 'var(--crm-accent)' : 'var(--crm-text-muted)',
-                      border: done ? '1px solid rgba(74,222,128,0.3)' : '1px solid var(--crm-border)',
+                      border: done ? '1px solid rgba(30,144,255,0.35)' : '1px solid var(--crm-border)',
                     }}
                     title={dateStr}>
                     {done ? '✓' : parseInt(dateStr.split('-')[2])}

@@ -30,22 +30,22 @@ export default function GoalsPage() {
   }
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold">Goals</h1>
-        <button onClick={() => setShowForm(true)} className="px-4 py-2 rounded-xl text-[13px] font-medium" style={{ background: 'var(--crm-accent)', color: '#0a0c0a' }}>+ New goal</button>
+        <h1 className="text-xl font-bold">Goals</h1>
+        <button onClick={() => setShowForm(true)} className="px-5 py-2.5 rounded-xl text-[14px] font-semibold" style={{ background: 'var(--crm-accent)', color: '#fff' }}>+ New goal</button>
       </div>
 
       {showForm && (
-        <form onSubmit={handleSubmit} className="glass-card-solid p-5 space-y-4">
-          <h2 className="text-sm font-semibold">New Goal</h2>
-          <div className="grid grid-cols-2 gap-4">
+        <form onSubmit={handleSubmit} className="glass-card-solid p-6 space-y-5">
+          <h2 className="text-[15px] font-bold">New Goal</h2>
+          <div className="grid grid-cols-2 gap-5">
             <div>
-              <label className="block text-[13px] mb-1" style={{ color: 'var(--crm-text-secondary)' }}>Title</label>
+              <label className="block text-[14px] mb-1.5" style={{ color: 'var(--crm-text-secondary)' }}>Title</label>
               <input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required className="input-field" />
             </div>
             <div>
-              <label className="block text-[13px] mb-1" style={{ color: 'var(--crm-text-secondary)' }}>Category</label>
+              <label className="block text-[14px] mb-1.5" style={{ color: 'var(--crm-text-secondary)' }}>Category</label>
               <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className="input-field">
                 <option value="business">Business</option>
                 <option value="personal">Personal</option>
@@ -54,52 +54,52 @@ export default function GoalsPage() {
               </select>
             </div>
           </div>
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-4 gap-5">
             <div>
-              <label className="block text-[13px] mb-1" style={{ color: 'var(--crm-text-secondary)' }}>Target</label>
+              <label className="block text-[14px] mb-1.5" style={{ color: 'var(--crm-text-secondary)' }}>Target</label>
               <input type="number" step="0.01" value={form.target} onChange={(e) => setForm({ ...form, target: e.target.value })} required className="input-field" />
             </div>
             <div>
-              <label className="block text-[13px] mb-1" style={{ color: 'var(--crm-text-secondary)' }}>Current</label>
+              <label className="block text-[14px] mb-1.5" style={{ color: 'var(--crm-text-secondary)' }}>Current</label>
               <input type="number" step="0.01" value={form.current} onChange={(e) => setForm({ ...form, current: e.target.value })} className="input-field" />
             </div>
             <div>
-              <label className="block text-[13px] mb-1" style={{ color: 'var(--crm-text-secondary)' }}>Unit</label>
+              <label className="block text-[14px] mb-1.5" style={{ color: 'var(--crm-text-secondary)' }}>Unit</label>
               <input value={form.unit} onChange={(e) => setForm({ ...form, unit: e.target.value })} className="input-field" />
             </div>
             <div>
-              <label className="block text-[13px] mb-1" style={{ color: 'var(--crm-text-secondary)' }}>Deadline</label>
+              <label className="block text-[14px] mb-1.5" style={{ color: 'var(--crm-text-secondary)' }}>Deadline</label>
               <input type="date" value={form.deadline} onChange={(e) => setForm({ ...form, deadline: e.target.value })} className="input-field" />
             </div>
           </div>
-          <div className="flex gap-2">
-            <button type="submit" className="px-4 py-2 rounded-xl text-[13px] font-medium" style={{ background: 'var(--crm-accent)', color: '#0a0c0a' }}>Add Goal</button>
-            <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 rounded-xl text-[13px]" style={{ background: 'var(--crm-surface2)', color: 'var(--crm-text-secondary)' }}>Cancel</button>
+          <div className="flex gap-3">
+            <button type="submit" className="px-5 py-2.5 rounded-xl text-[14px] font-semibold" style={{ background: 'var(--crm-accent)', color: '#fff' }}>Add Goal</button>
+            <button type="button" onClick={() => setShowForm(false)} className="px-5 py-2.5 rounded-xl text-[14px]" style={{ background: 'var(--crm-surface2)', color: 'var(--crm-text-secondary)' }}>Cancel</button>
           </div>
         </form>
       )}
 
-      <div className="space-y-3">
+      <div className="space-y-4">
         {goals.map((g) => {
           const pct = g.target > 0 ? Math.min(100, (g.current / g.target) * 100) : 0;
           return (
-            <div key={g.id} className="glass-card-solid p-5">
-              <div className="flex items-start justify-between mb-3">
+            <div key={g.id} className="glass-card-solid p-6">
+              <div className="flex items-start justify-between mb-4">
                 <div>
-                  <h3 className="text-[14px] font-semibold">{g.title}</h3>
-                  <p className="text-[13px] capitalize" style={{ color: 'var(--crm-text-muted)' }}>{g.category} {g.deadline && `· Due ${g.deadline}`}</p>
+                  <h3 className="text-[16px] font-bold">{g.title}</h3>
+                  <p className="text-[14px] capitalize" style={{ color: 'var(--crm-text-muted)' }}>{g.category} {g.deadline && `· Due ${g.deadline}`}</p>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-[13px]">{g.unit === '$' ? '$' : ''}{g.current}{g.unit !== '$' ? ` ${g.unit}` : ''} / {g.unit === '$' ? '$' : ''}{g.target}{g.unit !== '$' ? ` ${g.unit}` : ''}</span>
-                  <button onClick={() => handleDelete(g.id)} className="text-[12px] ml-2" style={{ color: 'var(--crm-negative)' }}>x</button>
+                <div className="flex items-center gap-3">
+                  <span className="text-[14px] font-semibold">{g.unit === '$' ? '$' : ''}{g.current}{g.unit !== '$' ? ` ${g.unit}` : ''} / {g.unit === '$' ? '$' : ''}{g.target}{g.unit !== '$' ? ` ${g.unit}` : ''}</span>
+                  <button onClick={() => handleDelete(g.id)} className="text-[13px] ml-2" style={{ color: 'var(--crm-negative)' }}>x</button>
                 </div>
               </div>
-              <div className="w-full h-2 rounded-full overflow-hidden" style={{ background: 'var(--crm-surface2)' }}>
+              <div className="w-full h-3 rounded-full overflow-hidden" style={{ background: 'var(--crm-surface2)' }}>
                 <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: 'var(--crm-accent)' }} />
               </div>
               <div className="flex justify-between mt-2">
-                <span className="text-[12px]" style={{ color: 'var(--crm-text-muted)' }}>{pct.toFixed(0)}%</span>
-                <input type="number" step="1" placeholder="Update" className="input-field w-24 text-[12px]"
+                <span className="text-[13px] font-medium" style={{ color: 'var(--crm-text-muted)' }}>{pct.toFixed(0)}%</span>
+                <input type="number" step="1" placeholder="Update" className="input-field w-28 text-[13px]"
                   onKeyDown={(e) => { if (e.key === 'Enter') { updateProgress(g, parseFloat(e.target.value)); e.target.value = ''; } }} />
               </div>
             </div>

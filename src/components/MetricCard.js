@@ -7,13 +7,13 @@ export default function MetricCard({ title, value, subtitle, positive, className
   const color = positive === true ? 'var(--crm-positive)' : positive === false ? 'var(--crm-negative)' : 'var(--crm-text)';
 
   return (
-    <div className={`glass-card-solid p-5 ${className}`}>
-      <p className="text-[13px] mb-3" style={{ color: 'var(--crm-text-secondary)' }}>{title}</p>
+    <div className={`glass-card-solid p-6 ${className}`}>
+      <p className="text-[14px] mb-3 font-medium" style={{ color: 'var(--crm-text-secondary)' }}>{title}</p>
       <p className="metric-number" style={{ color }}>
-        {isNumber && <span className="green-dollar">$</span>}
+        {isNumber && <span className="accent-dollar">$</span>}
         {prefix}{isNumber ? absVal : value}
       </p>
-      {subtitle && <p className="text-[13px] mt-2" style={{ color: 'var(--crm-text-muted)' }}>{subtitle}</p>}
+      {subtitle && <p className="text-[14px] mt-3" style={{ color: 'var(--crm-text-muted)' }}>{subtitle}</p>}
     </div>
   );
 }

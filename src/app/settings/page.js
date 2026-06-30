@@ -28,7 +28,13 @@ export default function SettingsPage() {
   }
 
   useEffect(() => {
-    fetch('/api/settings').then((r) => r.json()).then((d) => setSettings(d.settings));
+    fetch('/api/settings').then((r) => r.json()).then((d) => {
+      const s = d.settings;
+      if (!s.retainers) s.retainers = {};
+      if (!s.retainers.htA) s.retainers.htA = { enabled: false, amount: 0 };
+      if (!s.retainers.htB) s.retainers.htB = { enabled: false, amount: 0 };
+      setSettings(s);
+    });
     fetch('/api/reps').then((r) => r.json()).then((d) => setReps(d.reps || []));
   }, []);
 
@@ -124,12 +130,12 @@ export default function SettingsPage() {
     <div className="space-y-5">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-lg font-semibold">Settings</h1>
-          <p className="text-[13px] mt-0.5" style={{ color: 'var(--crm-text-muted)' }}>Configure your command center</p>
+          <h1 className="text-xl font-bold">Settings</h1>
+          <p className="text-[14px] mt-1" style={{ color: 'var(--crm-text-muted)' }}>Configure your command center</p>
         </div>
         <div className="flex items-center gap-3">
           {saved && <span className="text-[13px]" style={{ color: 'var(--crm-positive)' }}>Saved!</span>}
-          <button onClick={handleSave} className="px-6 py-2 rounded-xl text-[13px] font-medium" style={{ background: 'var(--crm-accent)', color: '#0a0c0a' }}>
+          <button onClick={handleSave} className="px-6 py-2 rounded-xl text-[13px] font-medium" style={{ background: 'var(--crm-accent)', color: '#fff' }}>
             Save All Settings
           </button>
         </div>
@@ -141,7 +147,7 @@ export default function SettingsPage() {
             className="px-4 py-2 text-[13px] whitespace-nowrap transition-colors"
             style={{
               background: tab === t.key ? 'var(--crm-accent)' : 'transparent',
-              color: tab === t.key ? '#0a0c0a' : 'var(--crm-text-muted)',
+              color: tab === t.key ? '#fff' : 'var(--crm-text-muted)',
               fontWeight: tab === t.key ? 600 : 400,
             }}>
             {t.label}
@@ -176,38 +182,34 @@ export default function SettingsPage() {
 
           <Section title="Monthly Retainers" subtitle="Recurring monthly retainer income for high-ticket offers">
             <div className="space-y-4">
-              <div className="flex items-center justify-between p-4 rounded-xl" style={{ background: 'var(--crm-surface2)' }}>
-                <div className="flex items-center gap-3">
-                  <Toggle checked={settings.retainers?.htA?.enabled} onChange={(v) => update('retainers.htA.enabled', v)} />
-                  <div>
-                    <span className="text-[14px] font-medium">I2I Offer</span>
-                    <p className="text-[12px]" style={{ color: 'var(--crm-text-muted)' }}>Monthly retainer added to I2I stream revenue</p>
-                  </div>
-                </div>
-                {settings.retainers?.htA?.enabled && (
-                  <div className="flex items-center gap-2">
-                    <span className="text-[13px]" style={{ color: 'var(--crm-text-muted)' }}>$/mo</span>
-                    <input type="number" step="0.01" value={settings.retainers?.htA?.amount || ''} onChange={(e) => update('retainers.htA.amount', parseFloat(e.target.value) || 0)}
-                      className="input-field w-32 text-right" placeholder="0.00" />
-                  </div>
-                )}
-              </div>
-              <div className="flex items-center justify-between p-4 rounded-xl" style={{ background: 'var(--crm-surface2)' }}>
-                <div className="flex items-center gap-3">
-                  <Toggle checked={settings.retainers?.htB?.enabled} onChange={(v) => update('retainers.htB.enabled', v)} />
-                  <div>
-                    <span className="text-[14px] font-medium">BNB Offer</span>
-                    <p className="text-[12px]" style={{ color: 'var(--crm-text-muted)' }}>Monthly retainer added to BNB stream revenue</p>
-                  </div>
-                </div>
-                {settings.retainers?.htB?.enabled && (
-                  <div className="flex items-center gap-2">
-                    <span className="text-[13px]" style={{ color: 'var(--crm-text-muted)' }}>$/mo</span>
-                    <input type="number" step="0.01" value={settings.retainers?.htB?.amount || ''} onChange={(e) => update('retainers.htB.amount', parseFloat(e.target.value) || 0)}
-                      className="input-field w-32 text-right" placeholder="0.00" />
-                  </div>
-                )}
-              </div>
+              <RetainerRow
+                label="I2I Offer"
+                desc="Monthly retainer added to I2I stream revenue"
+                enabled={!!settings.retainers?.htA?.enabled}
+                amount={settings.retainers?.htA?.amount || ''}
+                onToggle={(v) => setSettings((prev) => ({
+                  ...prev,
+                  retainers: { ...prev.retainers, htA: { ...(prev.retainers?.htA || {}), enabled: v } },
+                }))}
+                onAmount={(v) => setSettings((prev) => ({
+                  ...prev,
+                  retainers: { ...prev.retainers, htA: { ...(prev.retainers?.htA || {}), amount: v } },
+                }))}
+              />
+              <RetainerRow
+                label="BNB Offer"
+                desc="Monthly retainer added to BNB stream revenue"
+                enabled={!!settings.retainers?.htB?.enabled}
+                amount={settings.retainers?.htB?.amount || ''}
+                onToggle={(v) => setSettings((prev) => ({
+                  ...prev,
+                  retainers: { ...prev.retainers, htB: { ...(prev.retainers?.htB || {}), enabled: v } },
+                }))}
+                onAmount={(v) => setSettings((prev) => ({
+                  ...prev,
+                  retainers: { ...prev.retainers, htB: { ...(prev.retainers?.htB || {}), amount: v } },
+                }))}
+              />
             </div>
           </Section>
 
@@ -322,7 +324,7 @@ export default function SettingsPage() {
                 <span className="text-[13px]" style={{ color: 'var(--crm-text-secondary)' }}>{reps.length} total</span>
               </div>
               <button onClick={() => { setRepForm(blankRep()); setEditingRep(null); setShowRepForm(true); }}
-                className="px-4 py-2 rounded-xl text-[13px] font-medium" style={{ background: 'var(--crm-accent)', color: '#0a0c0a' }}>
+                className="px-4 py-2 rounded-xl text-[13px] font-medium" style={{ background: 'var(--crm-accent)', color: '#fff' }}>
                 + Add Rep
               </button>
             </div>
@@ -374,9 +376,9 @@ export default function SettingsPage() {
                       <button key={s.key} type="button" onClick={() => toggleRepStream(s.key)}
                         className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-[12px] transition-colors"
                         style={{
-                          background: (repForm.streams || []).includes(s.key) ? 'rgba(74,222,128,0.1)' : 'var(--crm-surface)',
+                          background: (repForm.streams || []).includes(s.key) ? 'rgba(30,144,255,0.12)' : 'var(--crm-surface)',
                           color: (repForm.streams || []).includes(s.key) ? 'var(--crm-accent)' : 'var(--crm-text-muted)',
-                          border: (repForm.streams || []).includes(s.key) ? '1px solid rgba(74,222,128,0.3)' : '1px solid var(--crm-border)',
+                          border: (repForm.streams || []).includes(s.key) ? '1px solid rgba(30,144,255,0.35)' : '1px solid var(--crm-border)',
                         }}>
                         <div className="w-2 h-2 rounded-full" style={{ backgroundColor: s.color }} />
                         {s.label}
@@ -408,7 +410,7 @@ export default function SettingsPage() {
                   <textarea value={repForm.notes} onChange={(e) => setRepForm({ ...repForm, notes: e.target.value })} rows={2} className="input-field" placeholder="Internal notes about this rep..." />
                 </Field>
                 <div className="flex gap-2 pt-2">
-                  <button type="submit" className="px-4 py-2 rounded-xl text-[13px] font-medium" style={{ background: 'var(--crm-accent)', color: '#0a0c0a' }}>{editingRep ? 'Update' : 'Add'} Rep</button>
+                  <button type="submit" className="px-4 py-2 rounded-xl text-[13px] font-medium" style={{ background: 'var(--crm-accent)', color: '#fff' }}>{editingRep ? 'Update' : 'Add'} Rep</button>
                   <button type="button" onClick={() => { setShowRepForm(false); setEditingRep(null); }} className="px-4 py-2 rounded-xl text-[13px]" style={{ background: 'var(--crm-surface)', color: 'var(--crm-text-secondary)' }}>Cancel</button>
                 </div>
               </form>
@@ -426,7 +428,7 @@ export default function SettingsPage() {
                         <div className="flex items-center gap-2">
                           <span className="text-[14px] font-semibold">{rep.name}</span>
                           <span className="text-[12px] px-2 py-0.5 rounded-lg" style={{
-                            background: rep.status === 'active' ? 'rgba(74,222,128,0.1)' : rep.status === 'onboarding' ? 'rgba(74,222,128,0.06)' : 'rgba(255,255,255,0.05)',
+                            background: rep.status === 'active' ? 'rgba(30,144,255,0.12)' : rep.status === 'onboarding' ? 'rgba(30,144,255,0.07)' : 'rgba(255,255,255,0.05)',
                             color: rep.status === 'active' ? 'var(--crm-accent)' : rep.status === 'onboarding' ? 'var(--crm-accent)' : 'var(--crm-text-muted)',
                           }}>{rep.status}</span>
                         </div>
@@ -554,7 +556,7 @@ export default function SettingsPage() {
                       className="px-4 py-2 rounded-xl text-[13px] capitalize"
                       style={{
                         background: settings.theme === t ? 'var(--crm-accent)' : 'var(--crm-surface2)',
-                        color: settings.theme === t ? '#0a0c0a' : 'var(--crm-text-muted)',
+                        color: settings.theme === t ? '#fff' : 'var(--crm-text-muted)',
                         fontWeight: settings.theme === t ? 600 : 400,
                       }}>
                       {t}
@@ -611,6 +613,27 @@ function Field({ label, children }) {
     <div>
       <label className="block text-[13px] mb-1" style={{ color: 'var(--crm-text-secondary)' }}>{label}</label>
       {children}
+    </div>
+  );
+}
+
+function RetainerRow({ label, desc, enabled, amount, onToggle, onAmount }) {
+  return (
+    <div className="flex items-center justify-between p-4 rounded-xl" style={{ background: 'var(--crm-surface2)' }}>
+      <div className="flex items-center gap-3">
+        <Toggle checked={enabled} onChange={onToggle} />
+        <div>
+          <span className="text-[14px] font-medium">{label}</span>
+          <p className="text-[12px]" style={{ color: 'var(--crm-text-muted)' }}>{desc}</p>
+        </div>
+      </div>
+      {enabled && (
+        <div className="flex items-center gap-2">
+          <span className="text-[13px]" style={{ color: 'var(--crm-text-muted)' }}>$/mo</span>
+          <input type="number" step="0.01" value={amount} onChange={(e) => onAmount(parseFloat(e.target.value) || 0)}
+            className="input-field w-32 text-right" placeholder="0.00" />
+        </div>
+      )}
     </div>
   );
 }

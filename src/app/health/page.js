@@ -34,39 +34,39 @@ export default function HealthPage() {
   }));
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold">Health Log</h1>
-        <button onClick={() => setShowForm(true)} className="px-4 py-2 rounded-xl text-[13px] font-medium" style={{ background: 'var(--crm-accent)', color: '#0a0c0a' }}>+ Log entry</button>
+        <h1 className="text-xl font-bold">Health Log</h1>
+        <button onClick={() => setShowForm(true)} className="px-5 py-2.5 rounded-xl text-[14px] font-semibold" style={{ background: 'var(--crm-accent)', color: '#fff' }}>+ Log entry</button>
       </div>
 
       {showForm && (
-        <form onSubmit={handleSubmit} className="glass-card-solid p-5 space-y-4">
-          <h2 className="text-sm font-semibold">New Entry</h2>
-          <div className="grid grid-cols-5 gap-4">
+        <form onSubmit={handleSubmit} className="glass-card-solid p-6 space-y-5">
+          <h2 className="text-[15px] font-bold">New Entry</h2>
+          <div className="grid grid-cols-5 gap-5">
             <div>
-              <label className="block text-[13px] mb-1" style={{ color: 'var(--crm-text-secondary)' }}>Date</label>
+              <label className="block text-[14px] mb-1.5" style={{ color: 'var(--crm-text-secondary)' }}>Date</label>
               <input type="date" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} className="input-field" />
             </div>
             <div>
-              <label className="block text-[13px] mb-1" style={{ color: 'var(--crm-text-secondary)' }}>Weight (lbs)</label>
+              <label className="block text-[14px] mb-1.5" style={{ color: 'var(--crm-text-secondary)' }}>Weight (lbs)</label>
               <input type="number" step="0.1" value={form.weight} onChange={(e) => setForm({ ...form, weight: e.target.value })} className="input-field" />
             </div>
             <div>
-              <label className="block text-[13px] mb-1" style={{ color: 'var(--crm-text-secondary)' }}>Sleep (hrs)</label>
+              <label className="block text-[14px] mb-1.5" style={{ color: 'var(--crm-text-secondary)' }}>Sleep (hrs)</label>
               <input type="number" step="0.5" value={form.sleep_hours} onChange={(e) => setForm({ ...form, sleep_hours: e.target.value })} className="input-field" />
             </div>
             <div>
-              <label className="block text-[13px] mb-1" style={{ color: 'var(--crm-text-secondary)' }}>Calories</label>
+              <label className="block text-[14px] mb-1.5" style={{ color: 'var(--crm-text-secondary)' }}>Calories</label>
               <input type="number" value={form.calories} onChange={(e) => setForm({ ...form, calories: e.target.value })} className="input-field" />
             </div>
             <div>
-              <label className="block text-[13px] mb-1" style={{ color: 'var(--crm-text-secondary)' }}>Workout</label>
+              <label className="block text-[14px] mb-1.5" style={{ color: 'var(--crm-text-secondary)' }}>Workout</label>
               <button type="button" onClick={() => setForm({ ...form, workout: !form.workout })}
-                className="w-full px-3 py-2 rounded-xl text-[13px]"
+                className="w-full px-4 py-2.5 rounded-xl text-[14px]"
                 style={{
                   background: form.workout ? 'var(--crm-accent)' : 'var(--crm-surface2)',
-                  color: form.workout ? '#0a0c0a' : 'var(--crm-text-muted)',
+                  color: form.workout ? '#fff' : 'var(--crm-text-muted)',
                   border: form.workout ? 'none' : '1px solid var(--crm-border)',
                   fontWeight: form.workout ? 600 : 400,
                 }}>
@@ -75,18 +75,18 @@ export default function HealthPage() {
             </div>
           </div>
           <div>
-            <label className="block text-[13px] mb-1" style={{ color: 'var(--crm-text-secondary)' }}>Notes</label>
+            <label className="block text-[14px] mb-1.5" style={{ color: 'var(--crm-text-secondary)' }}>Notes</label>
             <input placeholder="Optional" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} className="input-field" />
           </div>
-          <div className="flex gap-2">
-            <button type="submit" className="px-4 py-2 rounded-xl text-[13px] font-medium" style={{ background: 'var(--crm-accent)', color: '#0a0c0a' }}>Save</button>
-            <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 rounded-xl text-[13px]" style={{ background: 'var(--crm-surface2)', color: 'var(--crm-text-secondary)' }}>Cancel</button>
+          <div className="flex gap-3">
+            <button type="submit" className="px-5 py-2.5 rounded-xl text-[14px] font-semibold" style={{ background: 'var(--crm-accent)', color: '#fff' }}>Save</button>
+            <button type="button" onClick={() => setShowForm(false)} className="px-5 py-2.5 rounded-xl text-[14px]" style={{ background: 'var(--crm-surface2)', color: 'var(--crm-text-secondary)' }}>Cancel</button>
           </div>
         </form>
       )}
 
       {chartData.length > 1 && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
           <TrendChart data={chartData} lines={[{ key: 'weight', name: 'Weight', color: '#1E90FF' }]} title="Weight trend" />
           <TrendChart data={chartData} lines={[{ key: 'sleep', name: 'Sleep (hrs)', color: '#4a4a50' }]} title="Sleep trend" />
         </div>
@@ -96,25 +96,25 @@ export default function HealthPage() {
         <table className="w-full">
           <thead>
             <tr className="border-b" style={{ borderColor: 'var(--crm-border)' }}>
-              <th className="text-left px-4 py-3 text-[13px] font-normal" style={{ color: 'var(--crm-text-secondary)' }}>Date</th>
-              <th className="text-right px-4 py-3 text-[13px] font-normal" style={{ color: 'var(--crm-text-secondary)' }}>Weight</th>
-              <th className="text-right px-4 py-3 text-[13px] font-normal" style={{ color: 'var(--crm-text-secondary)' }}>Sleep</th>
-              <th className="text-center px-4 py-3 text-[13px] font-normal" style={{ color: 'var(--crm-text-secondary)' }}>Workout</th>
-              <th className="text-right px-4 py-3 text-[13px] font-normal" style={{ color: 'var(--crm-text-secondary)' }}>Calories</th>
-              <th className="text-left px-4 py-3 text-[13px] font-normal" style={{ color: 'var(--crm-text-secondary)' }}>Notes</th>
-              <th className="px-4 py-3"></th>
+              <th className="text-left px-5 py-4 text-[14px] font-medium" style={{ color: 'var(--crm-text-secondary)' }}>Date</th>
+              <th className="text-right px-5 py-4 text-[14px] font-medium" style={{ color: 'var(--crm-text-secondary)' }}>Weight</th>
+              <th className="text-right px-5 py-4 text-[14px] font-medium" style={{ color: 'var(--crm-text-secondary)' }}>Sleep</th>
+              <th className="text-center px-5 py-4 text-[14px] font-medium" style={{ color: 'var(--crm-text-secondary)' }}>Workout</th>
+              <th className="text-right px-5 py-4 text-[14px] font-medium" style={{ color: 'var(--crm-text-secondary)' }}>Calories</th>
+              <th className="text-left px-5 py-4 text-[14px] font-medium" style={{ color: 'var(--crm-text-secondary)' }}>Notes</th>
+              <th className="px-5 py-4"></th>
             </tr>
           </thead>
           <tbody>
             {logs.map((l) => (
               <tr key={l.id} className="border-b hover:bg-white/[0.02]" style={{ borderColor: 'var(--crm-border)' }}>
-                <td className="px-4 py-3 text-[13px]">{l.date}</td>
-                <td className="px-4 py-3 text-right text-[13px]">{l.weight || '—'}</td>
-                <td className="px-4 py-3 text-right text-[13px]">{l.sleep_hours || '—'}h</td>
-                <td className="px-4 py-3 text-center text-[13px]" style={{ color: l.workout ? 'var(--crm-accent)' : 'var(--crm-text-muted)' }}>{l.workout ? '✓' : '—'}</td>
-                <td className="px-4 py-3 text-right text-[13px]">{l.calories || '—'}</td>
-                <td className="px-4 py-3 text-[12px] truncate max-w-[200px]" style={{ color: 'var(--crm-text-muted)' }}>{l.notes || ''}</td>
-                <td className="px-4 py-3 text-right"><button onClick={() => handleDelete(l.id)} className="text-[12px]" style={{ color: 'var(--crm-negative)' }}>x</button></td>
+                <td className="px-5 py-4 text-[14px]">{l.date}</td>
+                <td className="px-5 py-4 text-right text-[14px]">{l.weight || '—'}</td>
+                <td className="px-5 py-4 text-right text-[14px]">{l.sleep_hours || '—'}h</td>
+                <td className="px-5 py-4 text-center text-[14px]" style={{ color: l.workout ? 'var(--crm-accent)' : 'var(--crm-text-muted)' }}>{l.workout ? '✓' : '—'}</td>
+                <td className="px-5 py-4 text-right text-[14px]">{l.calories || '—'}</td>
+                <td className="px-5 py-4 text-[13px] truncate max-w-[200px]" style={{ color: 'var(--crm-text-muted)' }}>{l.notes || ''}</td>
+                <td className="px-5 py-4 text-right"><button onClick={() => handleDelete(l.id)} className="text-[13px]" style={{ color: 'var(--crm-negative)' }}>x</button></td>
               </tr>
             ))}
           </tbody>

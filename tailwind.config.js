@@ -11,18 +11,18 @@ module.exports = {
       },
       colors: {
         accent: {
-          green: '#4ade80',
-          glow: '#22c55e',
+          blue: '#1E90FF',
+          glow: '#3BA9FF',
         },
         panel: {
           bg: '#000000',
-          surface: '#121512',
-          elevated: '#161916',
+          surface: '#0d0f14',
+          elevated: '#12141a',
         },
       },
       borderRadius: {
-        card: '16px',
-        xl: '12px',
+        card: '20px',
+        xl: '14px',
       },
     },
   },

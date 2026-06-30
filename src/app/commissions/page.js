@@ -65,15 +65,15 @@ export default function CommissionsPage() {
   }
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold">Commissions</h1>
-        <button onClick={openNew} className="px-4 py-2 rounded-xl text-[13px] font-medium transition-colors" style={{ background: 'var(--crm-accent)', color: '#0a0c0a' }}>
+        <h1 className="text-xl font-bold">Commissions</h1>
+        <button onClick={openNew} className="px-5 py-2.5 rounded-xl text-[14px] font-semibold transition-colors" style={{ background: 'var(--crm-accent)', color: '#fff' }}>
           + New
         </button>
       </div>
 
-      <div className="flex gap-3">
+      <div className="flex gap-4">
         <select value={filterStream} onChange={(e) => setFilterStream(e.target.value)} className="input-field" style={{ width: 'auto' }}>
           <option value="">All streams</option>
           {Object.values(STREAMS).map((s) => <option key={s.key} value={s.key}>{s.label}</option>)}
@@ -85,45 +85,45 @@ export default function CommissionsPage() {
       </div>
 
       {showForm && (
-        <form onSubmit={handleSubmit} className="glass-card-solid p-5 space-y-4">
-          <h2 className="text-sm font-semibold">{editing ? 'Edit' : 'New'} Commission</h2>
-          <div className="grid grid-cols-2 gap-4">
+        <form onSubmit={handleSubmit} className="glass-card-solid p-6 space-y-5">
+          <h2 className="text-[15px] font-bold">{editing ? 'Edit' : 'New'} Commission</h2>
+          <div className="grid grid-cols-2 gap-5">
             <div>
-              <label className="block text-[13px] mb-1" style={{ color: 'var(--crm-text-secondary)' }}>Stream</label>
+              <label className="block text-[14px] mb-1.5" style={{ color: 'var(--crm-text-secondary)' }}>Stream</label>
               <select name="stream" value={form.stream} onChange={handleChange} className="input-field">
                 {Object.values(STREAMS).map((s) => <option key={s.key} value={s.key}>{s.label}</option>)}
               </select>
             </div>
             <div>
-              <label className="block text-[13px] mb-1" style={{ color: 'var(--crm-text-secondary)' }}>Status</label>
+              <label className="block text-[14px] mb-1.5" style={{ color: 'var(--crm-text-secondary)' }}>Status</label>
               <select name="status" value={form.status} onChange={handleChange} className="input-field">
                 {Object.values(STATUSES).map((s) => <option key={s.key} value={s.key}>{s.label}</option>)}
               </select>
             </div>
           </div>
           <div>
-            <label className="block text-[13px] mb-1" style={{ color: 'var(--crm-text-secondary)' }}>Client name</label>
+            <label className="block text-[14px] mb-1.5" style={{ color: 'var(--crm-text-secondary)' }}>Client name</label>
             <input name="client_name" value={form.client_name} onChange={handleChange} required className="input-field" />
           </div>
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-3 gap-5">
             <div>
-              <label className="block text-[13px] mb-1" style={{ color: 'var(--crm-text-secondary)' }}>Amount ($)</label>
+              <label className="block text-[14px] mb-1.5" style={{ color: 'var(--crm-text-secondary)' }}>Amount ($)</label>
               <input name="amount" type="number" step="0.01" value={form.amount} onChange={handleChange} required className="input-field" />
             </div>
             <div>
-              <label className="block text-[13px] mb-1" style={{ color: 'var(--crm-text-secondary)' }}>Rate</label>
+              <label className="block text-[14px] mb-1.5" style={{ color: 'var(--crm-text-secondary)' }}>Rate</label>
               <input name="rate" type="number" step="0.01" value={form.rate} onChange={handleChange} className="input-field" />
             </div>
             <div>
-              <label className="block text-[13px] mb-1" style={{ color: 'var(--crm-text-secondary)' }}>Date</label>
+              <label className="block text-[14px] mb-1.5" style={{ color: 'var(--crm-text-secondary)' }}>Date</label>
               <input name="date" type="date" value={form.date} onChange={handleChange} className="input-field" />
             </div>
           </div>
-          <div className="flex gap-2">
-            <button type="submit" className="px-4 py-2 rounded-xl text-[13px] font-medium" style={{ background: 'var(--crm-accent)', color: '#0a0c0a' }}>
+          <div className="flex gap-3">
+            <button type="submit" className="px-5 py-2.5 rounded-xl text-[14px] font-semibold" style={{ background: 'var(--crm-accent)', color: '#fff' }}>
               {editing ? 'Update' : 'Add'}
             </button>
-            <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 rounded-xl text-[13px]" style={{ background: 'var(--crm-surface2)', color: 'var(--crm-text-secondary)' }}>Cancel</button>
+            <button type="button" onClick={() => setShowForm(false)} className="px-5 py-2.5 rounded-xl text-[14px]" style={{ background: 'var(--crm-surface2)', color: 'var(--crm-text-secondary)' }}>Cancel</button>
           </div>
         </form>
       )}
@@ -132,36 +132,36 @@ export default function CommissionsPage() {
         <table className="w-full">
           <thead>
             <tr className="border-b" style={{ borderColor: 'var(--crm-border)' }}>
-              <th className="text-left px-4 py-3 text-[13px] font-normal" style={{ color: 'var(--crm-text-secondary)' }}>Client</th>
-              <th className="text-left px-4 py-3 text-[13px] font-normal" style={{ color: 'var(--crm-text-secondary)' }}>Stream</th>
-              <th className="text-right px-4 py-3 text-[13px] font-normal" style={{ color: 'var(--crm-text-secondary)' }}>Amount</th>
-              <th className="text-right px-4 py-3 text-[13px] font-normal" style={{ color: 'var(--crm-text-secondary)' }}>Commission</th>
-              <th className="text-left px-4 py-3 text-[13px] font-normal" style={{ color: 'var(--crm-text-secondary)' }}>Status</th>
-              <th className="text-left px-4 py-3 text-[13px] font-normal" style={{ color: 'var(--crm-text-secondary)' }}>Date</th>
-              <th className="text-right px-4 py-3 text-[13px] font-normal" style={{ color: 'var(--crm-text-secondary)' }}>Actions</th>
+              <th className="text-left px-5 py-4 text-[14px] font-medium" style={{ color: 'var(--crm-text-secondary)' }}>Client</th>
+              <th className="text-left px-5 py-4 text-[14px] font-medium" style={{ color: 'var(--crm-text-secondary)' }}>Stream</th>
+              <th className="text-right px-5 py-4 text-[14px] font-medium" style={{ color: 'var(--crm-text-secondary)' }}>Amount</th>
+              <th className="text-right px-5 py-4 text-[14px] font-medium" style={{ color: 'var(--crm-text-secondary)' }}>Commission</th>
+              <th className="text-left px-5 py-4 text-[14px] font-medium" style={{ color: 'var(--crm-text-secondary)' }}>Status</th>
+              <th className="text-left px-5 py-4 text-[14px] font-medium" style={{ color: 'var(--crm-text-secondary)' }}>Date</th>
+              <th className="text-right px-5 py-4 text-[14px] font-medium" style={{ color: 'var(--crm-text-secondary)' }}>Actions</th>
             </tr>
           </thead>
           <tbody>
             {commissions.map((c) => (
               <tr key={c.id} className="border-b transition-colors hover:bg-white/[0.02]" style={{ borderColor: 'var(--crm-border)' }}>
-                <td className="px-4 py-3 text-sm font-medium">{c.client_name}</td>
-                <td className="px-4 py-3">
-                  <span className="text-[13px]" style={{ color: 'var(--crm-accent)' }}>{STREAMS[c.stream]?.label}</span>
+                <td className="px-5 py-4 text-[15px] font-semibold">{c.client_name}</td>
+                <td className="px-5 py-4">
+                  <span className="text-[14px] font-medium" style={{ color: 'var(--crm-accent)' }}>{STREAMS[c.stream]?.label}</span>
                 </td>
-                <td className="px-4 py-3 text-right text-[13px]">${(c.amount || 0).toLocaleString()}</td>
-                <td className="px-4 py-3 text-right text-[13px]" style={{ color: 'var(--crm-accent)' }}>${((c.amount || 0) * (c.rate || 0)).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
-                <td className="px-4 py-3">
-                  <span className="text-[12px] px-2 py-0.5 rounded-lg" style={{
-                    background: c.status === 'paid' ? 'rgba(74,222,128,0.1)' : c.status === 'approved' ? 'rgba(74,222,128,0.06)' : 'rgba(255,255,255,0.05)',
+                <td className="px-5 py-4 text-right text-[14px]">${(c.amount || 0).toLocaleString()}</td>
+                <td className="px-5 py-4 text-right text-[14px] font-semibold" style={{ color: 'var(--crm-accent)' }}>${((c.amount || 0) * (c.rate || 0)).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+                <td className="px-5 py-4">
+                  <span className="text-[13px] px-3 py-1 rounded-lg font-medium" style={{
+                    background: c.status === 'paid' ? 'rgba(30,144,255,0.12)' : c.status === 'approved' ? 'rgba(30,144,255,0.07)' : 'rgba(255,255,255,0.05)',
                     color: c.status === 'paid' ? 'var(--crm-accent)' : c.status === 'approved' ? 'var(--crm-accent)' : 'var(--crm-text-secondary)',
                   }}>
                     {STATUSES[c.status]?.label}
                   </span>
                 </td>
-                <td className="px-4 py-3 text-[13px]" style={{ color: 'var(--crm-text-muted)' }}>{c.date}</td>
-                <td className="px-4 py-3 text-right">
-                  <button onClick={() => openEdit(c)} className="text-[12px] mr-3 transition-colors" style={{ color: 'var(--crm-text-muted)' }}>Edit</button>
-                  <button onClick={() => handleDelete(c.id)} className="text-[12px] transition-colors" style={{ color: 'var(--crm-negative)' }}>Del</button>
+                <td className="px-5 py-4 text-[14px]" style={{ color: 'var(--crm-text-muted)' }}>{c.date}</td>
+                <td className="px-5 py-4 text-right">
+                  <button onClick={() => openEdit(c)} className="text-[13px] mr-3 transition-colors" style={{ color: 'var(--crm-text-muted)' }}>Edit</button>
+                  <button onClick={() => handleDelete(c.id)} className="text-[13px] transition-colors" style={{ color: 'var(--crm-negative)' }}>Del</button>
                 </td>
               </tr>
             ))}
