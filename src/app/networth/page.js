@@ -13,7 +13,7 @@ export default function NetWorthPage() {
   useEffect(() => { load(); }, []);
   function load() {
     fetch('/api/accounts').then((r) => r.json()).then((d) => {
-      setAccounts((d.accounts || []).filter((a) => a.id !== 'app-settings'));
+      setAccounts((d.accounts || []).filter((a) => a.id !== 'app-settings' && a.id !== 'income_pay_settings'));
     });
   }
 

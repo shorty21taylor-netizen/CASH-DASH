@@ -42,12 +42,12 @@ export async function GET(request) {
     return perMonth * months;
   }
 
-  const basePayAmount = ips.base_pay?.enabled
-    ? calcFreqAmount(ips.base_pay.amount || 0, ips.base_pay.frequency || 'bi-weekly', retainerMonths)
-    : 0;
+  const basePayAmount = (ips.base_pays || []).reduce((s, bp) => {
+    return s + calcFreqAmount(Number(bp.amount) || 0, bp.frequency || 'bi-weekly', retainerMonths);
+  }, 0);
 
   const additionalIncomeTotal = (ips.additional_income || []).reduce((s, inc) => {
-    return s + calcFreqAmount(inc.amount || 0, inc.frequency || 'monthly', retainerMonths);
+    return s + calcFreqAmount(Number(inc.amount) || 0, inc.frequency || 'monthly', retainerMonths);
   }, 0);
 
   const byStream = {
@@ -91,7 +91,7 @@ export async function GET(request) {
 
   const netPnl = totalRevenue - totalExpenses;
 
-  const realAccounts = accounts.filter((a) => a.id !== 'app-settings');
+  const realAccounts = accounts.filter((a) => a.id !== 'app-settings' && a.id !== 'income_pay_settings');
   const netWorth = realAccounts.reduce((s, a) => {
     return s + (a.type === 'debt' ? -a.balance : a.balance);
   }, 0);

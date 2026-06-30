@@ -14,12 +14,17 @@ const TABS = [
 
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
+let _bpCounter = 0;
+function genId() { return 'bp_' + Date.now() + '_' + (++_bpCounter); }
+
 export default function SettingsPage() {
   const [settings, setSettings] = useState(null);
   const [incomePay, setIncomePay] = useState(null);
   const [reps, setReps] = useState([]);
   const [tab, setTab] = useState('income');
   const [saved, setSaved] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [basePayEnabled, setBasePayEnabled] = useState(false);
   const [showRepForm, setShowRepForm] = useState(false);
   const [editingRep, setEditingRep] = useState(null);
   const [repForm, setRepForm] = useState(blankRep());
@@ -37,26 +42,44 @@ export default function SettingsPage() {
       setSettings(s);
     });
     fetch('/api/income-pay-settings').then((r) => r.json()).then((d) => {
-      setIncomePay(d.settings);
+      console.log('[settings page] loaded income-pay:', d.settings);
+      const ip = d.settings;
+      if (!Array.isArray(ip.base_pays)) ip.base_pays = [];
+      if (!Array.isArray(ip.additional_income)) ip.additional_income = [];
+      if (!ip.retainers) ip.retainers = { i2i: { enabled: false, amount: 0 }, bnb: { enabled: false, amount: 0 } };
+      if (!ip.bonus_tiers) ip.bonus_tiers = { enabled: false, threshold_type: 'revenue', tiers: [] };
+      setIncomePay(ip);
+      setBasePayEnabled(ip.base_pays.length > 0);
     });
     fetch('/api/reps').then((r) => r.json()).then((d) => setReps(d.reps || []));
   }, []);
 
   async function handleSave() {
-    await Promise.all([
-      fetch('/api/settings', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(settings),
-      }),
-      fetch('/api/income-pay-settings', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(incomePay),
-      }),
-    ]);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2500);
+    setSaving(true);
+    setSaved(false);
+    try {
+      const ipPayload = { ...incomePay };
+      if (!basePayEnabled) ipPayload.base_pays = [];
+      console.log('[settings page] saving income-pay:', ipPayload);
+      await Promise.all([
+        fetch('/api/settings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(settings),
+        }),
+        fetch('/api/income-pay-settings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(ipPayload),
+        }),
+      ]);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2500);
+    } catch (err) {
+      console.error('[settings page] save failed:', err);
+    } finally {
+      setSaving(false);
+    }
   }
 
   function update(path, value) {
@@ -107,10 +130,33 @@ export default function SettingsPage() {
     });
   }
 
+  function addBasePay() {
+    setIncomePay((prev) => ({
+      ...prev,
+      base_pays: [...(prev.base_pays || []), { id: genId(), label: '', amount: 0, frequency: 'bi-weekly', start_date: '' }],
+    }));
+  }
+
+  function updateBasePay(idx, field, value) {
+    setIncomePay((prev) => {
+      const list = [...(prev.base_pays || [])];
+      list[idx] = { ...list[idx], [field]: (field === 'amount') ? (parseFloat(value) || 0) : value };
+      return { ...prev, base_pays: list };
+    });
+  }
+
+  function removeBasePay(idx) {
+    setIncomePay((prev) => {
+      const list = [...(prev.base_pays || [])];
+      list.splice(idx, 1);
+      return { ...prev, base_pays: list };
+    });
+  }
+
   function addFixedIncome() {
     setIncomePay((prev) => ({
       ...prev,
-      additional_income: [...(prev.additional_income || []), { label: '', amount: 0, frequency: 'monthly' }],
+      additional_income: [...(prev.additional_income || []), { id: genId(), label: '', amount: 0, frequency: 'monthly', category: 'other' }],
     }));
   }
 
@@ -135,7 +181,7 @@ export default function SettingsPage() {
       ...prev,
       bonus_tiers: {
         ...(prev.bonus_tiers || {}),
-        tiers: [...(prev.bonus_tiers?.tiers || []), { threshold: 0, bonus: 0, label: '' }],
+        tiers: [...(prev.bonus_tiers?.tiers || []), { id: genId(), threshold: 0, bonus: 0, label: '' }],
       },
     }));
   }
@@ -174,9 +220,9 @@ export default function SettingsPage() {
           <p className="text-[14px] mt-1" style={{ color: 'var(--crm-text-muted)' }}>Configure your command center</p>
         </div>
         <div className="flex items-center gap-3">
-          {saved && <span className="text-[13px]" style={{ color: 'var(--crm-positive)' }}>Saved!</span>}
-          <button onClick={handleSave} className="px-6 py-2 rounded-xl text-[13px] font-medium" style={{ background: 'var(--crm-accent)', color: '#fff' }}>
-            Save All Settings
+          {saved && <span className="text-[13px] font-medium" style={{ color: 'var(--crm-accent)' }}>Saved!</span>}
+          <button onClick={handleSave} disabled={saving} className="px-6 py-2 rounded-xl text-[13px] font-medium transition-opacity" style={{ background: 'var(--crm-accent)', color: '#fff', opacity: saving ? 0.6 : 1 }}>
+            {saving ? 'Saving...' : 'Save All Settings'}
           </button>
         </div>
       </div>
@@ -199,26 +245,43 @@ export default function SettingsPage() {
         <div className="space-y-5">
           <Section title="Base Pay / Salary">
             <div className="flex items-center gap-3 mb-4">
-              <Toggle checked={!!incomePay.base_pay?.enabled} onChange={(v) => {
-                setIncomePay((prev) => ({ ...prev, base_pay: { ...(prev.base_pay || {}), enabled: v } }));
+              <Toggle checked={basePayEnabled} onChange={(v) => {
+                setBasePayEnabled(v);
+                if (v && (incomePay.base_pays || []).length === 0) addBasePay();
               }} />
               <span className="text-[13px]" style={{ color: 'var(--crm-text-secondary)' }}>I receive a base pay / salary</span>
             </div>
-            {incomePay.base_pay?.enabled && (
-              <div className="grid grid-cols-3 gap-4">
-                <Field label="Base pay amount ($)">
-                  <input type="number" step="0.01" value={incomePay.base_pay?.amount || ''} onChange={(e) => ipUpdate('base_pay.amount', parseFloat(e.target.value) || 0)}
-                    className="input-field" placeholder="0.00" />
-                </Field>
-                <Field label="Pay frequency">
-                  <select value={incomePay.base_pay?.frequency || 'bi-weekly'} onChange={(e) => ipUpdate('base_pay.frequency', e.target.value)} className="input-field">
-                    {PAY_FREQUENCIES.map((f) => <option key={f} value={f}>{f.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join('-')}</option>)}
-                  </select>
-                </Field>
-                <Field label="Start date">
-                  <input type="date" value={incomePay.base_pay?.start_date || ''} onChange={(e) => ipUpdate('base_pay.start_date', e.target.value)} className="input-field" />
-                </Field>
-              </div>
+            {basePayEnabled && (
+              <>
+                <div className="space-y-3">
+                  {(incomePay.base_pays || []).map((bp, i) => (
+                    <div key={bp.id || i} className="grid grid-cols-12 gap-3 items-end">
+                      <div className="col-span-3">
+                        {i === 0 && <label className="block text-[13px] mb-1" style={{ color: 'var(--crm-text-secondary)' }}>Label</label>}
+                        <input value={bp.label || ''} onChange={(e) => updateBasePay(i, 'label', e.target.value)} placeholder="e.g. I2I Base, BNB Base" className="input-field" />
+                      </div>
+                      <div className="col-span-3">
+                        {i === 0 && <label className="block text-[13px] mb-1" style={{ color: 'var(--crm-text-secondary)' }}>Amount ($)</label>}
+                        <input type="number" step="0.01" value={bp.amount || ''} onChange={(e) => updateBasePay(i, 'amount', e.target.value)} placeholder="0.00" className="input-field" />
+                      </div>
+                      <div className="col-span-3">
+                        {i === 0 && <label className="block text-[13px] mb-1" style={{ color: 'var(--crm-text-secondary)' }}>Frequency</label>}
+                        <select value={bp.frequency || 'bi-weekly'} onChange={(e) => updateBasePay(i, 'frequency', e.target.value)} className="input-field">
+                          {PAY_FREQUENCIES.map((f) => <option key={f} value={f}>{f.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join('-')}</option>)}
+                        </select>
+                      </div>
+                      <div className="col-span-2">
+                        {i === 0 && <label className="block text-[13px] mb-1" style={{ color: 'var(--crm-text-secondary)' }}>Start date</label>}
+                        <input type="date" value={bp.start_date || ''} onChange={(e) => updateBasePay(i, 'start_date', e.target.value)} className="input-field" />
+                      </div>
+                      <div className="col-span-1 flex justify-center">
+                        <button onClick={() => removeBasePay(i)} className="text-[16px]" style={{ color: 'var(--crm-negative)' }}>×</button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <button onClick={addBasePay} className="mt-3 text-[13px]" style={{ color: 'var(--crm-accent)' }}>+ Add base pay</button>
+              </>
             )}
           </Section>
 

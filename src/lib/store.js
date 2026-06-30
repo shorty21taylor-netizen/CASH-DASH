@@ -38,43 +38,49 @@ export async function deleteRecord(table, id) {
 
 export function getIncomePaySettings() {
   const stored = cache.accounts.find((a) => a.id === 'income_pay_settings');
-  return stored || {
+  if (!stored) return {
     id: 'income_pay_settings',
-    base_pay: { enabled: false, amount: 0, frequency: 'bi-weekly', start_date: '' },
+    base_pays: [],
     retainers: { i2i: { enabled: false, amount: 0 }, bnb: { enabled: false, amount: 0 } },
     additional_income: [],
     bonus_tiers: { enabled: false, threshold_type: 'revenue', tiers: [] },
   };
+  const result = { ...stored };
+  if (result.base_pay && !result.base_pays) {
+    const bp = result.base_pay;
+    result.base_pays = (bp.enabled && bp.amount > 0)
+      ? [{ id: 'migrated_1', label: 'Base Pay', amount: Number(bp.amount) || 0, frequency: bp.frequency || 'bi-weekly', start_date: bp.start_date || '' }]
+      : [];
+    delete result.base_pay;
+  }
+  if (!Array.isArray(result.base_pays)) result.base_pays = [];
+  return result;
+}
+
+function freqToMonthly(amount, freq) {
+  const amt = Number(amount) || 0;
+  return freq === 'weekly' ? amt * 52 / 12
+    : freq === 'bi-weekly' ? amt * 26 / 12
+    : freq === 'semi-monthly' ? amt * 2
+    : freq === 'monthly' ? amt
+    : freq === 'annually' ? amt / 12
+    : freq === 'yearly' ? amt / 12
+    : amt;
 }
 
 export function expandRecurringIncome(incomePaySettings, months) {
   const ips = incomePaySettings || getIncomePaySettings();
   let total = 0;
 
-  if (ips.base_pay?.enabled && ips.base_pay.amount > 0) {
-    const freq = ips.base_pay.frequency || 'bi-weekly';
-    const perMonth = freq === 'weekly' ? ips.base_pay.amount * 52 / 12
-      : freq === 'bi-weekly' ? ips.base_pay.amount * 26 / 12
-      : freq === 'semi-monthly' ? ips.base_pay.amount * 2
-      : freq === 'monthly' ? ips.base_pay.amount
-      : freq === 'annually' ? ips.base_pay.amount / 12
-      : ips.base_pay.amount;
-    total += perMonth * months;
-  }
+  (ips.base_pays || []).forEach((bp) => {
+    total += freqToMonthly(bp.amount, bp.frequency || 'bi-weekly') * months;
+  });
 
-  if (ips.retainers?.i2i?.enabled) total += (ips.retainers.i2i.amount || 0) * months;
-  if (ips.retainers?.bnb?.enabled) total += (ips.retainers.bnb.amount || 0) * months;
+  if (ips.retainers?.i2i?.enabled) total += (Number(ips.retainers.i2i.amount) || 0) * months;
+  if (ips.retainers?.bnb?.enabled) total += (Number(ips.retainers.bnb.amount) || 0) * months;
 
   (ips.additional_income || []).forEach((inc) => {
-    const amt = inc.amount || 0;
-    const freq = inc.frequency || 'monthly';
-    const perMonth = freq === 'weekly' ? amt * 52 / 12
-      : freq === 'bi-weekly' ? amt * 26 / 12
-      : freq === 'semi-monthly' ? amt * 2
-      : freq === 'monthly' ? amt
-      : freq === 'annually' ? amt / 12
-      : amt;
-    total += perMonth * months;
+    total += freqToMonthly(inc.amount, inc.frequency || 'monthly') * months;
   });
 
   return total;
