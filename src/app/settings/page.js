@@ -16,6 +16,7 @@ const MONTHS = ['January','February','March','April','May','June','July','August
 
 export default function SettingsPage() {
   const [settings, setSettings] = useState(null);
+  const [incomePay, setIncomePay] = useState(null);
   const [reps, setReps] = useState([]);
   const [tab, setTab] = useState('income');
   const [saved, setSaved] = useState(false);
@@ -35,15 +36,25 @@ export default function SettingsPage() {
       if (!s.retainers.htB) s.retainers.htB = { enabled: false, amount: 0 };
       setSettings(s);
     });
+    fetch('/api/income-pay-settings').then((r) => r.json()).then((d) => {
+      setIncomePay(d.settings);
+    });
     fetch('/api/reps').then((r) => r.json()).then((d) => setReps(d.reps || []));
   }, []);
 
   async function handleSave() {
-    await fetch('/api/settings', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(settings),
-    });
+    await Promise.all([
+      fetch('/api/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(settings),
+      }),
+      fetch('/api/income-pay-settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(incomePay),
+      }),
+    ]);
     setSaved(true);
     setTimeout(() => setSaved(false), 2500);
   }
@@ -82,38 +93,67 @@ export default function SettingsPage() {
     fetch('/api/reps').then((r) => r.json()).then((d) => setReps(d.reps || []));
   }
 
+  function ipUpdate(path, value) {
+    setIncomePay((prev) => {
+      const keys = path.split('.');
+      const updated = { ...prev };
+      let obj = updated;
+      for (let i = 0; i < keys.length - 1; i++) {
+        obj[keys[i]] = { ...(obj[keys[i]] || {}) };
+        obj = obj[keys[i]];
+      }
+      obj[keys[keys.length - 1]] = value;
+      return updated;
+    });
+  }
+
   function addFixedIncome() {
-    const list = [...(settings.fixed_income || []), { label: '', amount: 0, frequency: 'monthly' }];
-    update('fixed_income', list);
+    setIncomePay((prev) => ({
+      ...prev,
+      additional_income: [...(prev.additional_income || []), { label: '', amount: 0, frequency: 'monthly' }],
+    }));
   }
 
   function updateFixedIncome(idx, field, value) {
-    const list = [...(settings.fixed_income || [])];
-    list[idx] = { ...list[idx], [field]: field === 'amount' ? parseFloat(value) || 0 : value };
-    update('fixed_income', list);
+    setIncomePay((prev) => {
+      const list = [...(prev.additional_income || [])];
+      list[idx] = { ...list[idx], [field]: field === 'amount' ? parseFloat(value) || 0 : value };
+      return { ...prev, additional_income: list };
+    });
   }
 
   function removeFixedIncome(idx) {
-    const list = [...(settings.fixed_income || [])];
-    list.splice(idx, 1);
-    update('fixed_income', list);
+    setIncomePay((prev) => {
+      const list = [...(prev.additional_income || [])];
+      list.splice(idx, 1);
+      return { ...prev, additional_income: list };
+    });
   }
 
   function addBonusTier() {
-    const tiers = [...(settings.bonuses?.tiers || []), { threshold: 0, bonus: 0, label: '' }];
-    update('bonuses.tiers', tiers);
+    setIncomePay((prev) => ({
+      ...prev,
+      bonus_tiers: {
+        ...(prev.bonus_tiers || {}),
+        tiers: [...(prev.bonus_tiers?.tiers || []), { threshold: 0, bonus: 0, label: '' }],
+      },
+    }));
   }
 
   function updateBonusTier(idx, field, value) {
-    const tiers = [...(settings.bonuses?.tiers || [])];
-    tiers[idx] = { ...tiers[idx], [field]: field === 'label' ? value : parseFloat(value) || 0 };
-    update('bonuses.tiers', tiers);
+    setIncomePay((prev) => {
+      const tiers = [...(prev.bonus_tiers?.tiers || [])];
+      tiers[idx] = { ...tiers[idx], [field]: field === 'label' ? value : parseFloat(value) || 0 };
+      return { ...prev, bonus_tiers: { ...(prev.bonus_tiers || {}), tiers } };
+    });
   }
 
   function removeBonusTier(idx) {
-    const tiers = [...(settings.bonuses?.tiers || [])];
-    tiers.splice(idx, 1);
-    update('bonuses.tiers', tiers);
+    setIncomePay((prev) => {
+      const tiers = [...(prev.bonus_tiers?.tiers || [])];
+      tiers.splice(idx, 1);
+      return { ...prev, bonus_tiers: { ...(prev.bonus_tiers || {}), tiers } };
+    });
   }
 
   function toggleRepStream(stream) {
@@ -124,7 +164,7 @@ export default function SettingsPage() {
     setRepForm({ ...repForm, streams });
   }
 
-  if (!settings) return <div className="text-sm p-8" style={{ color: 'var(--crm-text-muted)' }}>Loading settings...</div>;
+  if (!settings || !incomePay) return <div className="text-sm p-8" style={{ color: 'var(--crm-text-muted)' }}>Loading settings...</div>;
 
   return (
     <div className="space-y-5">
@@ -159,22 +199,24 @@ export default function SettingsPage() {
         <div className="space-y-5">
           <Section title="Base Pay / Salary">
             <div className="flex items-center gap-3 mb-4">
-              <Toggle checked={settings.base_pay?.enabled} onChange={(v) => update('base_pay.enabled', v)} />
+              <Toggle checked={!!incomePay.base_pay?.enabled} onChange={(v) => {
+                setIncomePay((prev) => ({ ...prev, base_pay: { ...(prev.base_pay || {}), enabled: v } }));
+              }} />
               <span className="text-[13px]" style={{ color: 'var(--crm-text-secondary)' }}>I receive a base pay / salary</span>
             </div>
-            {settings.base_pay?.enabled && (
+            {incomePay.base_pay?.enabled && (
               <div className="grid grid-cols-3 gap-4">
                 <Field label="Base pay amount ($)">
-                  <input type="number" step="0.01" value={settings.base_pay?.amount || ''} onChange={(e) => update('base_pay.amount', parseFloat(e.target.value) || 0)}
+                  <input type="number" step="0.01" value={incomePay.base_pay?.amount || ''} onChange={(e) => ipUpdate('base_pay.amount', parseFloat(e.target.value) || 0)}
                     className="input-field" placeholder="0.00" />
                 </Field>
                 <Field label="Pay frequency">
-                  <select value={settings.base_pay?.frequency || 'bi-weekly'} onChange={(e) => update('base_pay.frequency', e.target.value)} className="input-field">
+                  <select value={incomePay.base_pay?.frequency || 'bi-weekly'} onChange={(e) => ipUpdate('base_pay.frequency', e.target.value)} className="input-field">
                     {PAY_FREQUENCIES.map((f) => <option key={f} value={f}>{f.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join('-')}</option>)}
                   </select>
                 </Field>
                 <Field label="Start date">
-                  <input type="date" value={settings.base_pay?.start_date || ''} onChange={(e) => update('base_pay.start_date', e.target.value)} className="input-field" />
+                  <input type="date" value={incomePay.base_pay?.start_date || ''} onChange={(e) => ipUpdate('base_pay.start_date', e.target.value)} className="input-field" />
                 </Field>
               </div>
             )}
@@ -185,29 +227,29 @@ export default function SettingsPage() {
               <RetainerRow
                 label="I2I Offer"
                 desc="Monthly retainer added to I2I stream revenue"
-                enabled={!!settings.retainers?.htA?.enabled}
-                amount={settings.retainers?.htA?.amount || ''}
-                onToggle={(v) => setSettings((prev) => ({
+                enabled={!!incomePay.retainers?.i2i?.enabled}
+                amount={incomePay.retainers?.i2i?.amount || ''}
+                onToggle={(v) => setIncomePay((prev) => ({
                   ...prev,
-                  retainers: { ...prev.retainers, htA: { ...(prev.retainers?.htA || {}), enabled: v } },
+                  retainers: { ...prev.retainers, i2i: { ...(prev.retainers?.i2i || {}), enabled: v } },
                 }))}
-                onAmount={(v) => setSettings((prev) => ({
+                onAmount={(v) => setIncomePay((prev) => ({
                   ...prev,
-                  retainers: { ...prev.retainers, htA: { ...(prev.retainers?.htA || {}), amount: v } },
+                  retainers: { ...prev.retainers, i2i: { ...(prev.retainers?.i2i || {}), amount: v } },
                 }))}
               />
               <RetainerRow
                 label="BNB Offer"
                 desc="Monthly retainer added to BNB stream revenue"
-                enabled={!!settings.retainers?.htB?.enabled}
-                amount={settings.retainers?.htB?.amount || ''}
-                onToggle={(v) => setSettings((prev) => ({
+                enabled={!!incomePay.retainers?.bnb?.enabled}
+                amount={incomePay.retainers?.bnb?.amount || ''}
+                onToggle={(v) => setIncomePay((prev) => ({
                   ...prev,
-                  retainers: { ...prev.retainers, htB: { ...(prev.retainers?.htB || {}), enabled: v } },
+                  retainers: { ...prev.retainers, bnb: { ...(prev.retainers?.bnb || {}), enabled: v } },
                 }))}
-                onAmount={(v) => setSettings((prev) => ({
+                onAmount={(v) => setIncomePay((prev) => ({
                   ...prev,
-                  retainers: { ...prev.retainers, htB: { ...(prev.retainers?.htB || {}), amount: v } },
+                  retainers: { ...prev.retainers, bnb: { ...(prev.retainers?.bnb || {}), amount: v } },
                 }))}
               />
             </div>
@@ -215,7 +257,7 @@ export default function SettingsPage() {
 
           <Section title="Additional Fixed Income" subtitle="Retainers, side contracts, recurring payments outside of commissions">
             <div className="space-y-3">
-              {(settings.fixed_income || []).map((inc, i) => (
+              {(incomePay.additional_income || []).map((inc, i) => (
                 <div key={i} className="grid grid-cols-12 gap-3 items-end">
                   <div className="col-span-5">
                     {i === 0 && <label className="block text-[13px] mb-1" style={{ color: 'var(--crm-text-secondary)' }}>Source / label</label>}
@@ -242,21 +284,23 @@ export default function SettingsPage() {
 
           <Section title="Bonus Tiers" subtitle="Performance bonuses based on revenue or deal count">
             <div className="flex items-center gap-3 mb-4">
-              <Toggle checked={settings.bonuses?.enabled} onChange={(v) => update('bonuses.enabled', v)} />
+              <Toggle checked={!!incomePay.bonus_tiers?.enabled} onChange={(v) => {
+                setIncomePay((prev) => ({ ...prev, bonus_tiers: { ...(prev.bonus_tiers || {}), enabled: v } }));
+              }} />
               <span className="text-[13px]" style={{ color: 'var(--crm-text-secondary)' }}>Enable bonus structure</span>
             </div>
-            {settings.bonuses?.enabled && (
+            {incomePay.bonus_tiers?.enabled && (
               <>
                 <div className="mb-4">
                   <Field label="Threshold type">
-                    <select value={settings.bonuses?.threshold_type || 'revenue'} onChange={(e) => update('bonuses.threshold_type', e.target.value)} className="input-field" style={{ width: '12rem' }}>
+                    <select value={incomePay.bonus_tiers?.threshold_type || 'revenue'} onChange={(e) => ipUpdate('bonus_tiers.threshold_type', e.target.value)} className="input-field" style={{ width: '12rem' }}>
                       <option value="revenue">Revenue ($)</option>
                       <option value="deals">Deal Count</option>
                     </select>
                   </Field>
                 </div>
                 <div className="space-y-2">
-                  {(settings.bonuses?.tiers || []).map((tier, i) => (
+                  {(incomePay.bonus_tiers?.tiers || []).map((tier, i) => (
                     <div key={i} className="grid grid-cols-12 gap-3 items-end">
                       <div className="col-span-4">
                         {i === 0 && <label className="block text-[13px] mb-1" style={{ color: 'var(--crm-text-secondary)' }}>Label</label>}

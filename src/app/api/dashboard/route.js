@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { initStore, getCache } from '../../../lib/store.js';
+import { initStore, getCache, getIncomePaySettings, expandRecurringIncome } from '../../../lib/store.js';
 
 export async function GET(request) {
   await initStore();
@@ -8,8 +8,7 @@ export async function GET(request) {
   const cache = getCache();
   const { commissions, policies, expenses, income_other, accounts, market_profits } = cache;
 
-  const stored = accounts.find((a) => a.id === 'app-settings');
-  const retainers = stored?.retainers || {};
+  const ips = getIncomePaySettings();
 
   const now = new Date();
   const year = now.getFullYear();
@@ -27,13 +26,33 @@ export async function GET(request) {
   const paidComm = commissions.filter((c) => c.status === 'paid' && inRange(c.date));
   const commRevenue = paidComm.reduce((s, c) => s + (c.amount * c.rate), 0);
 
-  const htARetainer = retainers.htA?.enabled ? (retainers.htA.amount || 0) * retainerMonths : 0;
-  const htBRetainer = retainers.htB?.enabled ? (retainers.htB.amount || 0) * retainerMonths : 0;
-  const retainerTotal = htARetainer + htBRetainer;
+  const i2iRetainer = ips.retainers?.i2i?.enabled ? (ips.retainers.i2i.amount || 0) * retainerMonths : 0;
+  const bnbRetainer = ips.retainers?.bnb?.enabled ? (ips.retainers.bnb.amount || 0) * retainerMonths : 0;
+  const retainerTotal = i2iRetainer + bnbRetainer;
+
+  const recurringIncome = expandRecurringIncome(ips, retainerMonths);
+
+  function calcFreqAmount(amount, freq, months) {
+    const perMonth = freq === 'weekly' ? amount * 52 / 12
+      : freq === 'bi-weekly' ? amount * 26 / 12
+      : freq === 'semi-monthly' ? amount * 2
+      : freq === 'monthly' ? amount
+      : freq === 'annually' ? amount / 12
+      : amount;
+    return perMonth * months;
+  }
+
+  const basePayAmount = ips.base_pay?.enabled
+    ? calcFreqAmount(ips.base_pay.amount || 0, ips.base_pay.frequency || 'bi-weekly', retainerMonths)
+    : 0;
+
+  const additionalIncomeTotal = (ips.additional_income || []).reduce((s, inc) => {
+    return s + calcFreqAmount(inc.amount || 0, inc.frequency || 'monthly', retainerMonths);
+  }, 0);
 
   const byStream = {
-    htA: paidComm.filter((c) => c.stream === 'htA').reduce((s, c) => s + (c.amount * c.rate), 0) + htARetainer,
-    htB: paidComm.filter((c) => c.stream === 'htB').reduce((s, c) => s + (c.amount * c.rate), 0) + htBRetainer,
+    htA: paidComm.filter((c) => c.stream === 'htA').reduce((s, c) => s + (c.amount * c.rate), 0) + i2iRetainer,
+    htB: paidComm.filter((c) => c.stream === 'htB').reduce((s, c) => s + (c.amount * c.rate), 0) + bnbRetainer,
     life: paidComm.filter((c) => c.stream === 'life').reduce((s, c) => s + (c.amount * c.rate), 0),
     summit: paidComm.filter((c) => c.stream === 'summit').reduce((s, c) => s + (c.amount * c.rate), 0),
   };
@@ -50,7 +69,7 @@ export async function GET(request) {
     .filter((p) => inRange(p.date))
     .reduce((s, p) => s + p.amount, 0);
 
-  const totalRevenue = commRevenue + retainerTotal + otherIncome + marketProfits;
+  const totalRevenue = commRevenue + recurringIncome + otherIncome + marketProfits;
 
   const rangeExpenses = expenses.filter((e) => {
     if (e.recurring && e.frequency === 'monthly') return true;
@@ -92,6 +111,8 @@ export async function GET(request) {
     byStream,
     renewalIncome,
     retainerIncome: retainerTotal,
+    basePayIncome: basePayAmount,
+    additionalIncome: additionalIncomeTotal,
     otherIncome,
     marketProfits,
     pendingComm,
