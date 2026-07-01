@@ -65,43 +65,41 @@ export async function GET(request) {
   }
 
   const paidComm = commissions.filter((c) => c.status === 'paid' && inRange(c.date));
-  const commRevenue = paidComm.reduce((s, c) => s + (Number(c.amount) || 0) * (Number(c.rate) || 0), 0);
+
+  function commEarned(c) { return Math.round((Number(c.amount) || 0) * (Number(c.rate) || 0) * 100) / 100; }
+
+  const commByStream = { htA: 0, htB: 0, life: 0, summit: 0 };
+  paidComm.forEach((c) => {
+    const earned = commEarned(c);
+    const s = c.stream || 'htA';
+    if (commByStream[s] !== undefined) commByStream[s] += earned;
+    else commByStream.htA += earned;
+    console.log('[comm]', { stream: s, client: c.client_name, amount: c.amount, rate: c.rate, earned });
+  });
+  Object.keys(commByStream).forEach((k) => { commByStream[k] = Math.round(commByStream[k] * 100) / 100; });
+
+  const commRevenue = commByStream.htA + commByStream.htB + commByStream.life;
+  const summitCommRevenue = commByStream.summit;
 
   const i2iRetainer = ips.retainers?.i2i?.enabled ? (Number(ips.retainers.i2i.amount) || 0) * retainerMonths : 0;
   const bnbRetainer = ips.retainers?.bnb?.enabled ? (Number(ips.retainers.bnb.amount) || 0) * retainerMonths : 0;
-  const retainerTotal = i2iRetainer + bnbRetainer;
+  const retainerTotal = Math.round((i2iRetainer + bnbRetainer) * 100) / 100;
 
   const bpEnd = rangeEnd ? new Date(rangeEnd + 'T00:00:00') : now;
   const bpByStream = expandBasePaysByStream(ips, rangeStart, bpEnd);
-  const basePayTotal = (Number(bpByStream.htA) || 0) + (Number(bpByStream.htB) || 0)
-    + (Number(bpByStream.life) || 0) + (Number(bpByStream.summit) || 0) + (Number(bpByStream.general) || 0);
+  const basePayTotal = Math.round(((Number(bpByStream.htA) || 0) + (Number(bpByStream.htB) || 0)
+    + (Number(bpByStream.life) || 0) + (Number(bpByStream.summit) || 0) + (Number(bpByStream.general) || 0)) * 100) / 100;
   console.log('[dashboard] base pay by stream:', JSON.stringify(bpByStream), 'total:', basePayTotal);
 
-  function calcFreqAmount(amount, freq, months) {
-    const amt = Number(amount) || 0;
-    const perMonth = freq === 'weekly' ? amt * 52 / 12
-      : freq === 'bi-weekly' ? amt * 26 / 12
-      : freq === 'semi-monthly' ? amt * 2
-      : freq === 'monthly' ? amt
-      : freq === 'annually' ? amt / 12
-      : freq === 'yearly' ? amt / 12
-      : amt;
-    return perMonth * months;
-  }
-
-  const additionalIncomeTotal = (ips.additional_income || []).reduce((s, inc) => {
-    return s + calcFreqAmount(inc.amount, inc.frequency || 'monthly', retainerMonths);
-  }, 0);
+  const additionalIncomeTotal = Math.round((ips.additional_income || []).reduce((s, inc) => {
+    return s + (Number(inc.amount) || 0) * retainerMonths;
+  }, 0) * 100) / 100;
 
   const byStream = {
-    htA: paidComm.filter((c) => c.stream === 'htA').reduce((s, c) => s + (Number(c.amount) || 0) * (Number(c.rate) || 0), 0)
-      + i2iRetainer + (Number(bpByStream.htA) || 0),
-    htB: paidComm.filter((c) => c.stream === 'htB').reduce((s, c) => s + (Number(c.amount) || 0) * (Number(c.rate) || 0), 0)
-      + bnbRetainer + (Number(bpByStream.htB) || 0),
-    life: paidComm.filter((c) => c.stream === 'life').reduce((s, c) => s + (Number(c.amount) || 0) * (Number(c.rate) || 0), 0)
-      + (Number(bpByStream.life) || 0),
-    summit: paidComm.filter((c) => c.stream === 'summit').reduce((s, c) => s + (Number(c.amount) || 0) * (Number(c.rate) || 0), 0)
-      + (Number(bpByStream.summit) || 0),
+    htA: Math.round((commByStream.htA + i2iRetainer + (Number(bpByStream.htA) || 0)) * 100) / 100,
+    htB: Math.round((commByStream.htB + bnbRetainer + (Number(bpByStream.htB) || 0)) * 100) / 100,
+    life: Math.round((commByStream.life + (Number(bpByStream.life) || 0)) * 100) / 100,
+    summit: Math.round((summitCommRevenue + (Number(bpByStream.summit) || 0)) * 100) / 100,
   };
 
   const renewalIncome = policies
@@ -116,7 +114,9 @@ export async function GET(request) {
     .filter((p) => inRange(p.date))
     .reduce((s, p) => s + (Number(p.amount) || 0), 0);
 
-  const totalRevenue = commRevenue + basePayTotal + retainerTotal + additionalIncomeTotal + otherIncome + marketProfits;
+  const totalRevenue = Math.round((commRevenue + summitCommRevenue + basePayTotal + retainerTotal + additionalIncomeTotal + otherIncome + marketProfits) * 100) / 100;
+
+  console.log('[dashboard] revenue breakdown:', { commRevenue, summitCommRevenue, basePayTotal, retainerTotal, additionalIncomeTotal, otherIncome, marketProfits, totalRevenue });
 
   const rangeExpenses = expenses.filter((e) => {
     if (e.recurring && e.frequency === 'monthly') return true;
@@ -135,7 +135,7 @@ export async function GET(request) {
   const personalExpenses = rangeExpenses.filter((e) => e.category === 'personal')
     .reduce((s, e) => s + (Number(e.amount) || 0), 0);
 
-  const netPnl = totalRevenue - totalExpenses;
+  const netPnl = Math.round((totalRevenue - totalExpenses) * 100) / 100;
 
   const realAccounts = accounts.filter((a) => a.id !== 'app-settings' && a.id !== 'income_pay_settings');
   const netWorth = realAccounts.reduce((s, a) => {
@@ -154,6 +154,7 @@ export async function GET(request) {
     rangeStart,
     rangeEnd,
     commRevenue,
+    summitCommRevenue,
     totalRevenue,
     totalExpenses,
     netPnl,
