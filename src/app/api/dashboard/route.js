@@ -10,19 +10,58 @@ export async function GET(request) {
   const { commissions, policies, expenses, income_other, accounts, market_profits } = cache;
 
   const ips = getIncomePaySettings();
-  console.log('[dashboard] income_pay_settings loaded, base_pays:', JSON.stringify(ips.base_pays));
 
   const now = todayParam ? new Date(todayParam + 'T00:00:00') : new Date();
   const year = now.getFullYear();
   const month = now.getMonth();
-  const rangeStart = range === 'ytd'
-    ? `${year}-01-01`
-    : `${year}-${String(month + 1).padStart(2, '0')}-01`;
-  const retainerMonths = range === 'ytd' ? month + 1 : 1;
+
+  let rangeStart, rangeEnd, retainerMonths, rangeLabel;
+
+  if (range === 'ytd') {
+    rangeStart = `${year}-01-01`;
+    rangeEnd = null;
+    retainerMonths = month + 1;
+    rangeLabel = 'YTD';
+  } else if (range === 'qtd') {
+    const qStart = Math.floor(month / 3) * 3;
+    rangeStart = `${year}-${String(qStart + 1).padStart(2, '0')}-01`;
+    rangeEnd = null;
+    retainerMonths = month - qStart + 1;
+    rangeLabel = `Q${Math.floor(month / 3) + 1}`;
+  } else if (range === 'month') {
+    const mp = searchParams.get('month');
+    if (mp) {
+      rangeStart = `${mp}-01`;
+      const [my, mm] = mp.split('-').map(Number);
+      const lastDay = new Date(my, mm, 0).getDate();
+      rangeEnd = `${mp}-${String(lastDay).padStart(2, '0')}`;
+      retainerMonths = 1;
+      rangeLabel = mp;
+    } else {
+      rangeStart = `${year}-${String(month + 1).padStart(2, '0')}-01`;
+      rangeEnd = null;
+      retainerMonths = 1;
+      rangeLabel = 'MTD';
+    }
+  } else if (range === 'custom') {
+    rangeStart = searchParams.get('start') || `${year}-01-01`;
+    rangeEnd = searchParams.get('end') || null;
+    const s = new Date(rangeStart + 'T00:00:00');
+    const e = rangeEnd ? new Date(rangeEnd + 'T00:00:00') : now;
+    retainerMonths = Math.max(1, (e.getFullYear() - s.getFullYear()) * 12 + e.getMonth() - s.getMonth() + 1);
+    rangeLabel = 'Custom';
+  } else {
+    rangeStart = `${year}-${String(month + 1).padStart(2, '0')}-01`;
+    rangeEnd = null;
+    retainerMonths = 1;
+    rangeLabel = 'MTD';
+  }
 
   function inRange(dateStr) {
     if (!dateStr) return false;
-    return dateStr >= rangeStart;
+    if (dateStr < rangeStart) return false;
+    if (rangeEnd && dateStr > rangeEnd) return false;
+    return true;
   }
 
   const paidComm = commissions.filter((c) => c.status === 'paid' && inRange(c.date));
@@ -32,7 +71,8 @@ export async function GET(request) {
   const bnbRetainer = ips.retainers?.bnb?.enabled ? (Number(ips.retainers.bnb.amount) || 0) * retainerMonths : 0;
   const retainerTotal = i2iRetainer + bnbRetainer;
 
-  const bpByStream = expandBasePaysByStream(ips, rangeStart, now);
+  const bpEnd = rangeEnd ? new Date(rangeEnd + 'T00:00:00') : now;
+  const bpByStream = expandBasePaysByStream(ips, rangeStart, bpEnd);
   const basePayTotal = (Number(bpByStream.htA) || 0) + (Number(bpByStream.htB) || 0)
     + (Number(bpByStream.life) || 0) + (Number(bpByStream.summit) || 0) + (Number(bpByStream.general) || 0);
   console.log('[dashboard] base pay by stream:', JSON.stringify(bpByStream), 'total:', basePayTotal);
@@ -80,13 +120,12 @@ export async function GET(request) {
 
   const rangeExpenses = expenses.filter((e) => {
     if (e.recurring && e.frequency === 'monthly') return true;
-    if (e.recurring && e.frequency === 'yearly') return range === 'ytd';
+    if (e.recurring && e.frequency === 'yearly') return retainerMonths >= 12;
     return inRange(e.date);
   });
   const totalExpenses = rangeExpenses.reduce((s, e) => {
     if (e.recurring && e.frequency === 'monthly') {
-      const months = range === 'ytd' ? month + 1 : 1;
-      return s + ((Number(e.amount) || 0) * months);
+      return s + ((Number(e.amount) || 0) * retainerMonths);
     }
     return s + (Number(e.amount) || 0);
   }, 0);
@@ -111,6 +150,9 @@ export async function GET(request) {
 
   return NextResponse.json({
     range,
+    rangeLabel,
+    rangeStart,
+    rangeEnd,
     commRevenue,
     totalRevenue,
     totalExpenses,

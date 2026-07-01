@@ -1,23 +1,72 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { localToday } from '../lib/constants.js';
 import MetricCard from '../components/MetricCard.js';
 import StreamChart from '../components/StreamChart.js';
 import TrendChart from '../components/TrendChart.js';
 
+const MONTH_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+function buildQuery(rangeState) {
+  const today = localToday();
+  const base = `today=${today}`;
+  if (rangeState.type === 'mtd') return `range=mtd&${base}`;
+  if (rangeState.type === 'qtd') return `range=qtd&${base}`;
+  if (rangeState.type === 'ytd') return `range=ytd&${base}`;
+  if (rangeState.type === 'month') return `range=month&month=${rangeState.month}&${base}`;
+  if (rangeState.type === 'custom') return `range=custom&start=${rangeState.start}&end=${rangeState.end}&${base}`;
+  return `range=mtd&${base}`;
+}
+
+function rangeDisplayLabel(rangeState, data) {
+  if (rangeState.type === 'mtd') return 'MTD';
+  if (rangeState.type === 'qtd') return data?.rangeLabel || 'QTD';
+  if (rangeState.type === 'ytd') return 'YTD';
+  if (rangeState.type === 'month') {
+    const [y, m] = rangeState.month.split('-');
+    return `${MONTH_NAMES[parseInt(m) - 1]} ${y}`;
+  }
+  if (rangeState.type === 'custom') return 'Custom';
+  return 'MTD';
+}
+
 export default function WarRoom() {
   const [data, setData] = useState(null);
-  const [range, setRange] = useState('mtd');
+  const [rangeState, setRangeState] = useState({ type: 'mtd' });
   const [loading, setLoading] = useState(true);
+  const [showMonths, setShowMonths] = useState(false);
+  const [showCustom, setShowCustom] = useState(false);
+  const [customStart, setCustomStart] = useState('');
+  const [customEnd, setCustomEnd] = useState('');
 
   useEffect(() => {
     setLoading(true);
-    fetch(`/api/dashboard?range=${range}&today=${localToday()}`)
+    fetch(`/api/dashboard?${buildQuery(rangeState)}`)
       .then((r) => r.json())
       .then(setData)
       .finally(() => setLoading(false));
-  }, [range]);
+  }, [rangeState]);
+
+  const selectRange = useCallback((type) => {
+    setRangeState({ type });
+    setShowMonths(false);
+    setShowCustom(false);
+  }, []);
+
+  const selectMonth = useCallback((monthStr) => {
+    setRangeState({ type: 'month', month: monthStr });
+    setShowMonths(false);
+    setShowCustom(false);
+  }, []);
+
+  const applyCustom = useCallback(() => {
+    if (customStart && customEnd) {
+      setRangeState({ type: 'custom', start: customStart, end: customEnd });
+      setShowCustom(false);
+      setShowMonths(false);
+    }
+  }, [customStart, customEnd]);
 
   if (loading) {
     return (
@@ -27,32 +76,97 @@ export default function WarRoom() {
     );
   }
 
+  const today = localToday();
+  const currentYear = parseInt(today.split('-')[0]);
+  const currentMonth = parseInt(today.split('-')[1]);
+  const monthOptions = [];
+  for (let m = 0; m < currentMonth; m++) {
+    const val = `${currentYear}-${String(m + 1).padStart(2, '0')}`;
+    monthOptions.push({ label: MONTH_NAMES[m], value: val });
+  }
+
   const totalRev = data?.totalRevenue || 0;
   const totalComm = data?.commRevenue || 0;
   const pnl = data?.netPnl || 0;
   const isPositive = pnl >= 0;
+  const label = rangeDisplayLabel(rangeState, data);
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <h1 className="text-xl font-bold" style={{ color: 'var(--crm-text)' }}>Shorty War Room</h1>
-        <div className="flex gap-px rounded-xl overflow-hidden" style={{ border: '1px solid var(--crm-border)' }}>
-          {['mtd', 'ytd'].map((r) => (
-            <button key={r} onClick={() => setRange(r)}
-              className="px-5 py-2 text-[14px] font-medium transition-colors"
+        <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex gap-px rounded-xl overflow-hidden" style={{ border: '1px solid var(--crm-border)' }}>
+            {['mtd', 'qtd', 'ytd'].map((r) => (
+              <button key={r} onClick={() => selectRange(r)}
+                className="px-4 py-2 text-[13px] font-medium transition-colors"
+                style={{
+                  background: rangeState.type === r ? 'var(--crm-accent)' : 'transparent',
+                  color: rangeState.type === r ? '#fff' : 'var(--crm-text-muted)',
+                  fontWeight: rangeState.type === r ? 600 : 400,
+                }}>
+                {r.toUpperCase()}
+              </button>
+            ))}
+          </div>
+          <div className="relative">
+            <button onClick={() => { setShowMonths(!showMonths); setShowCustom(false); }}
+              className="px-4 py-2 rounded-xl text-[13px] font-medium transition-colors"
               style={{
-                background: range === r ? 'var(--crm-accent)' : 'transparent',
-                color: range === r ? '#fff' : 'var(--crm-text-muted)',
-                fontWeight: range === r ? 600 : 400,
+                border: '1px solid var(--crm-border)',
+                background: rangeState.type === 'month' ? 'var(--crm-accent)' : 'transparent',
+                color: rangeState.type === 'month' ? '#fff' : 'var(--crm-text-muted)',
               }}>
-              {r.toUpperCase()}
+              {rangeState.type === 'month' ? label : 'Month'}
             </button>
-          ))}
+            {showMonths && (
+              <div className="absolute right-0 top-full mt-2 p-3 rounded-xl z-50 grid grid-cols-4 gap-1.5" style={{ background: 'var(--crm-surface)', border: '1px solid var(--crm-border)', boxShadow: '0 8px 30px rgba(0,0,0,0.5)', minWidth: '220px' }}>
+                {monthOptions.map((mo) => (
+                  <button key={mo.value} onClick={() => selectMonth(mo.value)}
+                    className="px-3 py-2 rounded-lg text-[13px] font-medium transition-colors"
+                    style={{
+                      background: rangeState.type === 'month' && rangeState.month === mo.value ? 'var(--crm-accent)' : 'var(--crm-surface2)',
+                      color: rangeState.type === 'month' && rangeState.month === mo.value ? '#fff' : 'var(--crm-text-muted)',
+                    }}>
+                    {mo.label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+          <div className="relative">
+            <button onClick={() => { setShowCustom(!showCustom); setShowMonths(false); }}
+              className="px-4 py-2 rounded-xl text-[13px] font-medium transition-colors"
+              style={{
+                border: '1px solid var(--crm-border)',
+                background: rangeState.type === 'custom' ? 'var(--crm-accent)' : 'transparent',
+                color: rangeState.type === 'custom' ? '#fff' : 'var(--crm-text-muted)',
+              }}>
+              Custom
+            </button>
+            {showCustom && (
+              <div className="absolute right-0 top-full mt-2 p-4 rounded-xl z-50 space-y-3" style={{ background: 'var(--crm-surface)', border: '1px solid var(--crm-border)', boxShadow: '0 8px 30px rgba(0,0,0,0.5)', minWidth: '260px' }}>
+                <div>
+                  <label className="block text-[12px] mb-1" style={{ color: 'var(--crm-text-muted)' }}>Start date</label>
+                  <input type="date" value={customStart} onChange={(e) => setCustomStart(e.target.value)} className="input-field text-[13px]" />
+                </div>
+                <div>
+                  <label className="block text-[12px] mb-1" style={{ color: 'var(--crm-text-muted)' }}>End date</label>
+                  <input type="date" value={customEnd} onChange={(e) => setCustomEnd(e.target.value)} className="input-field text-[13px]" />
+                </div>
+                <button onClick={applyCustom}
+                  className="w-full px-4 py-2 rounded-xl text-[13px] font-semibold"
+                  style={{ background: 'var(--crm-accent)', color: '#fff', opacity: customStart && customEnd ? 1 : 0.4 }}>
+                  Apply
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
       <div className="panel-hero p-8 text-center rounded-3xl">
-        <p className="text-[15px] opacity-70 mb-3" style={{ color: 'var(--crm-text-secondary)' }}>Total revenue ({range.toUpperCase()})</p>
+        <p className="text-[15px] opacity-70 mb-3" style={{ color: 'var(--crm-text-secondary)' }}>Total revenue ({label})</p>
         <p className="metric-number-xl text-white">
           <span className="accent-dollar">$</span>{totalRev.toLocaleString('en-US', { minimumFractionDigits: 2 })}
         </p>
@@ -103,7 +217,7 @@ export default function WarRoom() {
       </div>
 
       <div className="glass-card-solid p-8 text-center">
-        <p className="text-[15px] mb-3" style={{ color: 'var(--crm-text-secondary)' }}>Net P&L ({range.toUpperCase()})</p>
+        <p className="text-[15px] mb-3" style={{ color: 'var(--crm-text-secondary)' }}>Net P&L ({label})</p>
         <p className="metric-number-xl" style={{ color: isPositive ? 'var(--crm-positive)' : 'var(--crm-negative)' }}>
           {pnl < 0 ? '-' : ''}<span className="accent-dollar">$</span>{Math.abs(pnl).toLocaleString('en-US', { minimumFractionDigits: 2 })}
         </p>
