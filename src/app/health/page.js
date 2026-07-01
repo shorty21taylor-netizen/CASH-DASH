@@ -2,12 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import TrendChart from '../../components/TrendChart.js';
+import { localToday } from '../../lib/constants.js';
 import EmptyState from '../../components/EmptyState.js';
 
 export default function HealthPage() {
   const [logs, setLogs] = useState([]);
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState({ date: new Date().toISOString().split('T')[0], weight: '', sleep_hours: '', workout: false, calories: '', notes: '' });
+  const [form, setForm] = useState({ date: localToday(), weight: '', sleep_hours: '', workout: false, calories: '', notes: '' });
 
   useEffect(() => { load(); }, []);
   function load() { fetch('/api/health').then((r) => r.json()).then((d) => setLogs(d.logs || [])); }
@@ -16,7 +17,7 @@ export default function HealthPage() {
     e.preventDefault();
     await fetch('/api/health', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) });
     setShowForm(false);
-    setForm({ date: new Date().toISOString().split('T')[0], weight: '', sleep_hours: '', workout: false, calories: '', notes: '' });
+    setForm({ date: localToday(), weight: '', sleep_hours: '', workout: false, calories: '', notes: '' });
     load();
   }
 

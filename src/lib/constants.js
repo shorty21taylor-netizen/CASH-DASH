@@ -33,6 +33,11 @@ export const TIME_CATEGORIES = ['deep_work', 'meetings', 'admin', 'learning', 'h
 export const PAY_FREQUENCIES = ['weekly', 'bi-weekly', 'semi-monthly', 'monthly', 'annually'];
 export const REP_STATUSES = ['active', 'inactive', 'onboarding'];
 
+export function localToday() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
 export const TABLES = [
   'commissions', 'policies', 'expenses', 'income_other',
   'accounts', 'goals', 'habits', 'health_logs', 'time_logs',

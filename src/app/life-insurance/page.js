@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { POLICY_STATUSES } from '../../lib/constants.js';
+import { POLICY_STATUSES, localToday } from '../../lib/constants.js';
 import MetricCard from '../../components/MetricCard.js';
 import EmptyState from '../../components/EmptyState.js';
 
@@ -17,7 +17,7 @@ export default function LifeInsurancePage() {
     return {
       client_name: '', premium: '', commission_rate: 0.50, first_year_amount: '',
       renewal_rate: 0.05, renewal_months: [], status: 'active',
-      sold_date: new Date().toISOString().split('T')[0],
+      sold_date: localToday(),
     };
   }
 

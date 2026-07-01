@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { v4 as uuid } from 'uuid';
 import { initStore, getCache, saveRecord, deleteRecord } from '../../../lib/store.js';
+import { localToday } from '../../../lib/constants.js';
 
 export async function GET() {
   await initStore();
@@ -16,7 +17,7 @@ export async function POST(request) {
   }
   const record = {
     id: body.id || uuid(),
-    date: body.date || new Date().toISOString().split('T')[0],
+    date: body.date || localToday(),
     weight: parseFloat(body.weight) || null,
     sleep_hours: parseFloat(body.sleep_hours) || null,
     workout: !!body.workout,

@@ -2,13 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import MetricCard from '../../components/MetricCard.js';
+import { localToday } from '../../lib/constants.js';
 import TrendChart from '../../components/TrendChart.js';
 import EmptyState from '../../components/EmptyState.js';
 
 export default function MarketProfitsPage() {
   const [profits, setProfits] = useState([]);
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState({ source: '', ticker: '', amount: '', type: 'realized', date: new Date().toISOString().split('T')[0], notes: '' });
+  const [form, setForm] = useState({ source: '', ticker: '', amount: '', type: 'realized', date: localToday(), notes: '' });
 
   useEffect(() => { load(); }, []);
   function load() { fetch('/api/market-profits').then((r) => r.json()).then((d) => setProfits(d.profits || [])); }
@@ -17,7 +18,7 @@ export default function MarketProfitsPage() {
     e.preventDefault();
     await fetch('/api/market-profits', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) });
     setShowForm(false);
-    setForm({ source: '', ticker: '', amount: '', type: 'realized', date: new Date().toISOString().split('T')[0], notes: '' });
+    setForm({ source: '', ticker: '', amount: '', type: 'realized', date: localToday(), notes: '' });
     load();
   }
 

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { localToday } from '../lib/constants.js';
 import MetricCard from '../components/MetricCard.js';
 import StreamChart from '../components/StreamChart.js';
 import TrendChart from '../components/TrendChart.js';
@@ -12,7 +13,7 @@ export default function WarRoom() {
 
   useEffect(() => {
     setLoading(true);
-    fetch(`/api/dashboard?range=${range}`)
+    fetch(`/api/dashboard?range=${range}&today=${localToday()}`)
       .then((r) => r.json())
       .then(setData)
       .finally(() => setLoading(false));

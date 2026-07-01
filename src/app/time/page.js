@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { TIME_CATEGORIES } from '../../lib/constants.js';
+import { TIME_CATEGORIES, localToday } from '../../lib/constants.js';
 import EmptyState from '../../components/EmptyState.js';
 import ClientOnly from '../../components/ClientOnly.js';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Cell } from 'recharts';
@@ -11,7 +11,7 @@ const CAT_COLORS = { deep_work: '#1E90FF', meetings: 'rgba(30,144,255,0.65)', ad
 export default function TimePage() {
   const [logs, setLogs] = useState([]);
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState({ date: new Date().toISOString().split('T')[0], category: 'deep_work', hours: '', notes: '' });
+  const [form, setForm] = useState({ date: localToday(), category: 'deep_work', hours: '', notes: '' });
 
   useEffect(() => { load(); }, []);
   function load() { fetch('/api/time').then((r) => r.json()).then((d) => setLogs(d.logs || [])); }
@@ -20,7 +20,7 @@ export default function TimePage() {
     e.preventDefault();
     await fetch('/api/time', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) });
     setShowForm(false);
-    setForm({ date: new Date().toISOString().split('T')[0], category: 'deep_work', hours: '', notes: '' });
+    setForm({ date: localToday(), category: 'deep_work', hours: '', notes: '' });
     load();
   }
 

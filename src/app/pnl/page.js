@@ -1,16 +1,17 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { localToday } from '../../lib/constants.js';
 
 export default function PnLPage() {
   const [data, setData] = useState(null);
   const [range, setRange] = useState('mtd');
   const [expenses, setExpenses] = useState([]);
   const [showExpenseForm, setShowExpenseForm] = useState(false);
-  const [expForm, setExpForm] = useState({ category: 'business', label: '', amount: '', recurring: false, frequency: 'once', date: new Date().toISOString().split('T')[0] });
+  const [expForm, setExpForm] = useState({ category: 'business', label: '', amount: '', recurring: false, frequency: 'once', date: localToday() });
 
   useEffect(() => {
-    fetch(`/api/dashboard?range=${range}`).then((r) => r.json()).then(setData);
+    fetch(`/api/dashboard?range=${range}&today=${localToday()}`).then((r) => r.json()).then(setData);
     fetch('/api/expenses').then((r) => r.json()).then((d) => setExpenses(d.expenses || []));
   }, [range]);
 
@@ -18,14 +19,14 @@ export default function PnLPage() {
     e.preventDefault();
     await fetch('/api/expenses', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(expForm) });
     setShowExpenseForm(false);
-    setExpForm({ category: 'business', label: '', amount: '', recurring: false, frequency: 'once', date: new Date().toISOString().split('T')[0] });
-    fetch(`/api/dashboard?range=${range}`).then((r) => r.json()).then(setData);
+    setExpForm({ category: 'business', label: '', amount: '', recurring: false, frequency: 'once', date: localToday() });
+    fetch(`/api/dashboard?range=${range}&today=${localToday()}`).then((r) => r.json()).then(setData);
     fetch('/api/expenses').then((r) => r.json()).then((d) => setExpenses(d.expenses || []));
   }
 
   async function deleteExpense(id) {
     await fetch('/api/expenses', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ _action: 'delete', id }) });
-    fetch(`/api/dashboard?range=${range}`).then((r) => r.json()).then(setData);
+    fetch(`/api/dashboard?range=${range}&today=${localToday()}`).then((r) => r.json()).then(setData);
     fetch('/api/expenses').then((r) => r.json()).then((d) => setExpenses(d.expenses || []));
   }
 

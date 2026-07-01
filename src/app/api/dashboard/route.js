@@ -5,13 +5,14 @@ export async function GET(request) {
   await initStore();
   const { searchParams } = new URL(request.url);
   const range = searchParams.get('range') || 'mtd';
+  const todayParam = searchParams.get('today');
   const cache = getCache();
   const { commissions, policies, expenses, income_other, accounts, market_profits } = cache;
 
   const ips = getIncomePaySettings();
   console.log('[dashboard] income_pay_settings loaded, base_pays:', JSON.stringify(ips.base_pays));
 
-  const now = new Date();
+  const now = todayParam ? new Date(todayParam + 'T00:00:00') : new Date();
   const year = now.getFullYear();
   const month = now.getMonth();
   const rangeStart = range === 'ytd'

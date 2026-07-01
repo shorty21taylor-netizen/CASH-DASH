@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { v4 as uuid } from 'uuid';
 import { initStore, getCache, saveRecord, deleteRecord } from '../../../lib/store.js';
+import { localToday } from '../../../lib/constants.js';
 
 export async function GET() {
   await initStore();
@@ -19,7 +20,7 @@ export async function POST(request) {
     source: body.source,
     amount: parseFloat(body.amount) || 0,
     category: body.category || 'business',
-    date: body.date || new Date().toISOString().split('T')[0],
+    date: body.date || localToday(),
   };
   await saveRecord('income_other', record);
   return NextResponse.json({ item: record });

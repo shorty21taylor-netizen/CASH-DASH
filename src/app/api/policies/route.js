@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { v4 as uuid } from 'uuid';
 import { initStore, getCache, saveRecord, deleteRecord } from '../../../lib/store.js';
+import { localToday } from '../../../lib/constants.js';
 
 export async function GET() {
   await initStore();
@@ -23,7 +24,7 @@ export async function POST(request) {
     renewal_rate: parseFloat(body.renewal_rate) || 0,
     renewal_months: body.renewal_months || [],
     status: body.status || 'active',
-    sold_date: body.sold_date || new Date().toISOString().split('T')[0],
+    sold_date: body.sold_date || localToday(),
   };
   await saveRecord('policies', record);
   return NextResponse.json({ policy: record });

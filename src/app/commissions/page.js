@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { STREAMS, STATUSES, DEFAULT_RATES } from '../../lib/constants.js';
+import { STREAMS, STATUSES, DEFAULT_RATES, localToday } from '../../lib/constants.js';
 import EmptyState from '../../components/EmptyState.js';
 
 export default function CommissionsPage() {
@@ -13,7 +13,7 @@ export default function CommissionsPage() {
   const [form, setForm] = useState(getBlank());
 
   function getBlank() {
-    return { stream: 'htA', client_name: '', amount: '', rate: DEFAULT_RATES.htA, status: 'pending', date: new Date().toISOString().split('T')[0] };
+    return { stream: 'htA', client_name: '', amount: '', rate: DEFAULT_RATES.htA, status: 'pending', date: localToday() };
   }
 
   useEffect(() => { load(); }, [filterStream, filterStatus]);
