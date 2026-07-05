@@ -40,13 +40,15 @@ export default function WarRoom() {
   const [customStart, setCustomStart] = useState('');
   const [customEnd, setCustomEnd] = useState('');
 
-  useEffect(() => {
+  const refreshData = useCallback(() => {
     setLoading(true);
     fetch(`/api/dashboard?${buildQuery(rangeState)}`)
       .then((r) => r.json())
       .then(setData)
       .finally(() => setLoading(false));
   }, [rangeState]);
+
+  useEffect(() => { refreshData(); }, [refreshData]);
 
   const selectRange = useCallback((type) => {
     setRangeState({ type });
@@ -165,7 +167,15 @@ export default function WarRoom() {
         </div>
       </div>
 
-      <div className="panel-hero p-8 text-center rounded-3xl">
+      <div className="panel-hero p-8 text-center rounded-3xl relative">
+        <button onClick={refreshData}
+          className="absolute top-4 right-4 p-2 rounded-xl transition-all hover:scale-105 active:scale-95"
+          style={{ background: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.7)' }}
+          title="Refresh totals">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 2v6h-6" /><path d="M3 12a9 9 0 0 1 15-6.7L21 8" /><path d="M3 22v-6h6" /><path d="M21 12a9 9 0 0 1-15 6.7L3 16" />
+          </svg>
+        </button>
         <p className="text-[15px] opacity-70 mb-3" style={{ color: 'var(--crm-text-secondary)' }}>Total revenue ({label})</p>
         <p className="metric-number-xl text-white">
           <span className="accent-dollar">$</span>{totalRev.toLocaleString('en-US', { minimumFractionDigits: 2 })}
