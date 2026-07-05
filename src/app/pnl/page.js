@@ -171,10 +171,9 @@ export default function PnLPage() {
         <div className="p-6 border-b" style={{ borderColor: 'var(--crm-border)' }}>
           <h2 className="text-[14px] font-medium mb-5" style={{ color: 'var(--crm-text-secondary)' }}>Revenue ({label})</h2>
           <div className="space-y-1.5">
-            <Row label="I2I Offer" value={data.byStream?.htA || 0} />
-            <Row label="BNB Offer" value={data.byStream?.htB || 0} />
-            <Row label="Life Insurance" value={data.byStream?.life || 0} />
-            <Row label="Summit Placement" value={data.byStream?.summit || 0} />
+            {(data.streams || []).map((s) => (
+              <Row key={s.key} label={s.label} value={data.byStream?.[s.key] || 0} />
+            ))}
             <Row label="Base Pay (general)" value={data.basePayGeneral || 0} />
             <Row label="Retainer Income" value={data.retainerIncome || 0} />
             <Row label="Additional Income" value={data.additionalIncome || 0} />

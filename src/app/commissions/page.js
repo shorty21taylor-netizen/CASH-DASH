@@ -1,20 +1,25 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { STREAMS, STATUSES, DEFAULT_RATES, localToday } from '../../lib/constants.js';
+import { STATUSES, localToday } from '../../lib/constants.js';
 import EmptyState from '../../components/EmptyState.js';
 
 export default function CommissionsPage() {
   const [commissions, setCommissions] = useState([]);
+  const [streams, setStreams] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState(null);
   const [filterStream, setFilterStream] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
-  const [form, setForm] = useState(getBlank());
+  const [form, setForm] = useState({ stream: '', client_name: '', amount: '', rate: 0.10, status: 'pending', date: localToday() });
 
-  function getBlank() {
-    return { stream: 'htA', client_name: '', amount: '', rate: DEFAULT_RATES.htA, status: 'pending', date: localToday() };
-  }
+  useEffect(() => {
+    fetch('/api/streams').then((r) => r.json()).then((d) => {
+      const s = d.streams || [];
+      setStreams(s);
+      if (s.length > 0) setForm((prev) => ({ ...prev, stream: prev.stream || s[0].key, rate: s[0].defaultRate || 0.10 }));
+    });
+  }, []);
 
   useEffect(() => { load(); }, [filterStream, filterStatus]);
 
@@ -32,7 +37,8 @@ export default function CommissionsPage() {
   }
 
   function openNew() {
-    setForm(getBlank());
+    const defaultStream = streams[0];
+    setForm({ stream: defaultStream?.key || '', client_name: '', amount: '', rate: defaultStream?.defaultRate || 0.10, status: 'pending', date: localToday() });
     setEditing(null);
     setShowForm(true);
   }
@@ -60,9 +66,15 @@ export default function CommissionsPage() {
   function handleChange(e) {
     const { name, value } = e.target;
     const updated = { ...form, [name]: value };
-    if (name === 'stream' && !editing) updated.rate = DEFAULT_RATES[value] || 0.10;
+    if (name === 'stream' && !editing) {
+      const s = streams.find((st) => st.key === value);
+      updated.rate = s?.defaultRate || 0.10;
+    }
     setForm(updated);
   }
+
+  const streamsMap = {};
+  streams.forEach((s) => { streamsMap[s.key] = s; });
 
   return (
     <div className="space-y-6">
@@ -76,7 +88,7 @@ export default function CommissionsPage() {
       <div className="flex gap-4">
         <select value={filterStream} onChange={(e) => setFilterStream(e.target.value)} className="input-field" style={{ width: 'auto' }}>
           <option value="">All streams</option>
-          {Object.values(STREAMS).map((s) => <option key={s.key} value={s.key}>{s.label}</option>)}
+          {streams.map((s) => <option key={s.key} value={s.key}>{s.label}</option>)}
         </select>
         <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="input-field" style={{ width: 'auto' }}>
           <option value="">All statuses</option>
@@ -91,7 +103,7 @@ export default function CommissionsPage() {
             <div>
               <label className="block text-[14px] mb-1.5" style={{ color: 'var(--crm-text-secondary)' }}>Stream</label>
               <select name="stream" value={form.stream} onChange={handleChange} className="input-field">
-                {Object.values(STREAMS).map((s) => <option key={s.key} value={s.key}>{s.label}</option>)}
+                {streams.map((s) => <option key={s.key} value={s.key}>{s.label}</option>)}
               </select>
             </div>
             <div>
@@ -146,7 +158,7 @@ export default function CommissionsPage() {
               <tr key={c.id} className="border-b transition-colors hover:bg-white/[0.02]" style={{ borderColor: 'var(--crm-border)' }}>
                 <td className="px-5 py-4 text-[15px] font-semibold">{c.client_name}</td>
                 <td className="px-5 py-4">
-                  <span className="text-[14px] font-medium" style={{ color: 'var(--crm-accent)' }}>{STREAMS[c.stream]?.label}</span>
+                  <span className="text-[14px] font-medium" style={{ color: 'var(--crm-accent)' }}>{streamsMap[c.stream]?.label || c.stream}</span>
                 </td>
                 <td className="px-5 py-4 text-right text-[14px]">${(c.amount || 0).toLocaleString()}</td>
                 <td className="px-5 py-4 text-right text-[14px] font-semibold" style={{ color: 'var(--crm-accent)' }}>${((c.amount || 0) * (c.rate || 0)).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>

@@ -5,6 +5,15 @@ export const STREAMS = {
   summit: { key: 'summit', label: 'Summit Placement', color: '#8b5cf6' },
 };
 
+export const DEFAULT_STREAMS = [
+  { key: 'htA', label: 'I2I Offer', color: '#dc2626', defaultRate: 0.10 },
+  { key: 'htB', label: 'BNB Offer', color: '#f97316', defaultRate: 0.15 },
+  { key: 'life', label: 'Life Insurance', color: '#eab308', defaultRate: 0.50 },
+  { key: 'summit', label: 'Summit Placement', color: '#8b5cf6', defaultRate: 0.10 },
+];
+
+export const STREAM_COLORS = ['#dc2626', '#f97316', '#eab308', '#22c55e', '#06b6d4', '#3b82f6', '#8b5cf6', '#ec4899', '#14b8a6', '#6366f1'];
+
 export const STATUSES = {
   pending: { key: 'pending', label: 'Pending', color: '#f59e0b' },
   approved: { key: 'approved', label: 'Approved', color: '#3b82f6' },

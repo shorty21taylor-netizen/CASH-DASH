@@ -195,12 +195,7 @@ export default function WarRoom() {
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {[
-          { key: 'htA', label: 'I2I Offer' },
-          { key: 'htB', label: 'BNB Offer' },
-          { key: 'life', label: 'Life Insurance' },
-          { key: 'summit', label: 'Summit Placement' },
-        ].map((s, idx) => (
+        {(data?.streams || []).map((s, idx) => (
           <div key={s.key} className={idx === 0 ? 'panel-accent p-6 rounded-2xl' : 'glass-card-solid p-6'}>
             <p className="text-[14px] font-medium mb-3"
               style={{ color: idx === 0 ? 'rgba(255,255,255,0.7)' : 'var(--crm-text-muted)' }}>
@@ -215,7 +210,7 @@ export default function WarRoom() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <StreamChart data={data?.monthlyData || []} />
+        <StreamChart data={data?.monthlyData || []} streams={data?.streams || []} />
         <TrendChart
           data={(data?.monthlyData || []).map((m) => ({ label: m.month, revenue: m.revenue, expenses: m.expenses }))}
           lines={[

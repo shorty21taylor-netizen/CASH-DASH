@@ -1,5 +1,5 @@
 import { getAll, upsert, softDelete, initDB } from './db.js';
-import { TABLES } from './constants.js';
+import { TABLES, DEFAULT_STREAMS } from './constants.js';
 
 const cache = {};
 TABLES.forEach((t) => { cache[t] = []; });
@@ -36,6 +36,14 @@ export async function deleteRecord(table, id) {
   cache[table] = cache[table].filter((r) => r.id !== id);
 }
 
+export function getStreams() {
+  const stored = cache.accounts.find((a) => a.id === 'app-settings');
+  if (stored?.streams && Array.isArray(stored.streams) && stored.streams.length > 0) {
+    return stored.streams;
+  }
+  return DEFAULT_STREAMS;
+}
+
 export function getIncomePaySettings() {
   const stored = cache.accounts.find((a) => a.id === 'income_pay_settings');
   if (!stored) return {
@@ -54,6 +62,16 @@ export function getIncomePaySettings() {
     delete result.base_pay;
   }
   if (!Array.isArray(result.base_pays)) result.base_pays = [];
+  if (result.retainers) {
+    if (result.retainers.i2i && !result.retainers.htA) {
+      result.retainers.htA = result.retainers.i2i;
+    }
+    if (result.retainers.bnb && !result.retainers.htB) {
+      result.retainers.htB = result.retainers.bnb;
+    }
+    delete result.retainers.i2i;
+    delete result.retainers.bnb;
+  }
   return result;
 }
 
@@ -114,7 +132,9 @@ export function expandBasePaysByStream(incomePaySettings, rangeStartStr, rangeEn
   const ips = incomePaySettings || getIncomePaySettings();
   const rangeStart = parseDate(rangeStartStr) || new Date();
   const rangeEnd = rangeEndDate || new Date();
-  const result = { htA: 0, htB: 0, life: 0, summit: 0, general: 0 };
+  const streamKeys = getStreams().map((s) => s.key);
+  const result = { general: 0 };
+  streamKeys.forEach((k) => { result[k] = 0; });
 
   (ips.base_pays || []).forEach((bp) => {
     const amt = Number(bp.amount) || 0;

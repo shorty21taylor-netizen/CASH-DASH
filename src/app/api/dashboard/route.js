@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { initStore, getCache, getIncomePaySettings, expandBasePaysByStream } from '../../../lib/store.js';
+import { initStore, getCache, getIncomePaySettings, expandBasePaysByStream, getStreams } from '../../../lib/store.js';
 
 export async function GET(request) {
   await initStore();
@@ -64,43 +64,48 @@ export async function GET(request) {
     return true;
   }
 
+  const streams = getStreams();
+  const streamKeys = streams.map((s) => s.key);
+
   const paidComm = commissions.filter((c) => c.status === 'paid' && inRange(c.date));
 
   function commEarned(c) { return Math.round((Number(c.amount) || 0) * (Number(c.rate) || 0) * 100) / 100; }
 
-  const commByStream = { htA: 0, htB: 0, life: 0, summit: 0 };
+  const commByStream = {};
+  streamKeys.forEach((k) => { commByStream[k] = 0; });
   paidComm.forEach((c) => {
     const earned = commEarned(c);
-    const s = c.stream || 'htA';
+    const s = c.stream || streamKeys[0] || 'htA';
     if (commByStream[s] !== undefined) commByStream[s] += earned;
-    else commByStream.htA += earned;
+    else commByStream[s] = earned;
     console.log('[comm]', { stream: s, client: c.client_name, amount: c.amount, rate: c.rate, earned });
   });
   Object.keys(commByStream).forEach((k) => { commByStream[k] = Math.round(commByStream[k] * 100) / 100; });
 
-  const commRevenue = commByStream.htA + commByStream.htB + commByStream.life;
-  const summitCommRevenue = commByStream.summit;
+  const totalCommRevenue = Math.round(Object.values(commByStream).reduce((s, v) => s + v, 0) * 100) / 100;
 
-  const i2iRetainer = ips.retainers?.i2i?.enabled ? (Number(ips.retainers.i2i.amount) || 0) * retainerMonths : 0;
-  const bnbRetainer = ips.retainers?.bnb?.enabled ? (Number(ips.retainers.bnb.amount) || 0) * retainerMonths : 0;
-  const retainerTotal = Math.round((i2iRetainer + bnbRetainer) * 100) / 100;
+  let retainerTotal = 0;
+  const retainerByStream = {};
+  streamKeys.forEach((k) => {
+    const r = ips.retainers?.[k];
+    retainerByStream[k] = r?.enabled ? (Number(r.amount) || 0) * retainerMonths : 0;
+    retainerTotal += retainerByStream[k];
+  });
+  retainerTotal = Math.round(retainerTotal * 100) / 100;
 
   const bpEnd = rangeEnd ? new Date(rangeEnd + 'T00:00:00') : now;
   const bpByStream = expandBasePaysByStream(ips, rangeStart, bpEnd);
-  const basePayTotal = Math.round(((Number(bpByStream.htA) || 0) + (Number(bpByStream.htB) || 0)
-    + (Number(bpByStream.life) || 0) + (Number(bpByStream.summit) || 0) + (Number(bpByStream.general) || 0)) * 100) / 100;
+  const basePayTotal = Math.round(Object.values(bpByStream).reduce((s, v) => s + (Number(v) || 0), 0) * 100) / 100;
   console.log('[dashboard] base pay by stream:', JSON.stringify(bpByStream), 'total:', basePayTotal);
 
   const additionalIncomeTotal = Math.round((ips.additional_income || []).reduce((s, inc) => {
     return s + (Number(inc.amount) || 0) * retainerMonths;
   }, 0) * 100) / 100;
 
-  const byStream = {
-    htA: Math.round((commByStream.htA + i2iRetainer + (Number(bpByStream.htA) || 0)) * 100) / 100,
-    htB: Math.round((commByStream.htB + bnbRetainer + (Number(bpByStream.htB) || 0)) * 100) / 100,
-    life: Math.round((commByStream.life + (Number(bpByStream.life) || 0)) * 100) / 100,
-    summit: Math.round((summitCommRevenue + (Number(bpByStream.summit) || 0)) * 100) / 100,
-  };
+  const byStream = {};
+  streamKeys.forEach((k) => {
+    byStream[k] = Math.round(((commByStream[k] || 0) + (retainerByStream[k] || 0) + (Number(bpByStream[k]) || 0)) * 100) / 100;
+  });
 
   const renewalIncome = policies
     .filter((p) => p.status === 'active')
@@ -114,9 +119,9 @@ export async function GET(request) {
     .filter((p) => inRange(p.date))
     .reduce((s, p) => s + (Number(p.amount) || 0), 0);
 
-  const totalRevenue = Math.round((commRevenue + summitCommRevenue + basePayTotal + retainerTotal + additionalIncomeTotal + otherIncome + marketProfits) * 100) / 100;
+  const totalRevenue = Math.round((totalCommRevenue + basePayTotal + retainerTotal + additionalIncomeTotal + otherIncome + marketProfits) * 100) / 100;
 
-  console.log('[dashboard] revenue breakdown:', { commRevenue, summitCommRevenue, basePayTotal, retainerTotal, additionalIncomeTotal, otherIncome, marketProfits, totalRevenue });
+  console.log('[dashboard] revenue breakdown:', { totalCommRevenue, basePayTotal, retainerTotal, additionalIncomeTotal, otherIncome, marketProfits, totalRevenue });
 
   const rangeExpenses = expenses.filter((e) => {
     if (e.recurring && e.frequency === 'monthly') return true;
@@ -146,15 +151,14 @@ export async function GET(request) {
     .filter((c) => c.status !== 'paid')
     .reduce((s, c) => s + (Number(c.amount) || 0) * (Number(c.rate) || 0), 0);
 
-  const monthlyData = buildMonthlyData(commissions, expenses, market_profits || []);
+  const monthlyData = buildMonthlyData(commissions, expenses, market_profits || [], streamKeys);
 
   return NextResponse.json({
     range,
     rangeLabel,
     rangeStart,
     rangeEnd,
-    commRevenue,
-    summitCommRevenue,
+    commRevenue: totalCommRevenue,
     totalRevenue,
     totalExpenses,
     netPnl,
@@ -172,32 +176,38 @@ export async function GET(request) {
     netWorth,
     monthlyData,
     totalCommissions: commissions.length,
+    streams,
     activePolicies: policies.filter((p) => p.status === 'active').length,
   });
 }
 
-function buildMonthlyData(commissions, expenses, marketProfits) {
+function buildMonthlyData(commissions, expenses, marketProfits, streamKeys) {
   const months = {};
+  function emptyMonth(m) {
+    const obj = { month: m, market: 0, revenue: 0, expenses: 0 };
+    streamKeys.forEach((k) => { obj[k] = 0; });
+    return obj;
+  }
   commissions.forEach((c) => {
     if (!c.date) return;
     const m = c.date.substring(0, 7);
-    if (!months[m]) months[m] = { month: m, htA: 0, htB: 0, life: 0, summit: 0, market: 0, revenue: 0, expenses: 0 };
+    if (!months[m]) months[m] = emptyMonth(m);
     if (c.status === 'paid') {
       const earned = (Number(c.amount) || 0) * (Number(c.rate) || 0);
-      months[m][c.stream] += earned;
+      if (months[m][c.stream] !== undefined) months[m][c.stream] += earned;
       months[m].revenue += earned;
     }
   });
   expenses.forEach((e) => {
     if (!e.date) return;
     const m = e.date.substring(0, 7);
-    if (!months[m]) months[m] = { month: m, htA: 0, htB: 0, life: 0, summit: 0, market: 0, revenue: 0, expenses: 0 };
+    if (!months[m]) months[m] = emptyMonth(m);
     months[m].expenses += Number(e.amount) || 0;
   });
   marketProfits.forEach((p) => {
     if (!p.date) return;
     const m = p.date.substring(0, 7);
-    if (!months[m]) months[m] = { month: m, htA: 0, htB: 0, life: 0, summit: 0, market: 0, revenue: 0, expenses: 0 };
+    if (!months[m]) months[m] = emptyMonth(m);
     months[m].market += Number(p.amount) || 0;
     months[m].revenue += Number(p.amount) || 0;
   });

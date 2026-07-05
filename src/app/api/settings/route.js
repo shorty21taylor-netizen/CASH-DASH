@@ -1,8 +1,11 @@
 import { NextResponse } from 'next/server';
-import { initStore, getCache, saveRecord } from '../../../lib/store.js';
+import { initStore, getCache, saveRecord, getStreams } from '../../../lib/store.js';
+import { DEFAULT_STREAMS } from '../../../lib/constants.js';
 
 const DEFAULT_SETTINGS = {
   id: 'app-settings',
+  // Configurable income streams / offers
+  streams: DEFAULT_STREAMS,
   // Commission rates per stream
   rates: { htA: 0.10, htB: 0.15, life: 0.50, summit: 0.10 },
   // Base pay / salary
@@ -59,6 +62,7 @@ export async function GET() {
   const stored = all.find((a) => a.id === 'app-settings');
   const settings = deepMerge(DEFAULT_SETTINGS, stored || {});
   settings.id = 'app-settings';
+  settings.streams = getStreams();
   return NextResponse.json({ settings });
 }
 

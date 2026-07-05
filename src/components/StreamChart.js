@@ -3,7 +3,9 @@
 import ClientOnly from './ClientOnly.js';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
-export default function StreamChart({ data, title = 'Revenue by Stream' }) {
+const OPACITY_STEPS = [1, 0.55, 0.35, 0.2, 0.12, 0.08];
+
+export default function StreamChart({ data, streams = [], title = 'Revenue by Stream' }) {
   return (
     <ClientOnly>
       <div className="glass-card-solid p-7">
@@ -20,11 +22,10 @@ export default function StreamChart({ data, title = 'Revenue by Stream' }) {
                 cursor={{ fill: 'rgba(30, 144, 255, 0.05)' }}
               />
               <Legend wrapperStyle={{ fontFamily: 'Inter', fontSize: '13px' }} />
-              <Bar dataKey="htA" name="I2I Offer" fill="#1E90FF" radius={[8, 8, 0, 0]} />
-              <Bar dataKey="htB" name="BNB Offer" fill="rgba(30, 144, 255, 0.55)" radius={[8, 8, 0, 0]} />
-              <Bar dataKey="life" name="Life Insurance" fill="rgba(30, 144, 255, 0.35)" radius={[8, 8, 0, 0]} />
-              <Bar dataKey="summit" name="Summit Placement" fill="rgba(30, 144, 255, 0.2)" radius={[8, 8, 0, 0]} />
-              <Bar dataKey="market" name="Market Profits" fill="rgba(30, 144, 255, 0.12)" radius={[8, 8, 0, 0]} />
+              {streams.map((s, i) => (
+                <Bar key={s.key} dataKey={s.key} name={s.label} fill={`rgba(30, 144, 255, ${OPACITY_STEPS[i] || 0.08})`} radius={[8, 8, 0, 0]} />
+              ))}
+              <Bar dataKey="market" name="Market Profits" fill="rgba(30, 144, 255, 0.08)" radius={[8, 8, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>

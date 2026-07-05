@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { STREAMS, PAY_FREQUENCIES, REP_STATUSES } from '../../lib/constants.js';
+import { PAY_FREQUENCIES, REP_STATUSES, STREAM_COLORS } from '../../lib/constants.js';
 
 const TABS = [
   { key: 'income', label: 'Income & Pay' },
@@ -37,8 +37,7 @@ export default function SettingsPage() {
     fetch('/api/settings').then((r) => r.json()).then((d) => {
       const s = d.settings;
       if (!s.retainers) s.retainers = {};
-      if (!s.retainers.htA) s.retainers.htA = { enabled: false, amount: 0 };
-      if (!s.retainers.htB) s.retainers.htB = { enabled: false, amount: 0 };
+      if (!Array.isArray(s.streams)) s.streams = [];
       setSettings(s);
     });
     fetch('/api/income-pay-settings').then((r) => r.json()).then((d) => {
@@ -46,7 +45,9 @@ export default function SettingsPage() {
       const ip = d.settings;
       if (!Array.isArray(ip.base_pays)) ip.base_pays = [];
       if (!Array.isArray(ip.additional_income)) ip.additional_income = [];
-      if (!ip.retainers) ip.retainers = { i2i: { enabled: false, amount: 0 }, bnb: { enabled: false, amount: 0 } };
+      if (!ip.retainers) ip.retainers = {};
+      if (ip.retainers.i2i && !ip.retainers.htA) { ip.retainers.htA = ip.retainers.i2i; delete ip.retainers.i2i; }
+      if (ip.retainers.bnb && !ip.retainers.htB) { ip.retainers.htB = ip.retainers.bnb; delete ip.retainers.bnb; }
       if (!ip.bonus_tiers) ip.bonus_tiers = { enabled: false, threshold_type: 'revenue', tiers: [] };
       setIncomePay(ip);
       setBasePayEnabled(ip.base_pays.length > 0);
@@ -202,6 +203,33 @@ export default function SettingsPage() {
     });
   }
 
+  function addStream() {
+    const existing = settings.streams || [];
+    const usedColors = existing.map((s) => s.color);
+    const nextColor = STREAM_COLORS.find((c) => !usedColors.includes(c)) || STREAM_COLORS[existing.length % STREAM_COLORS.length];
+    const key = 'stream_' + Date.now();
+    const updated = [...existing, { key, label: '', color: nextColor, defaultRate: 0.10 }];
+    setSettings({ ...settings, streams: updated });
+  }
+
+  function updateStream(idx, field, value) {
+    const updated = [...(settings.streams || [])];
+    updated[idx] = { ...updated[idx], [field]: field === 'defaultRate' ? (parseFloat(value) || 0) : value };
+    if (field === 'label' && updated[idx].key.startsWith('stream_')) {
+      const slug = value.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
+      if (slug && !updated.some((s, i) => i !== idx && s.key === slug)) {
+        updated[idx].key = slug;
+      }
+    }
+    setSettings({ ...settings, streams: updated, rates: { ...settings.rates, [updated[idx].key]: updated[idx].defaultRate } });
+  }
+
+  function removeStream(idx) {
+    const updated = [...(settings.streams || [])];
+    updated.splice(idx, 1);
+    setSettings({ ...settings, streams: updated });
+  }
+
   function toggleRepStream(stream) {
     const streams = [...(repForm.streams || [])];
     const idx = streams.indexOf(stream);
@@ -243,6 +271,27 @@ export default function SettingsPage() {
 
       {tab === 'income' && (
         <div className="space-y-5">
+          <Section title="Offers / Income Streams" subtitle="Add or remove the revenue streams you generate income from">
+            <div className="space-y-3">
+              {(settings.streams || []).map((s, i) => (
+                <div key={s.key} className="flex items-center gap-3 p-3 rounded-xl" style={{ background: 'var(--crm-surface2)' }}>
+                  <input type="color" value={s.color} onChange={(e) => updateStream(i, 'color', e.target.value)}
+                    className="w-8 h-8 rounded-lg cursor-pointer border-0" style={{ background: 'transparent' }} />
+                  <input value={s.label} onChange={(e) => updateStream(i, 'label', e.target.value)}
+                    placeholder="Offer name" className="input-field flex-1" />
+                  <div className="flex items-center gap-2">
+                    <span className="text-[12px]" style={{ color: 'var(--crm-text-muted)' }}>Rate</span>
+                    <input type="number" step="0.01" value={s.defaultRate ?? ''} onChange={(e) => updateStream(i, 'defaultRate', e.target.value)}
+                      className="w-20 input-field text-right" />
+                    <span className="text-[12px]" style={{ color: 'var(--crm-text-muted)', width: '3rem' }}>({((s.defaultRate || 0) * 100).toFixed(0)}%)</span>
+                  </div>
+                  <button onClick={() => removeStream(i)} className="text-[16px] px-2" style={{ color: 'var(--crm-negative)' }}>×</button>
+                </div>
+              ))}
+            </div>
+            <button onClick={addStream} className="mt-3 text-[13px]" style={{ color: 'var(--crm-accent)' }}>+ Add offer</button>
+          </Section>
+
           <Section title="Base Pay / Salary">
             <div className="flex items-center gap-3 mb-4">
               <Toggle checked={basePayEnabled} onChange={(v) => {
@@ -274,7 +323,7 @@ export default function SettingsPage() {
                         {i === 0 && <label className="block text-[13px] mb-1" style={{ color: 'var(--crm-text-secondary)' }}>Stream</label>}
                         <select value={bp.stream || 'general'} onChange={(e) => updateBasePay(i, 'stream', e.target.value)} className="input-field">
                           <option value="general">General</option>
-                          {Object.values(STREAMS).map((s) => <option key={s.key} value={s.key}>{s.label}</option>)}
+                          {(settings.streams || []).map((s) => <option key={s.key} value={s.key}>{s.label}</option>)}
                         </select>
                       </div>
                       <div className="col-span-2">
@@ -292,36 +341,25 @@ export default function SettingsPage() {
             )}
           </Section>
 
-          <Section title="Monthly Retainers" subtitle="Recurring monthly retainer income for high-ticket offers">
+          <Section title="Monthly Retainers" subtitle="Recurring monthly retainer income per stream">
             <div className="space-y-4">
-              <RetainerRow
-                label="I2I Offer"
-                desc="Monthly retainer added to I2I stream revenue"
-                enabled={!!incomePay.retainers?.i2i?.enabled}
-                amount={incomePay.retainers?.i2i?.amount || ''}
-                onToggle={(v) => setIncomePay((prev) => ({
-                  ...prev,
-                  retainers: { ...prev.retainers, i2i: { ...(prev.retainers?.i2i || {}), enabled: v } },
-                }))}
-                onAmount={(v) => setIncomePay((prev) => ({
-                  ...prev,
-                  retainers: { ...prev.retainers, i2i: { ...(prev.retainers?.i2i || {}), amount: v } },
-                }))}
-              />
-              <RetainerRow
-                label="BNB Offer"
-                desc="Monthly retainer added to BNB stream revenue"
-                enabled={!!incomePay.retainers?.bnb?.enabled}
-                amount={incomePay.retainers?.bnb?.amount || ''}
-                onToggle={(v) => setIncomePay((prev) => ({
-                  ...prev,
-                  retainers: { ...prev.retainers, bnb: { ...(prev.retainers?.bnb || {}), enabled: v } },
-                }))}
-                onAmount={(v) => setIncomePay((prev) => ({
-                  ...prev,
-                  retainers: { ...prev.retainers, bnb: { ...(prev.retainers?.bnb || {}), amount: v } },
-                }))}
-              />
+              {(settings.streams || []).map((s) => (
+                <RetainerRow
+                  key={s.key}
+                  label={s.label || s.key}
+                  desc={`Monthly retainer added to ${s.label || s.key} stream revenue`}
+                  enabled={!!incomePay.retainers?.[s.key]?.enabled}
+                  amount={incomePay.retainers?.[s.key]?.amount || ''}
+                  onToggle={(v) => setIncomePay((prev) => ({
+                    ...prev,
+                    retainers: { ...prev.retainers, [s.key]: { ...(prev.retainers?.[s.key] || {}), enabled: v } },
+                  }))}
+                  onAmount={(v) => setIncomePay((prev) => ({
+                    ...prev,
+                    retainers: { ...prev.retainers, [s.key]: { ...(prev.retainers?.[s.key] || {}), amount: v } },
+                  }))}
+                />
+              ))}
             </div>
           </Section>
 
@@ -401,18 +439,18 @@ export default function SettingsPage() {
         <div className="space-y-5">
           <Section title="Default Commission Rates" subtitle="Per-stream rates applied to new commissions">
             <div className="space-y-3">
-              {Object.values(STREAMS).map((s) => (
+              {(settings.streams || []).map((s) => (
                 <div key={s.key} className="flex items-center justify-between p-3 rounded-xl" style={{ background: 'var(--crm-surface2)' }}>
                   <div className="flex items-center gap-3">
                     <div className="w-2 h-2 rounded-full" style={{ backgroundColor: s.color }} />
                     <span className="text-[13px]">{s.label}</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <input type="number" step="0.01" value={settings.rates?.[s.key] ?? ''} onChange={(e) => {
+                    <input type="number" step="0.01" value={settings.rates?.[s.key] ?? s.defaultRate ?? ''} onChange={(e) => {
                       const rates = { ...settings.rates, [s.key]: parseFloat(e.target.value) || 0 };
                       update('rates', rates);
                     }} className="w-24 input-field text-right" />
-                    <span className="text-[12px]" style={{ color: 'var(--crm-text-muted)', width: '3rem' }}>({((settings.rates?.[s.key] || 0) * 100).toFixed(0)}%)</span>
+                    <span className="text-[12px]" style={{ color: 'var(--crm-text-muted)', width: '3rem' }}>({((settings.rates?.[s.key] || s.defaultRate || 0) * 100).toFixed(0)}%)</span>
                   </div>
                 </div>
               ))}
@@ -486,7 +524,7 @@ export default function SettingsPage() {
                 <div>
                   <label className="block text-[13px] mb-2" style={{ color: 'var(--crm-text-secondary)' }}>Assigned streams</label>
                   <div className="flex gap-2 flex-wrap">
-                    {Object.values(STREAMS).map((s) => (
+                    {(settings.streams || []).map((s) => (
                       <button key={s.key} type="button" onClick={() => toggleRepStream(s.key)}
                         className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-[12px] transition-colors"
                         style={{
@@ -503,7 +541,7 @@ export default function SettingsPage() {
                 <div>
                   <label className="block text-[13px] mb-2" style={{ color: 'var(--crm-text-secondary)' }}>Rate overrides (leave blank to use defaults)</label>
                   <div className="grid grid-cols-4 gap-3">
-                    {Object.values(STREAMS).map((s) => (
+                    {(settings.streams || []).map((s) => (
                       <div key={s.key}>
                         <label className="block text-[12px] mb-1" style={{ color: 'var(--crm-text-muted)' }}>{s.label}</label>
                         <input type="number" step="0.01"
@@ -514,7 +552,7 @@ export default function SettingsPage() {
                             else overrides[s.key] = parseFloat(e.target.value) || 0;
                             setRepForm({ ...repForm, override_rates: overrides });
                           }}
-                          placeholder={`${((settings.rates?.[s.key] || 0) * 100).toFixed(0)}%`}
+                          placeholder={`${((settings.rates?.[s.key] || s.defaultRate || 0) * 100).toFixed(0)}%`}
                           className="input-field" />
                       </div>
                     ))}
@@ -564,9 +602,10 @@ export default function SettingsPage() {
                         </div>
                       )}
                       <div className="flex gap-1">
-                        {(rep.streams || []).map((s) => (
-                          <div key={s} className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: STREAMS[s]?.color }} title={STREAMS[s]?.label} />
-                        ))}
+                        {(rep.streams || []).map((s) => {
+                          const st = (settings.streams || []).find((x) => x.key === s);
+                          return <div key={s} className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: st?.color || '#666' }} title={st?.label || s} />;
+                        })}
                       </div>
                       <div className="flex items-center gap-2">
                         <button onClick={() => { setRepForm({ ...rep }); setEditingRep(rep.id); setShowRepForm(true); }} className="text-[12px]" style={{ color: 'var(--crm-text-muted)' }}>Edit</button>
